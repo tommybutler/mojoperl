@@ -1,0 +1,8 @@
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/B/Hooks/EndOfScope.pm
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/B/Hooks/EndOfScope/PP.pm
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/B/Hooks/EndOfScope/PP/FieldHash.pm
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/B/Hooks/EndOfScope/PP/HintHash.pm
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/B/Hooks/EndOfScope/XS.pm
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/B::Hooks::EndOfScope.3
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/B::Hooks::EndOfScope::PP.3
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/B::Hooks::EndOfScope::XS.3
