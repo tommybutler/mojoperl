@@ -2726,3 +2726,47 @@ C<EXE_FILES: >
 
 =back
 
+=head2 Wed Feb 19 20:26:23 2020: C<Module> L<Test::Output|Test::Output>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.031>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Wed Feb 19 20:26:28 2020: C<Module> L<DBD::ODBC|DBD::ODBC>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.61>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
