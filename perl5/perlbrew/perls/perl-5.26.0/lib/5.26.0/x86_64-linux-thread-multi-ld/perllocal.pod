@@ -2704,3 +2704,25 @@ C<EXE_FILES: >
 
 =back
 
+=head2 Wed Feb 19 20:14:44 2020: C<Module> L<Cache::Memcached::Fast|Cache::Memcached::Fast>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.25>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
