@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::URL 3"
-.TH Mojo::URL 3 "2017-07-29" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::URL 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -319,8 +319,9 @@ Path part of this \s-1URL,\s0 relative paths will be merged with
 .Ve
 .SS "path_query"
 .IX Subsection "path_query"
-.Vb 1
+.Vb 2
 \&  my $path_query = $url\->path_query;
+\&  $url           = $url\->path_query(\*(Aq/foo/bar?a=1&b=2\*(Aq);
 .Ve
 .PP
 Normalized version of \*(L"path\*(R" and \*(L"query\*(R".
@@ -348,16 +349,16 @@ Normalized version of \*(L"scheme\*(R".
 .IX Subsection "query"
 .Vb 6
 \&  my $query = $url\->query;
-\&  $url      = $url\->query([merge => \*(Aqwith\*(Aq]);
-\&  $url      = $url\->query({append => \*(Aqto\*(Aq});
+\&  $url      = $url\->query({merge => \*(Aqto\*(Aq});
+\&  $url      = $url\->query([append => \*(Aqwith\*(Aq]);
 \&  $url      = $url\->query(replace => \*(Aqwith\*(Aq);
 \&  $url      = $url\->query(\*(Aqa=1&b=2\*(Aq);
 \&  $url      = $url\->query(Mojo::Parameters\->new);
 .Ve
 .PP
-Query part of this \s-1URL,\s0 key/value pairs in an array reference will be merged
-with \*(L"merge\*(R" in Mojo::Parameters, and key/value pairs in a hash reference
-appended with \*(L"append\*(R" in Mojo::Parameters, defaults to a Mojo::Parameters
+Query part of this \s-1URL,\s0 key/value pairs in an array reference will be appended
+with \*(L"append\*(R" in Mojo::Parameters, and key/value pairs in a hash reference
+merged with \*(L"merge\*(R" in Mojo::Parameters, defaults to a Mojo::Parameters
 object.
 .PP
 .Vb 2
@@ -374,13 +375,13 @@ object.
 \&  Mojo::URL\->new(\*(Aqhttp://example.com?a=1&b=2\*(Aq)\->query(a => [2, 3]);
 \&
 \&  # "http://example.com?a=2&b=2&c=3"
-\&  Mojo::URL\->new(\*(Aqhttp://example.com?a=1&b=2\*(Aq)\->query([a => 2, c => 3]);
+\&  Mojo::URL\->new(\*(Aqhttp://example.com?a=1&b=2\*(Aq)\->query({a => 2, c => 3});
 \&
 \&  # "http://example.com?b=2"
-\&  Mojo::URL\->new(\*(Aqhttp://example.com?a=1&b=2\*(Aq)\->query([a => undef]);
+\&  Mojo::URL\->new(\*(Aqhttp://example.com?a=1&b=2\*(Aq)\->query({a => undef});
 \&
 \&  # "http://example.com?a=1&b=2&a=2&c=3"
-\&  Mojo::URL\->new(\*(Aqhttp://example.com?a=1&b=2\*(Aq)\->query({a => 2, c => 3});
+\&  Mojo::URL\->new(\*(Aqhttp://example.com?a=1&b=2\*(Aq)\->query([a => 2, c => 3]);
 .Ve
 .SS "to_abs"
 .IX Subsection "to_abs"
@@ -464,4 +465,4 @@ Always true.
 Alias for \*(L"to_string\*(R".
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

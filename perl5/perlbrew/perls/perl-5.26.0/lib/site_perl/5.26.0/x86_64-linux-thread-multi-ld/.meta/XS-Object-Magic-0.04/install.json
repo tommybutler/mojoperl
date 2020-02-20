@@ -1,0 +1,1 @@
+{"target":"XS::Object::Magic","name":"XS::Object::Magic","pathname":"F/FL/FLORA/XS-Object-Magic-0.04.tar.gz","dist":"XS-Object-Magic-0.04","version":"0.04","provides":{"XS::Object::Magic":{"file":"lib/XS/Object/Magic.pm","version":"0.04"},"XS::Object::Magic::Install::Files":{"file":"build/IFiles.pm"}}}

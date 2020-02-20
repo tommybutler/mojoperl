@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Commands 3"
-.TH Mojolicious::Commands 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Commands 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -99,7 +99,7 @@ Mojolicious::Commands \- Command line interface
 .IX Header "DESCRIPTION"
 Mojolicious::Commands is the interactive command line interface for the
 Mojolicious framework. It will automatically detect available commands in
-the \f(CW\*(C`Mojolicious::Command\*(C'\fR namespace.
+the \f(CW\*(C`Mojolicious::Command\*(C'\fR and \f(CW\*(C`Mojolicious::Command::Author\*(C'\fR namespaces.
 .SH "COMMANDS"
 .IX Header "COMMANDS"
 These commands are available by default.
@@ -117,7 +117,7 @@ auto detected.
 \&  $ mojo cpanify \-u sri \-p secr3t Mojolicious\-Plugin\-Fun\-0.1.tar.gz
 .Ve
 .PP
-Use Mojolicious::Command::cpanify for uploading files to \s-1CPAN.\s0
+Use Mojolicious::Command::Author::cpanify for uploading files to \s-1CPAN.\s0
 .SS "daemon"
 .IX Subsection "daemon"
 .Vb 1
@@ -155,16 +155,16 @@ List available options for generator command with short descriptions.
 \&  $ mojo generate app <AppName>
 .Ve
 .PP
-Use Mojolicious::Command::generate::app to generate application directory
-structure for a fully functional Mojolicious application.
+Use Mojolicious::Command::Author::generate::app to generate application
+directory structure for a fully functional Mojolicious application.
 .SS "generate lite_app"
 .IX Subsection "generate lite_app"
 .Vb 1
 \&  $ mojo generate lite_app
 .Ve
 .PP
-Use Mojolicious::Command::generate::lite_app to generate a fully functional
-Mojolicious::Lite application.
+Use Mojolicious::Command::Author::generate::lite_app to generate a fully
+functional Mojolicious::Lite application.
 .SS "generate makefile"
 .IX Subsection "generate makefile"
 .Vb 2
@@ -172,20 +172,20 @@ Mojolicious::Lite application.
 \&  $ ./myapp.pl generate makefile
 .Ve
 .PP
-Use Mojolicious::Command::generate::makefile to generate \f(CW\*(C`Makefile.PL\*(C'\fR file
-for application.
+Use Mojolicious::Command::Author::generate::makefile to generate
+\&\f(CW\*(C`Makefile.PL\*(C'\fR file for application.
 .SS "generate plugin"
 .IX Subsection "generate plugin"
 .Vb 1
 \&  $ mojo generate plugin <PluginName>
 .Ve
 .PP
-Use Mojolicious::Command::generate::plugin to generate directory structure
-for a fully functional Mojolicious plugin.
+Use Mojolicious::Command::Author::generate::plugin to generate directory
+structure for a fully functional Mojolicious plugin.
 .SS "get"
 .IX Subsection "get"
 .Vb 2
-\&  $ mojo get http://mojolicious.org
+\&  $ mojo get https://mojolicious.org
 \&  $ ./myapp.pl get /foo
 .Ve
 .PP
@@ -213,7 +213,7 @@ List available options for the command with short descriptions.
 \&  $ ./myapp.pl inflate
 .Ve
 .PP
-Use Mojolicious::Command::inflate to turn templates and static files
+Use Mojolicious::Command::Author::inflate to turn templates and static files
 embedded in the \f(CW\*(C`DATA\*(C'\fR sections of your application into real files.
 .SS "prefork"
 .IX Subsection "prefork"
@@ -238,15 +238,6 @@ usually auto detected.
 .Ve
 .PP
 Use Mojolicious::Command::routes to list application routes.
-.SS "test"
-.IX Subsection "test"
-.Vb 2
-\&  $ ./myapp.pl test
-\&  $ ./myapp.pl test t/fun.t
-.Ve
-.PP
-Use Mojolicious::Command::test to run application tests from the \f(CW\*(C`t\*(C'\fR
-directory.
 .SS "version"
 .IX Subsection "version"
 .Vb 2
@@ -283,7 +274,8 @@ Short usage message shown before listing available commands.
 \&  $commands      = $commands\->namespaces([\*(AqMyApp::Command\*(Aq]);
 .Ve
 .PP
-Namespaces to load commands from, defaults to \f(CW\*(C`Mojolicious::Command\*(C'\fR.
+Namespaces to load commands from, defaults to \f(CW\*(C`Mojolicious::Command::Author\*(C'\fR
+and \f(CW\*(C`Mojolicious::Command\*(C'\fR.
 .PP
 .Vb 2
 \&  # Add another namespace to load commands from
@@ -326,4 +318,4 @@ shared by all commands, will be parsed from \f(CW@ARGV\fR during compile time.
 .Ve
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Guides::Rendering 3"
-.TH Mojolicious::Guides::Rendering 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Guides::Rendering 3 "2019-11-25" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -480,7 +480,7 @@ We differentiate between default helpers, which are more general purpose like
 mostly used to generate \s-1HTML\s0 tags.
 .PP
 .Vb 1
-\&  %= link_to Mojolicious => \*(Aqhttp://mojolicious.org\*(Aq
+\&  %= link_to Mojolicious => \*(Aqhttps://mojolicious.org\*(Aq
 .Ve
 .PP
 In controllers you can also use the method \*(L"helpers\*(R" in Mojolicious::Controller
@@ -496,8 +496,9 @@ Mojolicious::Plugin::DefaultHelpers and Mojolicious::Plugin::TagHelpers.
 .SS "Content negotiation"
 .IX Subsection "Content negotiation"
 For resources with different representations and that require truly RESTful
-content negotiation you can also use \*(L"respond_to\*(R" in Mojolicious::Controller
-instead of \*(L"render\*(R" in Mojolicious::Controller.
+content negotiation you can also use
+\&\*(L"respond_to\*(R" in Mojolicious::Plugin::DefaultHelpers instead of
+\&\*(L"render\*(R" in Mojolicious::Controller.
 .PP
 .Vb 10
 \&  # /hello (Accept: application/json) \-> "json"
@@ -513,10 +514,10 @@ instead of \*(L"render\*(R" in Mojolicious::Controller.
 .Ve
 .PP
 The best possible representation will be automatically selected from the
-\&\f(CW\*(C`Accept\*(C'\fR request header, \f(CW\*(C`format\*(C'\fR stash value or \f(CW\*(C`format\*(C'\fR \f(CW\*(C`GET\*(C'\fR/\f(CW\*(C`POST\*(C'\fR
-parameter and stored in the \f(CW\*(C`format\*(C'\fR stash value. To change \s-1MIME\s0 type mappings
-for the \f(CW\*(C`Accept\*(C'\fR request header or the \f(CW\*(C`Content\-Type\*(C'\fR response header you can
-use \*(L"types\*(R" in Mojolicious.
+\&\f(CW\*(C`format\*(C'\fR \f(CW\*(C`GET\*(C'\fR/\f(CW\*(C`POST\*(C'\fR parameter, \f(CW\*(C`format\*(C'\fR stash value or \f(CW\*(C`Accept\*(C'\fR request
+header and stored in the \f(CW\*(C`format\*(C'\fR stash value. To change \s-1MIME\s0 type mappings for
+the \f(CW\*(C`Accept\*(C'\fR request header or the \f(CW\*(C`Content\-Type\*(C'\fR response header you can use
+\&\*(L"types\*(R" in Mojolicious.
 .PP
 .Vb 7
 \&  $c\->respond_to(
@@ -645,7 +646,8 @@ renderer.
 \&    return unless $template eq \*(Aqexception\*(Aq;
 \&
 \&    # Switch to JSON rendering if content negotiation allows it
-\&    $args\->{json} = {exception => $args\->{exception}} if $c\->accepts(\*(Aqjson\*(Aq);
+\&    return unless $c\->accepts(\*(Aqjson\*(Aq);
+\&    $args\->{json} = {exception => $c\->stash(\*(Aqexception\*(Aq)};
 \&  };
 \&
 \&  get \*(Aq/\*(Aq => sub { die "This sho...ALL GLORY TO THE HYPNOTOAD!\en" };
@@ -743,13 +745,16 @@ another.
 \&  @@ foo/bar.html.ep
 \&  <!DOCTYPE html>
 \&  <html>
-\&    %= include \*(Aqheader\*(Aq, title => \*(AqHowdy\*(Aq
+\&    %= include \*(Aq_header\*(Aq, title => \*(AqHowdy\*(Aq
 \&    <body>Bar</body>
 \&  </html>
 \&
-\&  @@ header.html.ep
+\&  @@ _header.html.ep
 \&  <head><title><%= $title %></title></head>
 .Ve
+.PP
+You can name partial templates however you like, but a leading underscore is a
+commonly used naming convention.
 .SS "Reusable template blocks"
 .IX Subsection "Reusable template blocks"
 It's never fun to repeat yourself, that's why you can build reusable template
@@ -960,18 +965,20 @@ parameter.
 \&  </html>
 .Ve
 .PP
-The methods \*(L"flash\*(R" in Mojolicious::Controller and
-\&\*(L"redirect_to\*(R" in Mojolicious::Controller are often used together to prevent
-double form submission, allowing users to receive a confirmation message that
-will vanish if they decide to reload the page they've been redirected to.
+The helpers \*(L"flash\*(R" in Mojolicious::Plugin::DefaultHelpers and
+\&\*(L"redirect_to\*(R" in Mojolicious::Plugin::DefaultHelpers are often used together to
+prevent double form submission, allowing users to receive a confirmation message
+that will vanish if they decide to reload the page they've been redirected to.
 .SS "Form validation"
 .IX Subsection "Form validation"
-You can use \*(L"validation\*(R" in Mojolicious::Controller to validate \f(CW\*(C`GET\*(C'\fR and
-\&\f(CW\*(C`POST\*(C'\fR parameters submitted to your application. All unknown fields will be
-ignored by default, so you have to decide which should be required or optional
-before you can perform checks on their values. Every check is performed right
-away, so you can use the results immediately to build more advanced validation
-logic with methods like \*(L"is_valid\*(R" in Mojolicious::Validator::Validation.
+You can use \*(L"validation\*(R" in Mojolicious::Plugin::DefaultHelpers to validate
+\&\f(CW\*(C`GET\*(C'\fR and \f(CW\*(C`POST\*(C'\fR parameters submitted to your application. All unknown fields
+will be ignored by default, so you have to decide which should be
+required or
+optional before you can perform
+checks on their values. Every check is performed right away, so you can use the
+results immediately to build more advanced validation logic with methods like
+\&\*(L"is_valid\*(R" in Mojolicious::Validator::Validation.
 .PP
 .Vb 1
 \&  use Mojolicious::Lite;
@@ -980,17 +987,20 @@ logic with methods like \*(L"is_valid\*(R" in Mojolicious::Validator::Validation
 \&    my $c = shift;
 \&
 \&    # Check if parameters have been submitted
-\&    my $validation = $c\->validation;
-\&    return $c\->render unless $validation\->has_data;
+\&    my $v = $c\->validation;
+\&    return $c\->render(\*(Aqindex\*(Aq) unless $v\->has_data;
 \&
 \&    # Validate parameters ("pass_again" depends on "pass")
-\&    $validation\->required(\*(Aquser\*(Aq)\->size(1, 20)\->like(qr/^[a\-z0\-9]+$/);
-\&    $validation\->required(\*(Aqpass_again\*(Aq)\->equal_to(\*(Aqpass\*(Aq)
-\&      if $validation\->optional(\*(Aqpass\*(Aq)\->size(7, 500)\->is_valid;
+\&    $v\->required(\*(Aquser\*(Aq)\->size(1, 20)\->like(qr/^[a\-z0\-9]+$/);
+\&    $v\->required(\*(Aqpass_again\*(Aq)\->equal_to(\*(Aqpass\*(Aq)
+\&      if $v\->optional(\*(Aqpass\*(Aq)\->size(7, 500)\->is_valid;
 \&
-\&    # Render confirmation if validation was successful
-\&    $c\->render(\*(Aqthanks\*(Aq) unless $validation\->has_error;
-\&  } => \*(Aqindex\*(Aq;
+\&    # Check if validation failed
+\&    return $c\->render(\*(Aqindex\*(Aq) if $v\->has_error;
+\&
+\&    # Render confirmation
+\&    $c\->render(\*(Aqthanks\*(Aq);
+\&  };
 \&
 \&  app\->start;
 \&  _\|_DATA_\|_
@@ -1053,7 +1063,7 @@ pass along additional information which can then be retrieved with
 \&
 \&  # Add "range" check
 \&  app\->validator\->add_check(range => sub {
-\&    my ($validation, $name, $value, $min, $max) = @_;
+\&    my ($v, $name, $value, $min, $max) = @_;
 \&    return $value < $min || $value > $max;
 \&  });
 \&
@@ -1063,14 +1073,14 @@ pass along additional information which can then be retrieved with
 \&    my $c = shift;
 \&
 \&    # Validate parameters with custom check
-\&    my $validation = $c\->validation;
-\&    $validation\->required(\*(Aqnumber\*(Aq)\->range(3, 23);
+\&    my $v = $c\->validation;
+\&    $v\->required(\*(Aqnumber\*(Aq)\->range(3, 23);
 \&
 \&    # Render form again if validation failed
-\&    return $c\->render(\*(Aqform\*(Aq) if $validation\->has_error;
+\&    return $c\->render(\*(Aqform\*(Aq) if $v\->has_error;
 \&
 \&    # Prevent double form submission with redirect
-\&    $c\->flash(number => $validation\->param(\*(Aqnumber\*(Aq));
+\&    $c\->flash(number => $v\->param(\*(Aqnumber\*(Aq));
 \&    $c\->redirect_to(\*(Aqform\*(Aq);
 \&  };
 \&
@@ -1115,13 +1125,13 @@ additional hidden field to your forms with
 \&    my $c = shift;
 \&
 \&    # Check CSRF token
-\&    my $validation = $c\->validation;
+\&    my $v = $c\->validation;
 \&    return $c\->render(text => \*(AqBad CSRF token!\*(Aq, status => 403)
-\&      if $validation\->csrf_protect\->has_error(\*(Aqcsrf_token\*(Aq);
+\&      if $v\->csrf_protect\->has_error(\*(Aqcsrf_token\*(Aq);
 \&
-\&    my $city = $validation\->required(\*(Aqcity\*(Aq)\->param(\*(Aqcity\*(Aq);
+\&    my $city = $v\->required(\*(Aqcity\*(Aq)\->param(\*(Aqcity\*(Aq);
 \&    $c\->render(text => "Low orbit ion cannon pointed at $city!")
-\&      unless $validation\->has_error;
+\&      unless $v\->has_error;
 \&  } => \*(Aqtarget\*(Aq;
 \&
 \&  app\->start;
@@ -1202,7 +1212,8 @@ Static files are automatically served from the \f(CW\*(C`public\*(C'\fR director
 application, which can be customized with \*(L"paths\*(R" in Mojolicious::Static, or one
 of the \f(CW\*(C`DATA\*(C'\fR sections from \*(L"classes\*(R" in Mojolicious::Static. And if that's not
 enough you can also serve them manually with
-\&\*(L"reply\->static\*(R" in Mojolicious::Plugin::DefaultHelpers.
+\&\*(L"reply\->static\*(R" in Mojolicious::Plugin::DefaultHelpers and
+\&\*(L"reply\->file\*(R" in Mojolicious::Plugin::DefaultHelpers.
 .PP
 .Vb 1
 \&  use Mojolicious::Lite;
@@ -1216,6 +1227,11 @@ enough you can also serve them manually with
 \&    my $c = shift;
 \&    $c\->res\->headers\->content_disposition(\*(Aqattachment; filename=bar.png;\*(Aq);
 \&    $c\->reply\->static(\*(Aqfoo/bar.png\*(Aq);
+\&  };
+\&
+\&  get \*(Aq/leak\*(Aq => sub {
+\&    my $c = shift;
+\&    $c\->reply\->file(\*(Aq/etc/passwd\*(Aq);
 \&  };
 \&
 \&  app\->start;
@@ -1337,13 +1353,13 @@ when \f(CW\*(C`register\*(C'\fR is called.
 \&  package Mojolicious::Plugin::AlertAssets;
 \&  use Mojo::Base \*(AqMojolicious::Plugin\*(Aq;
 \&
-\&  use Mojo::File \*(Aqpath\*(Aq;
+\&  use Mojo::File \*(Aqcurfile\*(Aq;
 \&
 \&  sub register {
 \&    my ($self, $app) = @_;
 \&
 \&    # Append "templates" and "public" directories
-\&    my $base = path(_\|_FILE_\|_)\->sibling(\*(AqAlertAssets\*(Aq);
+\&    my $base = curfile\->sibling(\*(AqAlertAssets\*(Aq);
 \&    push @{$app\->renderer\->paths}, $base\->child(\*(Aqtemplates\*(Aq)\->to_string;
 \&    push @{$app\->static\->paths},   $base\->child(\*(Aqpublic\*(Aq)\->to_string;
 \&  }
@@ -1437,6 +1453,9 @@ lot more efficient to use \*(L"after_render\*(R" in Mojolicious.
 \&    <body>Compressed content.</body>
 \&  </html>
 .Ve
+.PP
+If you want to compress all dynamically generated content you can also activate
+\&\*(L"compress\*(R" in Mojolicious::Renderer.
 .SS "Streaming"
 .IX Subsection "Streaming"
 You don't have to render all content at once, the method
@@ -1474,6 +1493,44 @@ has actually been written.
 \&  HTTP/1.1 200 OK
 \&  Date: Sat, 13 Sep 2014 16:48:29 GMT
 \&  Content\-Length: 12
+\&  Server: Mojolicious (Perl)
+\&
+\&  Hello World!
+.Ve
+.PP
+Instead of providing a \f(CW\*(C`Content\-Length\*(C'\fR header you can also call
+\&\*(L"finish\*(R" in Mojolicious::Controller and close the connection manually once you
+are done.
+.PP
+.Vb 1
+\&  use Mojolicious::Lite;
+\&
+\&  get \*(Aq/\*(Aq => sub {
+\&    my $c = shift;
+\&
+\&    # Prepare body
+\&    my $body = \*(AqHello World!\*(Aq;
+\&
+\&    # Start writing directly with a drain callback
+\&    my $drain;
+\&    $drain = sub {
+\&      my $c = shift;
+\&      my $chunk = substr $body, 0, 1, \*(Aq\*(Aq;
+\&      length $chunk ? $c\->write($chunk, $drain) : $c\->finish;
+\&    };
+\&    $c\->$drain;
+\&  };
+\&
+\&  app\->start;
+.Ve
+.PP
+While this is rather inefficient, as it prevents keep-alive, it is sometimes
+necessary for EventSource and similar applications.
+.PP
+.Vb 4
+\&  HTTP/1.1 200 OK
+\&  Date: Sat, 13 Sep 2014 16:48:29 GMT
+\&  Connection: close
 \&  Server: Mojolicious (Perl)
 \&
 \&  Hello World!
@@ -1563,9 +1620,10 @@ section of your application, similar to templates.
 .IX Subsection "Inflating DATA templates"
 Templates stored in files get preferred over files from the \f(CW\*(C`DATA\*(C'\fR section,
 this allows you to include a default set of templates in your application that
-the user can later customize. The command Mojolicious::Command::inflate will
-write all templates and static files from the \f(CW\*(C`DATA\*(C'\fR section into actual files
-in the \f(CW\*(C`templates\*(C'\fR and \f(CW\*(C`public\*(C'\fR directories.
+the user can later customize. The command
+Mojolicious::Command::Author::inflate will write all templates and static
+files from the \f(CW\*(C`DATA\*(C'\fR section into actual files in the \f(CW\*(C`templates\*(C'\fR and
+\&\f(CW\*(C`public\*(C'\fR directories.
 .PP
 .Vb 1
 \&  $ ./myapp.pl inflate
@@ -1706,12 +1764,12 @@ explicitly.
 .SH "MORE"
 .IX Header "MORE"
 You can continue with Mojolicious::Guides now or take a look at the
-Mojolicious wiki <http://github.com/kraih/mojo/wiki>, which contains a lot
-more documentation and examples by many different authors.
+Mojolicious wiki <http://github.com/mojolicious/mojo/wiki>, which contains a
+lot more documentation and examples by many different authors.
 .SH "SUPPORT"
 .IX Header "SUPPORT"
 If you have any questions the documentation might not yet answer, don't
 hesitate to ask on the
 mailing list <http://groups.google.com/group/mojolicious> or the official \s-1IRC\s0
-channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.perl.org\*(C'\fR
-(chat now! <https://chat.mibbit.com/?channel=%23mojo&server=irc.perl.org>).
+channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.freenode.net\*(C'\fR (chat
+now! <https://kiwiirc.com/nextclient/#irc://irc.freenode.net/mojo?nick=guest-?>).

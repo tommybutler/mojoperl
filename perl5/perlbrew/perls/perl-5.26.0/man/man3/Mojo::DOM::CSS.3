@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::DOM::CSS 3"
-.TH Mojo::DOM::CSS 3 "2017-07-30" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::DOM::CSS 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -126,7 +126,7 @@ An \f(CW\*(C`E\*(C'\fR element whose \f(CW\*(C`foo\*(C'\fR attribute value is ex
 .IX Subsection "E[foo=bar i]"
 An \f(CW\*(C`E\*(C'\fR element whose \f(CW\*(C`foo\*(C'\fR attribute value is exactly equal to any
 (ASCII-range) case-permutation of \f(CW\*(C`bar\*(C'\fR. Note that this selector is
-\&\s-1EXPERIMENTAL\s0 and might change without warning!
+\&\fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
 .PP
 .Vb 3
 \&  my $case_insensitive = $css\->select(\*(Aqinput[type="hidden" i]\*(Aq);
@@ -175,6 +175,15 @@ An \f(CW\*(C`E\*(C'\fR element whose \f(CW\*(C`foo\*(C'\fR attribute value conta
 .Vb 2
 \&  my $contains = $css\->select(\*(Aqinput[name*="fo"]\*(Aq);
 \&  my $contains = $css\->select(\*(Aqinput[name*=fo]\*(Aq);
+.Ve
+.ie n .SS "E[foo|=""en""]"
+.el .SS "E[foo|=``en'']"
+.IX Subsection "E[foo|=en]"
+An \f(CW\*(C`E\*(C'\fR element whose \f(CW\*(C`foo\*(C'\fR attribute has a hyphen-separated list of values
+beginning (from the left) with \f(CW\*(C`en\*(C'\fR.
+.PP
+.Vb 1
+\&  my $english = $css\->select(\*(Aqlink[hreflang|=en]\*(Aq);
 .Ve
 .SS "E:root"
 .IX Subsection "E:root"
@@ -272,6 +281,20 @@ An \f(CW\*(C`E\*(C'\fR element that has no children (including text nodes).
 .Vb 1
 \&  my $empty = $css\->select(\*(Aq:empty\*(Aq);
 .Ve
+.SS "E:link"
+.IX Subsection "E:link"
+An \f(CW\*(C`E\*(C'\fR element being the source anchor of a hyperlink of which the target is
+not yet visited (\f(CW\*(C`:link\*(C'\fR) or already visited (\f(CW\*(C`:visited\*(C'\fR). Note that
+Mojo::DOM::CSS is not stateful, therefore \f(CW\*(C`:link\*(C'\fR and \f(CW\*(C`:visited\*(C'\fR yield
+exactly the same results.
+.PP
+.Vb 2
+\&  my $links = $css\->select(\*(Aq:link\*(Aq);
+\&  my $links = $css\->select(\*(Aq:visited\*(Aq);
+.Ve
+.SS "E:visited"
+.IX Subsection "E:visited"
+Alias for \*(L"E:link\*(R".
 .SS "E:checked"
 .IX Subsection "E:checked"
 A user interface element \f(CW\*(C`E\*(C'\fR which is checked (for instance a radio-button or
@@ -297,7 +320,7 @@ An \f(CW\*(C`E\*(C'\fR element with \f(CW\*(C`ID\*(C'\fR equal to \*(L"myid\*(R"
 .SS "E:not(s1, s2)"
 .IX Subsection "E:not(s1, s2)"
 An \f(CW\*(C`E\*(C'\fR element that does not match either compound selector \f(CW\*(C`s1\*(C'\fR or compound
-selector \f(CW\*(C`s2\*(C'\fR. Note that support for compound selectors is \s-1EXPERIMENTAL\s0 and
+selector \f(CW\*(C`s2\*(C'\fR. Note that support for compound selectors is \fB\s-1EXPERIMENTAL\s0\fR and
 might change without warning!
 .PP
 .Vb 1
@@ -310,7 +333,8 @@ in progress.
 .SS "E:matches(s1, s2)"
 .IX Subsection "E:matches(s1, s2)"
 An \f(CW\*(C`E\*(C'\fR element that matches compound selector \f(CW\*(C`s1\*(C'\fR and/or compound selector
-\&\f(CW\*(C`s2\*(C'\fR. Note that this selector is \s-1EXPERIMENTAL\s0 and might change without warning!
+\&\f(CW\*(C`s2\*(C'\fR. Note that this selector is \fB\s-1EXPERIMENTAL\s0\fR and might change without
+warning!
 .PP
 .Vb 1
 \&  my $headers = $css\->select(\*(Aq:matches(section, article, aside, nav) h1\*(Aq);
@@ -319,6 +343,22 @@ An \f(CW\*(C`E\*(C'\fR element that matches compound selector \f(CW\*(C`s1\*(C'\
 This selector is part of
 Selectors Level 4 <http://dev.w3.org/csswg/selectors-4>, which is still a work
 in progress.
+.SS "A|E"
+.IX Subsection "A|E"
+An \f(CW\*(C`E\*(C'\fR element that belongs to the namespace alias \f(CW\*(C`A\*(C'\fR from
+\&\s-1CSS\s0 Namespaces Module Level 3 <https://www.w3.org/TR/css-namespaces-3/>.
+Key/value pairs passed to selector methods are used to declare namespace
+aliases.
+.PP
+.Vb 1
+\&  my $elem = $css\->select(\*(Aqlq|elem\*(Aq, lq => \*(Aqhttp://example.com/q\-markup\*(Aq);
+.Ve
+.PP
+Using an empty alias searches for an element that belongs to no namespace.
+.PP
+.Vb 1
+\&  my $div = $c\->select(\*(Aq|div\*(Aq);
+.Ve
 .SS "E F"
 .IX Subsection "E F"
 An \f(CW\*(C`F\*(C'\fR element descendant of an \f(CW\*(C`E\*(C'\fR element.
@@ -379,25 +419,32 @@ Mojo::DOM::CSS inherits all methods from Mojo::Base and implements the
 following new ones.
 .SS "matches"
 .IX Subsection "matches"
-.Vb 1
+.Vb 2
 \&  my $bool = $css\->matches(\*(Aqhead > title\*(Aq);
+\&  my $bool = $css\->matches(\*(Aqsvg|line\*(Aq, svg => \*(Aqhttp://www.w3.org/2000/svg\*(Aq);
 .Ve
 .PP
-Check if first node in \*(L"tree\*(R" matches the \s-1CSS\s0 selector.
+Check if first node in \*(L"tree\*(R" matches the \s-1CSS\s0 selector. Trailing key/value
+pairs can be used to declare xml namespace aliases.
 .SS "select"
 .IX Subsection "select"
-.Vb 1
+.Vb 2
 \&  my $results = $css\->select(\*(Aqhead > title\*(Aq);
+\&  my $results = $css\->select(\*(Aqsvg|line\*(Aq, svg => \*(Aqhttp://www.w3.org/2000/svg\*(Aq);
 .Ve
 .PP
-Run \s-1CSS\s0 selector against \*(L"tree\*(R".
+Run \s-1CSS\s0 selector against \*(L"tree\*(R". Trailing key/value pairs can be used to
+declare xml namespace aliases.
 .SS "select_one"
 .IX Subsection "select_one"
-.Vb 1
+.Vb 3
 \&  my $result = $css\->select_one(\*(Aqhead > title\*(Aq);
+\&  my $result =
+\&    $css\->select_one(\*(Aqsvg|line\*(Aq, svg => \*(Aqhttp://www.w3.org/2000/svg\*(Aq);
 .Ve
 .PP
 Run \s-1CSS\s0 selector against \*(L"tree\*(R" and stop as soon as the first node matched.
+Trailing key/value pairs can be used to declare xml namespace aliases.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

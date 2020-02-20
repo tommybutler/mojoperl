@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Guides::Cookbook 3"
-.TH Mojolicious::Guides::Cookbook 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Guides::Cookbook 3 "2020-01-16" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -136,6 +136,69 @@ connections concurrently.
 .Ve
 .PP
 In Mojolicious this event loop is Mojo::IOLoop.
+.SS "Reverse proxy"
+.IX Subsection "Reverse proxy"
+A reverse proxy architecture is a deployment technique used in many production
+environments, where a \fIreverse proxy\fR server is put in front of your
+application to act as the endpoint accessible by external clients. It can
+provide a lot of benefits, like terminating \s-1SSL\s0 connections from the outside,
+limiting the number of concurrent open sockets towards the Mojolicious
+application (or even using Unix sockets), balancing load across multiple
+instances, or supporting several applications through the same IP/port.
+.PP
+.Vb 10
+\&                   ..........................................
+\&                   :                                        :
+\&   +\-\-\-\-\-\-\-\-+      :  +\-\-\-\-\-\-\-\-\-\-\-+      +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+  :
+\&   |        |\-\-\-\-\-\-\-\->|           |      |               |  :
+\&   | client |      :  |  reverse  |\-\-\-\-\->|  Mojolicious  |  :
+\&   |        |<\-\-\-\-\-\-\-\-|   proxy   |      |  application  |  :
+\&   +\-\-\-\-\-\-\-\-+      :  |           |<\-\-\-\-\-|               |  :
+\&                   :  +\-\-\-\-\-\-\-\-\-\-\-+      +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+  :
+\&                   :                                        :
+\&                   .. system boundary (e.g. same host) ......
+.Ve
+.PP
+This setup introduces some problems, though: the application will receive
+requests from the reverse proxy instead of the original client; the
+address/hostname where your application lives internally will be different from
+the one visible from the outside; and if terminating \s-1SSL,\s0 the reverse proxy
+exposes services via \s-1HTTPS\s0 while using \s-1HTTP\s0 towards the Mojolicious application.
+.PP
+As an example, compare a sample request from the client and what the Mojolicious
+application receives:
+.PP
+.Vb 4
+\&   client                       reverse proxy                Mojolicious app
+\&    _\|_|_\|_              _\|_\|_\|_\|_\|_\|_\|_\|_\|_\|_\|_\|_\|_\|_|_\|_\|_\|_\|_\|_\|_\|_\|_\|_\|_\|_\|_\|_             _\|_\|_\|_|_\|_\|_\|_
+\&   /     \e            /                              \e           /         \e
+\&   1.2.3.4 \-\-HTTPS\-\-> api.example.com      10.20.30.39 \-\-HTTP\-\-> 10.20.30.40
+\&
+\&   GET /foo/1 HTTP/1.1                |    GET /foo/1 HTTP/1.1
+\&   Host: api.example.com              |    Host: 10.20.30.40
+\&   User\-Agent: Firefox                |    User\-Agent: ShinyProxy/1.2
+\&   ...                                |    ...
+.Ve
+.PP
+However, now the client address is no longer available (which might be useful
+for analytics, or Geo-IP) and URLs generated via
+\&\*(L"url_for\*(R" in Mojolicious::Controller will look like this:
+.PP
+.Vb 1
+\&   http://10.20.30.40/bar/2
+.Ve
+.PP
+instead of something meaningful for the client, like this:
+.PP
+.Vb 1
+\&   https://api.example.com/bar/2
+.Ve
+.PP
+To solve these problems, you can configure your reverse proxy to send the
+missing data (see \*(L"Nginx\*(R" and \*(L"Apache/mod_proxy\*(R") and tell your
+application about it by setting the environment variable \f(CW\*(C`MOJO_REVERSE_PROXY\*(C'\fR.
+For finer control, \*(L"Rewriting\*(R" includes examples of how the changes could be
+implemented manually.
 .SH "DEPLOYMENT"
 .IX Header "DEPLOYMENT"
 Getting Mojolicious and Mojolicious::Lite applications running on
@@ -238,7 +301,6 @@ configuration file like this.
 \&  [Service]
 \&  Type=simple
 \&  ExecStart=/home/sri/myapp/script/my_app prefork \-m production \-l http://*:8080
-\&  KillMode=process
 \&
 \&  [Install]
 \&  WantedBy=multi\-user.target
@@ -289,7 +351,7 @@ Mojolicious::Lite applications.
 .Ve
 .PP
 Many configuration settings can be tweaked right from within your application
-with \*(L"config\*(R" in Mojo, for a full list see
+with \*(L"config\*(R" in Mojolicious, for a full list see
 \&\*(L"\s-1SETTINGS\*(R"\s0 in Mojo::Server::Hypnotoad.
 .PP
 .Vb 1
@@ -657,48 +719,190 @@ continuation-passing style.
 .SS "Synchronizing non-blocking operations"
 .IX Subsection "Synchronizing non-blocking operations"
 Multiple non-blocking operations, such as concurrent requests, can be easily
-synchronized with \*(L"delay\*(R" in Mojolicious::Plugin::DefaultHelpers, which can help
-you avoid deep nested closures that often result from continuation-passing
-style.
+synchronized with promises and \*(L"all\*(R" in Mojo::Promise. You create
+Mojo::Promise objects manually or use methods like \*(L"get_p\*(R" in Mojo::UserAgent
+that create them for you.
 .PP
-.Vb 2
+.Vb 3
 \&  use Mojolicious::Lite;
+\&  use Mojo::Promise;
 \&  use Mojo::URL;
 \&
 \&  # Search MetaCPAN for "mojo" and "minion"
 \&  get \*(Aq/\*(Aq => sub {
 \&    my $c = shift;
 \&
-\&    # Prepare response in two steps
-\&    $c\->delay(
+\&    # Create two promises
+\&    my $url   = Mojo::URL\->new(\*(Aqhttp://fastapi.metacpan.org/v1/module/_search\*(Aq);
+\&    my $mojo   = $c\->ua\->get_p($url\->clone\->query({q => \*(Aqmojo\*(Aq}));
+\&    my $minion = $c\->ua\->get_p($url\->clone\->query({q => \*(Aqminion\*(Aq}));
 \&
-\&      # Concurrent requests
-\&      sub {
-\&        my $delay = shift;
-\&        my $url   = Mojo::URL\->new(\*(Aqfastapi.metacpan.org/v1/module/_search\*(Aq);
-\&        $url\->query({sort => \*(Aqdate:desc\*(Aq});
-\&        $c\->ua\->get($url\->clone\->query({q => \*(Aqmojo\*(Aq})   => $delay\->begin);
-\&        $c\->ua\->get($url\->clone\->query({q => \*(Aqminion\*(Aq}) => $delay\->begin);
-\&      },
-\&
-\&      # Delayed rendering
-\&      sub {
-\&        my ($delay, $mojo, $minion) = @_;
-\&        $c\->render(json => {
-\&          mojo   => $mojo\->result\->json(\*(Aq/hits/hits/0/_source/release\*(Aq),
-\&          minion => $minion\->result\->json(\*(Aq/hits/hits/0/_source/release\*(Aq)
-\&        });
-\&      }
-\&    );
+\&    # Render a response once both promises have been resolved
+\&    Mojo::Promise\->all($mojo, $minion)\->then(sub {
+\&      my ($mojo, $minion) = @_;
+\&      $c\->render(json => {
+\&        mojo   => $mojo\->[0]\->result\->json(\*(Aq/hits/hits/0/_source/release\*(Aq),
+\&        minion => $minion\->[0]\->result\->json(\*(Aq/hits/hits/0/_source/release\*(Aq)
+\&      });
+\&    })\->catch(sub {
+\&      my $err = shift;
+\&      $c\->reply\->exception($err);
+\&    })\->wait;
 \&  };
 \&
 \&  app\->start;
 .Ve
 .PP
-You simply use \*(L"begin\*(R" in Mojo::IOLoop::Delay to generate code references that
-can be passed to \*(L"get\*(R" in Mojo::UserAgent as callbacks. These code references
-then capture arguments passed to them, and pass them on to the next step in the
-chain, once all generated code references have been executed.
+To create promises manually you just wrap your continuation-passing style APIs
+in functions that return promises. Here's an example for how
+\&\*(L"get_p\*(R" in Mojo::UserAgent works internally.
+.PP
+.Vb 2
+\&  use Mojo::UserAgent;
+\&  use Mojo::Promise;
+\&
+\&  # Wrap a user agent method with a promise
+\&  my $ua = Mojo::UserAgent\->new;
+\&  sub get_p {
+\&    my $promise = Mojo::Promise\->new;
+\&    $ua\->get(@_ => sub {
+\&      my ($ua, $tx) = @_;
+\&      my $err = $tx\->error;
+\&      $promise\->resolve($tx) if !$err || $err\->{code};
+\&      $promise\->reject($err\->{message});
+\&    });
+\&    return $promise;
+\&  }
+\&
+\&  # Use our new promise generating function
+\&  get_p(\*(Aqhttps://mojolicious.org\*(Aq)\->then(sub {
+\&    my $tx = shift;
+\&    say $tx\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
+\&  })\->wait;
+.Ve
+.PP
+Promises have three states, they start out as \f(CW\*(C`pending\*(C'\fR and you call
+\&\*(L"resolve\*(R" in Mojo::Promise to transition them to \f(CW\*(C`fulfilled\*(C'\fR, or
+\&\*(L"reject\*(R" in Mojo::Promise to transition them to \f(CW\*(C`rejected\*(C'\fR.
+.SS "async/await"
+.IX Subsection "async/await"
+And if you have Future::AsyncAwait installed you can make using promises even
+easier. The \f(CW\*(C`async\*(C'\fR and \f(CW\*(C`await\*(C'\fR keywords are enabled with the \f(CW\*(C`\-async_await\*(C'\fR
+flag of Mojo::Base, and make the use of closures with promises completely
+optional.
+.PP
+.Vb 1
+\&  use Mojo::Base \-strict, \-async_await;
+.Ve
+.PP
+The \f(CW\*(C`async\*(C'\fR keyword is placed before the \f(CW\*(C`sub\*(C'\fR keyword, and means that this
+function always returns a promise. Returned values that are not Mojo::Promise
+objects will be wrapped in a resolved promise automatically. And if an exception
+gets thrown in the function it will result in a rejected promise.
+.PP
+.Vb 1
+\&  use Mojo::Base \-strict, \-async_await;
+\&
+\&  async sub hello_p {
+\&    return \*(AqHello Mojo!\*(Aq;
+\&  }
+\&
+\&  hello_p()\->then(sub { say @_ })\->wait;
+.Ve
+.PP
+The \f(CW\*(C`await\*(C'\fR keyword on the other hand makes Perl wait for the promise to be
+settled. It then returns the fulfillment values or throws an exception with the
+rejection reason. While waiting, the event loop is free to perform other tasks
+however, so no resources are wasted.
+.PP
+.Vb 3
+\&  use Mojo::Base \-strict, \-signatures, \-async_await;
+\&  use Mojo::UserAgent;
+\&  use Mojo::URL;
+\&
+\&  my $ua = Mojo::UserAgent\->new;
+\&
+\&  # Search MetaCPAN non\-blocking for multiple terms sequentially
+\&  async sub search_cpan_p ($terms) {
+\&    my $cpan = Mojo::URL\->new(\*(Aqhttp://fastapi.metacpan.org/v1/module/_search\*(Aq);
+\&    my @urls = map { $cpan\->clone\->query(q => $_) } @$terms;
+\&
+\&    for my $url (@urls) {
+\&      my $tx = await $ua\->get_p($url);
+\&      say $tx\->result\->json(\*(Aq/hits/hits/0/_source/release\*(Aq);
+\&    }
+\&  }
+\&
+\&  search_cpan_p([\*(Aqmojo\*(Aq, \*(Aqminion\*(Aq])\->wait;
+.Ve
+.PP
+The loop above performs all requests sequentially, awaiting a result before
+sending the next request. But you can also perform those requests concurrently
+instead, by using methods like \*(L"all\*(R" in Mojo::Promise to combine multiple
+promises before awaiting the results.
+.PP
+.Vb 4
+\&  use Mojo::Base \-strict, \-signatures, \-async_await;
+\&  use Mojo::Promise;
+\&  use Mojo::UserAgent;
+\&  use Mojo::URL;
+\&
+\&  my $ua = Mojo::UserAgent\->new;
+\&
+\&  # Search MetaCPAN non\-blocking for multiple terms concurrently
+\&  async sub search_cpan_p ($terms) {
+\&    my $cpan = Mojo::URL\->new(\*(Aqhttp://fastapi.metacpan.org/v1/module/_search\*(Aq);
+\&    my @urls = map { $cpan\->clone\->query(q => $_) } @$terms;
+\&
+\&    my @promises = map { $ua\->get_p($_) } @urls;
+\&    my @results  = await Mojo::Promise\->all(@promises);
+\&    for my $result (@results) {
+\&      say $result\->[0]\->result\->json(\*(Aq/hits/hits/0/_source/release\*(Aq);
+\&    }
+\&  }
+\&
+\&  search_cpan_p([\*(Aqmojo\*(Aq, \*(Aqminion\*(Aq])\->wait;
+.Ve
+.PP
+All of this also means that you can use normal Perl exception handling again.
+Even many 3rd party exception handling modules from \s-1CPAN\s0 work just fine.
+.PP
+.Vb 2
+\&  use Mojo::Base \-strict, \-async_await;
+\&  use Mojo::Promise;
+\&
+\&  # Catch a non\-blocking exception
+\&  async sub hello_p {
+\&    eval { await Mojo::Promise\->reject(\*(AqThis is an exception\*(Aq) };
+\&    if (my $err = $@) { warn "Error: $err" }
+\&  }
+\&
+\&  hello_p()\->wait;
+.Ve
+.PP
+And it works just the same in Mojolicious and Mojolicious::Lite
+applications. Just declare your actions with the \f(CW\*(C`async\*(C'\fR keyword and use
+\&\f(CW\*(C`await\*(C'\fR to wait for promises to be \f(CW\*(C`fulfilled\*(C'\fR or \f(CW\*(C`rejected\*(C'\fR.
+.PP
+.Vb 1
+\&  use Mojolicious::Lite \-signatures, \-async_await;
+\&
+\&  # Request HTML titles from two sites non\-blocking
+\&  get \*(Aq/\*(Aq => async sub ($c) {
+\&    my $mojo_tx    = await $c\->ua\->get_p(\*(Aqhttps://mojolicious.org\*(Aq);
+\&    my $mojo_title = $mojo_tx\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
+\&    my $cpan_tx    = await $c\->ua\->get_p(\*(Aqhttps://metacpan.org\*(Aq);
+\&    my $cpan_title = $cpan_tx\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
+\&
+\&    $c\->render(json => {mojo => $mojo_title, cpan => $cpan_title});
+\&  };
+\&
+\&  app\->start;
+.Ve
+.PP
+Promises returned by actions will automatically get the default Mojolicious
+exception handler attached. Making it much harder to ever miss a non-blocking
+exception again, even if you forgot to handle it yourself.
 .SS "Timers"
 .IX Subsection "Timers"
 Timers, another primary feature of the event loop, are created with
@@ -757,7 +961,7 @@ created at startup time.
 \&  # Check title in the background every 10 seconds
 \&  my $title = \*(AqGot no title yet.\*(Aq;
 \&  Mojo::IOLoop\->recurring(10 => sub {
-\&    app\->ua\->get(\*(Aqhttp://mojolicious.org\*(Aq => sub {
+\&    app\->ua\->get(\*(Aqhttps://mojolicious.org\*(Aq => sub {
 \&      my ($ua, $tx) = @_;
 \&      $title = $tx\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
 \&    });
@@ -926,7 +1130,7 @@ the WebSocket connection has been closed.
 .PP
 You can activate \f(CW\*(C`permessage\-deflate\*(C'\fR compression with
 \&\*(L"with_compression\*(R" in Mojo::Transaction::WebSocket, this can result in much
-better performance, but also increases memory usage by up to 300KB per
+better performance, but also increases memory usage by up to 300KiB per
 connection.
 .PP
 .Vb 1
@@ -935,37 +1139,6 @@ connection.
 .PP
 You can also use \*(L"with_protocols\*(R" in Mojo::Transaction::WebSocket to negotiate a
 subprotocol.
-.SS "Testing WebSocket web services"
-.IX Subsection "Testing WebSocket web services"
-While the message flow on WebSocket connections can be rather dynamic, it more
-often than not is quite predictable, which allows this rather pleasant
-Test::Mojo \s-1API\s0 to be used.
-.PP
-.Vb 2
-\&  use Test::More;
-\&  use Test::Mojo;
-\&
-\&  # Include application
-\&  use FindBin;
-\&  require "$FindBin::Bin/../echo.pl";
-\&
-\&  # Test echo web service
-\&  my $t = Test::Mojo\->new;
-\&  $t\->websocket_ok(\*(Aq/echo\*(Aq)
-\&    \->send_ok(\*(AqHello Mojo!\*(Aq)
-\&    \->message_ok
-\&    \->message_is(\*(Aqecho: Hello Mojo!\*(Aq)
-\&    \->finish_ok;
-\&
-\&  # Test JSON web service
-\&  $t\->websocket_ok(\*(Aq/echo.json\*(Aq)
-\&    \->send_ok({json => {test => [1, 2, 3]}})
-\&    \->message_ok
-\&    \->json_message_is(\*(Aq/test\*(Aq, [1, 2, 3])
-\&    \->finish_ok;
-\&
-\&  done_testing();
-.Ve
 .SS "EventSource web service"
 .IX Subsection "EventSource web service"
 EventSource is a special form of long polling where you can use
@@ -1112,44 +1285,6 @@ other event loops like AnyEvent to just work.
 \&
 \&  app\->start;
 .Ve
-.PP
-Who actually controls the event loop backend is not important.
-.PP
-.Vb 3
-\&  use Mojo::UserAgent;
-\&  use EV;
-\&  use AnyEvent;
-\&
-\&  # Search MetaCPAN for "mojolicious"
-\&  my $cv = AE::cv;
-\&  my $ua = Mojo::UserAgent\->new;
-\&  $ua\->get(\*(Aqfastapi.metacpan.org/v1/module/_search?q=mojolicious\*(Aq => sub {
-\&    my ($ua, $tx) = @_;
-\&    $cv\->send($tx\->result\->json(\*(Aq/hits/hits/0/_source/release\*(Aq));
-\&  });
-\&  say $cv\->recv;
-.Ve
-.PP
-You could, for example, just embed the built-in web server into an AnyEvent
-application.
-.PP
-.Vb 4
-\&  use Mojolicious::Lite;
-\&  use Mojo::Server::Daemon;
-\&  use EV;
-\&  use AnyEvent;
-\&
-\&  # Normal action
-\&  get \*(Aq/\*(Aq => {text => \*(AqHello World!\*(Aq};
-\&
-\&  # Connect application with web server and start accepting connections
-\&  my $daemon
-\&    = Mojo::Server::Daemon\->new(app => app, listen => [\*(Aqhttp://*:8080\*(Aq]);
-\&  $daemon\->start;
-\&
-\&  # Let AnyEvent take control
-\&  AE::cv\->recv;
-.Ve
 .SH "USER AGENT"
 .IX Header "USER AGENT"
 When we say Mojolicious is a web framework we actually mean it, with
@@ -1294,7 +1429,7 @@ content repeatedly for multiple requests.
 \&  $ua\->post(\*(Aqhttp://example.com/upload\*(Aq => stream => \*(Aq/home/sri/minion.png\*(Aq);
 .Ve
 .PP
-The \f(CW\*(C`json\*(C'\fR and \f(CW\*(C`form\*(C'\fR content generators are always available.
+The \f(CW\*(C`json\*(C'\fR, \f(CW\*(C`form\*(C'\fR and \f(CW\*(C`multipart\*(C'\fR content generators are always available.
 .PP
 .Vb 1
 \&  use Mojo::UserAgent;
@@ -1304,14 +1439,17 @@ The \f(CW\*(C`json\*(C'\fR and \f(CW\*(C`form\*(C'\fR content generators are alw
 \&  my $tx = $ua\->patch(\*(Aqhttp://api.example.com\*(Aq => json => {foo => \*(Aqbar\*(Aq});
 \&
 \&  # Send query parameters via GET
-\&  my $tx2 = $ua\->get(\*(Aqhttp://search.example.com\*(Aq => form => {q => \*(Aqtest\*(Aq});
+\&  my $tx2 = $ua\->get(\*(Aqsearch.example.com\*(Aq => form => {q => \*(Aqtest\*(Aq});
 \&
 \&  # Send "application/x\-www\-form\-urlencoded" content via POST
 \&  my $tx3 = $ua\->post(\*(Aqhttp://search.example.com\*(Aq => form => {q => \*(Aqtest\*(Aq});
 \&
 \&  # Send "multipart/form\-data" content via PUT
-\&  my $tx4 = $ua\->put(\*(Aqhttp://upload.example.com\*(Aq =>
-\&    form => {test => {content => \*(AqHello World!\*(Aq}});
+\&  my $tx4 = $ua\->put(
+\&    \*(Aqupload.example.com\*(Aq => form => {test => {content => \*(AqHello World!\*(Aq}});
+\&
+\&  # Send custom multipart content via PUT
+\&  my $tx5 = $ua\->put(\*(Aqapi.example.com\*(Aq => multipart => [\*(AqHello\*(Aq, \*(AqWorld!\*(Aq]);
 .Ve
 .PP
 For more information about available content generators see also
@@ -1320,24 +1458,24 @@ For more information about available content generators see also
 .IX Subsection "Large file downloads"
 When downloading large files with Mojo::UserAgent you don't have to worry
 about memory usage at all, because it will automatically stream everything
-above 250KB into a temporary file, which can then be moved into a permanent
-file with \*(L"move_to\*(R" in Mojo::Asset::File.
+above 250KiB into a temporary file, which can then be moved into a permanent
+file with \*(L"save_to\*(R" in Mojo::Message.
 .PP
 .Vb 1
 \&  use Mojo::UserAgent;
 \&
 \&  # Fetch the latest Mojolicious tarball
 \&  my $ua = Mojo::UserAgent\->new(max_redirects => 5);
-\&  my $tx = $ua\->get(\*(Aqhttps://www.github.com/kraih/mojo/tarball/master\*(Aq);
-\&  $tx\->result\->content\->asset\->move_to(\*(Aqmojo.tar.gz\*(Aq);
+\&  my $tx = $ua\->get(\*(Aqhttps://www.github.com/mojolicious/mojo/tarball/master\*(Aq);
+\&  $tx\->result\->save_to(\*(Aqmojo.tar.gz\*(Aq);
 .Ve
 .PP
-To protect you from excessively large files there is also a limit of 2GB by
+To protect you from excessively large files there is also a limit of 2GiB by
 default, which you can tweak with the attribute
 \&\*(L"max_response_size\*(R" in Mojo::UserAgent.
 .PP
 .Vb 2
-\&  # Increase limit to 10GB
+\&  # Increase limit to 10GiB
 \&  $ua\->max_response_size(10737418240);
 .Ve
 .SS "Large file upload"
@@ -1426,11 +1564,11 @@ keep many concurrent connections active at the same time.
 \&
 \&  # Concurrent non\-blocking requests
 \&  my $ua = Mojo::UserAgent\->new;
-\&  $ua\->get(\*(Aqhttp://metacpan.org/search?q=mojo\*(Aq => sub {
+\&  $ua\->get(\*(Aqhttps://metacpan.org/search?q=mojo\*(Aq => sub {
 \&    my ($ua, $mojo) = @_;
 \&    say $mojo\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
 \&  });
-\&  $ua\->get(\*(Aqhttp://metacpan.org/search?q=minion\*(Aq => sub {
+\&  $ua\->get(\*(Aqhttps://metacpan.org/search?q=minion\*(Aq => sub {
 \&    my ($ua, $minion) = @_;
 \&    say $minion\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
 \&  });
@@ -1469,10 +1607,10 @@ batches.
 \&    $ua\->get($url => sub {
 \&      my ($ua, $tx) = @_;
 \&      say "$url: ", $tx\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
-\&      $end\->();
 \&
 \&      # Next request
 \&      $fetch\->();
+\&      $end\->();
 \&    });
 \&  };
 \&
@@ -1486,31 +1624,28 @@ well as terms of service, and to wait a little before reopening connections to
 the same host, or the operators might be forced to block your access.
 .SS "Concurrent blocking requests"
 .IX Subsection "Concurrent blocking requests"
-You can emulate blocking behavior by using \*(L"delay\*(R" in Mojo::IOLoop to
-synchronize multiple non-blocking requests.
+You might have seen \*(L"wait\*(R" in Mojo::Promise already in some examples
+above. It is used to make non-blocking operations portable, allowing them to
+work inside an already running event loop or start one on demand.
 .PP
 .Vb 2
 \&  use Mojo::UserAgent;
-\&  use Mojo::IOLoop;
+\&  use Mojo::Promise;
 \&
-\&  # Synchronize non\-blocking requests
-\&  my $ua    = Mojo::UserAgent\->new;
-\&  my $delay = Mojo::IOLoop\->delay(sub {
-\&    my ($delay, $mojo, $minion) = @_;
-\&    say $mojo\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
-\&    say $minion\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
-\&  });
-\&  $ua\->get(\*(Aqhttp://metacpan.org/search?q=mojo\*(Aq   => $delay\->begin);
-\&  $ua\->get(\*(Aqhttp://metacpan.org/search?q=minion\*(Aq => $delay\->begin);
-\&  $delay\->wait;
+\&  # Synchronize non\-blocking requests with promises
+\&  my $ua = Mojo::UserAgent\->new;
+\&  my $mojo   = $ua\->get_p(\*(Aqhttps://metacpan.org/search?q=mojo\*(Aq);
+\&  my $minion = $ua\->get_p(\*(Aqhttps://metacpan.org/search?q=minion\*(Aq);
+\&  Mojo::Promise\->all($mojo, $minion)\->then(sub {
+\&    my ($mojo, $minion) = @_;
+\&    say $mojo\->[0]\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
+\&    say $minion\->[0]\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
+\&  })\->wait;
 .Ve
-.PP
-The call to \*(L"wait\*(R" in Mojo::IOLoop::Delay makes this code portable, it can now
-work inside an already running event loop or start one on demand.
 .SS "WebSockets"
 .IX Subsection "WebSockets"
 WebSockets are not just for the server-side, you can use
-\&\*(L"websocket\*(R" in Mojo::UserAgent to open new connections, which are always
+\&\*(L"websocket_p\*(R" in Mojo::UserAgent to open new connections, which are always
 non-blocking. The WebSocket handshake uses \s-1HTTP,\s0 and is a normal \f(CW\*(C`GET\*(C'\fR request
 with a few additional headers. It can even contain cookies, and is followed by
 a \f(CW101\fR response from the server, notifying our user agent that the connection
@@ -1519,20 +1654,21 @@ protocol.
 .PP
 .Vb 2
 \&  use Mojo::UserAgent;
-\&  use Mojo::IOLoop;
+\&  use Mojo::Promise;
 \&
 \&  # Open WebSocket to echo service
 \&  my $ua = Mojo::UserAgent\->new;
-\&  $ua\->websocket(\*(Aqws://echo.websocket.org\*(Aq => sub {
-\&    my ($ua, $tx) = @_;
+\&  $ua\->websocket_p(\*(Aqws://echo.websocket.org\*(Aq)\->then(sub {
+\&    my $tx = shift;
 \&
-\&    # Check if WebSocket handshake was successful
-\&    say \*(AqWebSocket handshake failed!\*(Aq and return unless $tx\->is_websocket;
+\&    # Prepare a followup promise so we can wait for messages
+\&    my $promise = Mojo::Promise\->new;
 \&
 \&    # Wait for WebSocket to be closed
 \&    $tx\->on(finish => sub {
 \&      my ($tx, $code, $reason) = @_;
 \&      say "WebSocket closed with status $code.";
+\&      $promise\->resolve;
 \&    });
 \&
 \&    # Close WebSocket after receiving one message
@@ -1544,10 +1680,15 @@ protocol.
 \&
 \&    # Send a message to the server
 \&    $tx\->send(\*(AqHi!\*(Aq);
-\&  });
 \&
-\&  # Start event loop if necessary
-\&  Mojo::IOLoop\->start unless Mojo::IOLoop\->is_running;
+\&    # Insert a new promise into the promise chain
+\&    return $promise;
+\&  })\->catch(sub {
+\&    my $err = shift;
+\&
+\&    # Handle failed WebSocket handshakes and other exceptions
+\&    warn "WebSocket error: $err";
+\&  })\->wait;
 .Ve
 .SS "\s-1UNIX\s0 domain sockets"
 .IX Subsection "UNIX domain sockets"
@@ -1559,7 +1700,7 @@ communication. Instead of \f(CW\*(C`http://\*(C'\fR and \f(CW\*(C`ws://\*(C'\fR 
 .PP
 .Vb 2
 \&  use Mojo::UserAgent;
-\&  use Mojo::IOLoop;
+\&  use Mojo::Promise;
 \&
 \&  # GET request via UNIX domain socket "/tmp/foo.sock"
 \&  my $ua = Mojo::UserAgent\->new;
@@ -1570,20 +1711,24 @@ communication. Instead of \f(CW\*(C`http://\*(C'\fR and \f(CW\*(C`ws://\*(C'\fR 
 \&  say $tx\->result\->body;
 \&
 \&  # WebSocket connection via UNIX domain socket "/tmp/baz.sock"
-\&  $ua\->websocket(\*(Aqws+unix://%2Ftmp%2Fbaz.sock/echo\*(Aq => sub {
-\&    my ($ua, $tx) = @_;
+\&  $ua\->websocket_p(\*(Aqws+unix://%2Ftmp%2Fbaz.sock/echo\*(Aq)\->then(sub {
+\&    my $tx = shift;
 \&
-\&    say \*(AqWebSocket handshake failed!\*(Aq and return unless $tx\->is_websocket;
+\&    my $promise = Mojo::Promise\->new;
+\&    $tx\->on(finish => sub { $promise\->resolve });
 \&
 \&    $tx\->on(message => sub {
 \&      my ($tx, $msg) = @_;
 \&      say "WebSocket message: $msg";
 \&      $tx\->finish;
 \&    });
-\&
 \&    $tx\->send(\*(AqHi!\*(Aq);
-\&  });
-\&  Mojo::IOLoop\->start unless Mojo::IOLoop\->is_running;
+\&
+\&    return $promise;
+\&  })\->catch(sub {
+\&    my $err = shift;
+\&    warn "WebSocket error: $err";
+\&  })\->wait;
 .Ve
 .PP
 You can set the \f(CW\*(C`Host\*(C'\fR header manually to pass along a hostname.
@@ -1595,31 +1740,31 @@ the parts that actually matter with the \s-1CSS\s0 selectors from Mojo::DOM and
 \&\s-1JSON\s0 Pointers from Mojo::JSON::Pointer.
 .PP
 .Vb 1
-\&  $ mojo get http://mojolicious.org \*(Aqhead > title\*(Aq
+\&  $ mojo get https://mojolicious.org \*(Aqhead > title\*(Aq
 .Ve
 .PP
 How about a list of all id attributes?
 .PP
 .Vb 1
-\&  $ mojo get http://mojolicious.org \*(Aq*\*(Aq attr id
+\&  $ mojo get https://mojolicious.org \*(Aq*\*(Aq attr id
 .Ve
 .PP
 Or the text content of all heading tags?
 .PP
 .Vb 1
-\&  $ mojo get http://mojolicious.org \*(Aqh1, h2, h3\*(Aq text
+\&  $ mojo get https://mojolicious.org \*(Aqh1, h2, h3\*(Aq text
 .Ve
 .PP
 Maybe just the text of the third heading?
 .PP
 .Vb 1
-\&  $ mojo get http://mojolicious.org \*(Aqh1, h2, h3\*(Aq 3 text
+\&  $ mojo get https://mojolicious.org \*(Aqh1, h2, h3\*(Aq 3 text
 .Ve
 .PP
 You can also extract all text from nested child elements.
 .PP
 .Vb 1
-\&  $ mojo get http://mojolicious.org \*(Aq#mojobar\*(Aq all
+\&  $ mojo get https://mojolicious.org \*(Aq#mojobar\*(Aq all
 .Ve
 .PP
 The request can be customized as well.
@@ -1643,7 +1788,7 @@ Pass request data by redirecting \f(CW\*(C`STDIN\*(C'\fR.
 Or use the output of another program.
 .PP
 .Vb 1
-\&  $ echo \*(AqHello World\*(Aq | mojo get \-M PUT http://mojolicious.org
+\&  $ echo \*(AqHello World\*(Aq | mojo get \-M PUT https://mojolicious.org
 .Ve
 .PP
 Submit forms as \f(CW\*(C`application/x\-www\-form\-urlencoded\*(C'\fR content.
@@ -1732,7 +1877,7 @@ appended with a \f(CW\*(C`.conf\*(C'\fR extension (\f(CW\*(C`myapp.conf\*(C'\fR)
 .PP
 Configuration files themselves are just Perl scripts that return a hash
 reference with configuration settings of your choice. All those settings are
-then available through the method \*(L"config\*(R" in Mojo and the helper
+then available through the method \*(L"config\*(R" in Mojolicious and the helper
 \&\*(L"config\*(R" in Mojolicious::Plugin::DefaultHelpers.
 .PP
 .Vb 1
@@ -1906,14 +2051,16 @@ actually much easier than you might think.
 .Ve
 .PP
 The trick is to move the \f(CW\*(C`public\*(C'\fR and \f(CW\*(C`templates\*(C'\fR directories so they can get
-automatically installed with the modules.
+automatically installed with the modules. Additionally author commands from the
+\&\f(CW\*(C`Mojolicious::Command::Author\*(C'\fR namespace are not usually wanted by an
+installed application so they can be excluded.
 .PP
 .Vb 3
 \&  # Application
 \&  package MyApp;
 \&  use Mojo::Base \*(AqMojolicious\*(Aq;
 \&
-\&  use Mojo::File \*(Aqpath\*(Aq;
+\&  use Mojo::File \*(Aqcurfile\*(Aq;
 \&  use Mojo::Home;
 \&
 \&  # Every CPAN module needs a version
@@ -1923,7 +2070,7 @@ automatically installed with the modules.
 \&    my $self = shift;
 \&
 \&    # Switch to installable home directory
-\&    $self\->home(Mojo::Home\->new(path(_\|_FILE_\|_)\->sibling(\*(AqMyApp\*(Aq)));
+\&    $self\->home(Mojo::Home\->new(curfile\->sibling(\*(AqMyApp\*(Aq)));
 \&
 \&    # Switch to installable "public" directory
 \&    $self\->static\->paths\->[0] = $self\->home\->child(\*(Aqpublic\*(Aq);
@@ -1931,7 +2078,8 @@ automatically installed with the modules.
 \&    # Switch to installable "templates" directory
 \&    $self\->renderer\->paths\->[0] = $self\->home\->child(\*(Aqtemplates\*(Aq);
 \&
-\&    $self\->plugin(\*(AqPODRenderer\*(Aq);
+\&    # Exclude author commands
+\&    $self\->commands\->namespaces([\*(AqMojolicious::Commands\*(Aq]);
 \&
 \&    my $r = $self\->routes;
 \&    $r\->get(\*(Aq/welcome\*(Aq)\->to(\*(Aqexample#welcome\*(Aq);
@@ -1950,8 +2098,8 @@ to the proper shebang during installation.
 \&  use strict;
 \&  use warnings;
 \&
-\&  use FindBin;
-\&  BEGIN { unshift @INC, "$FindBin::Bin/../lib" }
+\&  use Mojo::File \*(Aqcurfile\*(Aq;
+\&  use lib curfile\->dirname\->sibling(\*(Aqlib\*(Aq)\->to_string;
 \&  use Mojolicious::Commands;
 \&
 \&  # Start command line interface for application
@@ -2007,12 +2155,12 @@ And you can use all the commands from Mojolicious::Commands.
 .SH "MORE"
 .IX Header "MORE"
 You can continue with Mojolicious::Guides now or take a look at the
-Mojolicious wiki <http://github.com/kraih/mojo/wiki>, which contains a lot
-more documentation and examples by many different authors.
+Mojolicious wiki <http://github.com/mojolicious/mojo/wiki>, which contains a
+lot more documentation and examples by many different authors.
 .SH "SUPPORT"
 .IX Header "SUPPORT"
 If you have any questions the documentation might not yet answer, don't
 hesitate to ask on the
 mailing list <http://groups.google.com/group/mojolicious> or the official \s-1IRC\s0
-channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.perl.org\*(C'\fR
-(chat now! <https://chat.mibbit.com/?channel=%23mojo&server=irc.perl.org>).
+channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.freenode.net\*(C'\fR (chat
+now! <https://kiwiirc.com/nextclient/#irc://irc.freenode.net/mojo?nick=guest-?>).

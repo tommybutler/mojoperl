@@ -5,7 +5,7 @@ use re 'regexp_pattern';
 use Mojo::Util qw(encode getopt tablify);
 
 has description => 'Show available routes';
-has usage => sub { shift->extract_usage };
+has usage       => sub { shift->extract_usage };
 
 sub run {
   my ($self, @args) = @_;
@@ -117,6 +117,6 @@ Run this command.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

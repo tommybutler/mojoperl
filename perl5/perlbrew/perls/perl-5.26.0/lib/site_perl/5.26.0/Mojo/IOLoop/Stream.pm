@@ -6,9 +6,18 @@ use Mojo::IOLoop;
 use Mojo::Util;
 use Scalar::Util 'weaken';
 
-has reactor => sub { Mojo::IOLoop->singleton->reactor };
+has high_water_mark => 1048576;
+has reactor         => sub { Mojo::IOLoop->singleton->reactor }, weak => 1;
 
 sub DESTROY { Mojo::Util::_global_destruction() or shift->close }
+
+sub bytes_read { shift->{read} || 0 }
+
+sub bytes_waiting { length(shift->{buffer} // '') }
+
+sub bytes_written { shift->{written} || 0 }
+
+sub can_write { $_[0]{handle} && $_[0]->bytes_waiting < $_[0]->high_water_mark }
 
 sub close {
   my $self = shift;
@@ -34,12 +43,13 @@ sub is_writing {
   return !!length($self->{buffer}) || $self->has_subscribers('drain');
 }
 
-sub new { shift->SUPER::new(handle => shift, buffer => '', timeout => 15) }
+sub new { shift->SUPER::new(handle => shift, timeout => 15) }
 
 sub start {
   my $self = shift;
 
   # Resume
+  return unless $self->{handle};
   my $reactor = $self->reactor;
   return $reactor->watch($self->{handle}, 1, $self->is_writing)
     if delete $self->{paused};
@@ -58,7 +68,7 @@ sub steal_handle {
 sub stop {
   my $self = shift;
   $self->reactor->watch($self->{handle}, 0, $self->is_writing)
-    unless $self->{paused}++;
+    if $self->{handle} && !$self->{paused}++;
 }
 
 sub timeout {
@@ -70,8 +80,8 @@ sub timeout {
   $reactor->remove(delete $self->{timer}) if $self->{timer};
   return $self unless my $timeout = $self->{timeout} = shift;
   weaken $self;
-  $self->{timer}
-    = $reactor->timer($timeout => sub { $self->emit('timeout')->close });
+  $self->{timer} = $reactor->timer(
+    $timeout => sub { delete $self->{timer}; $self->emit('timeout')->close });
 
   return $self;
 }
@@ -82,7 +92,7 @@ sub write {
   # IO::Socket::SSL will corrupt data with the wrong internal representation
   utf8::downgrade $chunk;
   $self->{buffer} .= $chunk;
-  if ($cb) { $self->once(drain => $cb) }
+  if    ($cb)                     { $self->once(drain => $cb) }
   elsif (!length $self->{buffer}) { return $self }
   $self->reactor->watch($self->{handle}, !$self->{paused}, 1)
     if $self->{handle};
@@ -95,12 +105,13 @@ sub _again { $_[0]->reactor->again($_[0]{timer}) if $_[0]{timer} }
 sub _read {
   my $self = shift;
 
-  my $read = $self->{handle}->sysread(my $buffer, 131072, 0);
-  return $read == 0 ? $self->close : $self->emit(read => $buffer)->_again
-    if defined $read;
+  if (defined(my $read = $self->{handle}->sysread(my $buffer, 131072, 0))) {
+    $self->{read} += $read;
+    return $read == 0 ? $self->close : $self->emit(read => $buffer)->_again;
+  }
 
   # Retry
-  return if $! == EAGAIN || $! == EINTR || $! == EWOULDBLOCK;
+  return undef if $! == EAGAIN || $! == EINTR || $! == EWOULDBLOCK;
 
   # Closed (maybe real error)
   $! == ECONNRESET ? $self->close : $self->emit(error => $!)->close;
@@ -112,13 +123,16 @@ sub _write {
   # Handle errors only when reading (to avoid timing problems)
   my $handle = $self->{handle};
   if (length $self->{buffer}) {
-    return unless defined(my $written = $handle->syswrite($self->{buffer}));
+    return undef
+      unless defined(my $written = $handle->syswrite($self->{buffer}));
+    $self->{written} += $written;
     $self->emit(write => substr($self->{buffer}, 0, $written, ''))->_again;
   }
 
-  $self->emit('drain') unless length $self->{buffer};
-  return if $self->is_writing;
-  return $self->close if $self->{graceful};
+  # Clear the buffer to free the underlying SV* memory
+  undef $self->{buffer}, $self->emit('drain') unless length $self->{buffer};
+  return undef                                        if $self->is_writing;
+  return $self->close                                 if $self->{graceful};
   $self->reactor->watch($handle, !$self->{paused}, 0) if $self->{handle};
 }
 
@@ -224,18 +238,54 @@ Emitted if new data has been written to the stream.
 
 L<Mojo::IOLoop::Stream> implements the following attributes.
 
+=head2 high_water_mark
+
+  my $size = $msg->high_water_mark;
+  $msg     = $msg->high_water_mark(1024);
+
+Maximum size of L</"write"> buffer in bytes before L</"can_write"> returns
+false, defaults to C<1048576> (1MiB). Note that this attribute is
+B<EXPERIMENTAL> and might change without warning!
+
 =head2 reactor
 
   my $reactor = $stream->reactor;
   $stream     = $stream->reactor(Mojo::Reactor::Poll->new);
 
 Low-level event reactor, defaults to the C<reactor> attribute value of the
-global L<Mojo::IOLoop> singleton.
+global L<Mojo::IOLoop> singleton. Note that this attribute is weakened.
 
 =head1 METHODS
 
 L<Mojo::IOLoop::Stream> inherits all methods from L<Mojo::EventEmitter> and
 implements the following new ones.
+
+=head2 bytes_read
+
+  my $num = $stream->bytes_read;
+
+Number of bytes received.
+
+=head2 bytes_waiting
+
+  my $num = $stream->bytes_waiting;
+
+Number of bytes that have been enqueued with L</"write"> and are waiting to be
+written. Note that this method is B<EXPERIMENTAL> and might change without
+warning!
+
+=head2 bytes_written
+
+  my $num = $stream->bytes_written;
+
+Number of bytes written.
+
+=head2 can_write
+
+  my $bool = $stream->can_write;
+
+Returns true if calling L</"write"> is safe. Note that this method is
+B<EXPERIMENTAL> and might change without warning!
 
 =head2 close
 
@@ -307,11 +357,11 @@ stream to be inactive indefinitely.
   $stream = $stream->write($bytes);
   $stream = $stream->write($bytes => sub {...});
 
-Write data to stream, the optional drain callback will be executed once all data
-has been written.
+Enqueue data to be written to the stream as soon as possible, the optional drain
+callback will be executed once all data has been written.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

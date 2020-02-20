@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Headers 3"
-.TH Mojo::Headers 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Headers 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -108,7 +108,7 @@ Mojo::Headers implements the following attributes.
 .Ve
 .PP
 Maximum header line size in bytes, defaults to the value of the
-\&\f(CW\*(C`MOJO_MAX_LINE_SIZE\*(C'\fR environment variable or \f(CW8192\fR (8KB).
+\&\f(CW\*(C`MOJO_MAX_LINE_SIZE\*(C'\fR environment variable or \f(CW8192\fR (8KiB).
 .SS "max_lines"
 .IX Subsection "max_lines"
 .Vb 2
@@ -326,6 +326,14 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Cookie\*(C'\fR h
 .Ve
 .PP
 Get or replace current header value, shortcut for the \f(CW\*(C`Date\*(C'\fR header.
+.SS "dehop"
+.IX Subsection "dehop"
+.Vb 1
+\&  $heders = $headers\->dehop;
+.Ve
+.PP
+Remove hop-by-hop headers that should not be retransmitted. Note that this
+method is \fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
 .SS "dnt"
 .IX Subsection "dnt"
 .Vb 2
@@ -586,6 +594,15 @@ header from \s-1RFC 6455\s0 <http://tools.ietf.org/html/rfc6455>.
 .Ve
 .PP
 Get or replace current header value, shortcut for the \f(CW\*(C`Server\*(C'\fR header.
+.SS "server_timing"
+.IX Subsection "server_timing"
+.Vb 2
+\&  my $timing = $headers\->server_timing;
+\&  $headers   = $headers\->server_timing(\*(Aqapp;desc=Mojolicious;dur=0.0001\*(Aq);
+.Ve
+.PP
+Get or replace current header value, shortcut for the \f(CW\*(C`Server\-Timing\*(C'\fR header
+from Server Timing <https://www.w3.org/TR/server-timing/>.
 .SS "set_cookie"
 .IX Subsection "set_cookie"
 .Vb 2
@@ -694,4 +711,4 @@ Get or replace current header value, shortcut for the \f(CW\*(C`WWW\-Authenticat
 header.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

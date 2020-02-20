@@ -14,7 +14,7 @@ sub again {
 
 sub io {
   my ($self, $handle, $cb) = @_;
-  $self->{io}{fileno $handle} = {cb => $cb};
+  $self->{io}{fileno($handle) // croak 'Handle is closed'} = {cb => $cb};
   return $self->watch($handle, 1, 1);
 }
 
@@ -41,7 +41,7 @@ sub one_tick {
     return $self->stop unless keys %{$self->{timers}} || keys %{$self->{io}};
 
     # Calculate ideal timeout based on timers and round up to next millisecond
-    my $min = min map { $_->{time} } values %{$self->{timers}};
+    my $min     = min map { $_->{time} } values %{$self->{timers}};
     my $timeout = defined $min ? $min - steady_time : 0.5;
     $timeout = $timeout <= 0 ? 0 : int($timeout * 1000) + 1;
 
@@ -88,10 +88,12 @@ sub recurring { shift->_timer(1, @_) }
 sub remove {
   my ($self, $remove) = @_;
   return !!delete $self->{timers}{$remove} unless ref $remove;
-  return !!delete $self->{io}{fileno $remove};
+  return !!delete $self->{io}{fileno($remove) // croak 'Handle is closed'};
 }
 
-sub reset { delete @{shift()}{qw(events io next_tick next_timer timers)} }
+sub reset {
+  delete @{shift()}{qw(events io next_tick next_timer running timers)};
+}
 
 sub start {
   my $self = shift;
@@ -109,7 +111,7 @@ sub watch {
   croak 'I/O watcher not active' unless my $io = $self->{io}{fileno $handle};
   $io->{mode} = 0;
   $io->{mode} |= POLLIN | POLLPRI if $read;
-  $io->{mode} |= POLLOUT if $write;
+  $io->{mode} |= POLLOUT          if $write;
 
   return $self;
 }
@@ -303,6 +305,6 @@ this method requires an active I/O watcher.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

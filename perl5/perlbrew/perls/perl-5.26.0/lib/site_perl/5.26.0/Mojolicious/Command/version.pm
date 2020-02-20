@@ -3,19 +3,23 @@ use Mojo::Base 'Mojolicious::Command';
 
 use Mojo::IOLoop::Client;
 use Mojo::IOLoop::TLS;
+use Mojo::JSON;
 use Mojolicious;
 
 has description => 'Show versions of available modules';
-has usage => sub { shift->extract_usage };
+has usage       => sub { shift->extract_usage };
 
 sub run {
   my $self = shift;
 
-  my $ev = eval 'use Mojo::Reactor::EV; 1' ? $EV::VERSION : 'n/a';
+  my $json = Mojo::JSON->JSON_XS ? $Cpanel::JSON::XS::VERSION : 'n/a';
+  my $ev = eval { require Mojo::Reactor::EV; 1 } ? $EV::VERSION : 'n/a';
   my $socks
     = Mojo::IOLoop::Client->can_socks ? $IO::Socket::Socks::VERSION : 'n/a';
   my $tls = Mojo::IOLoop::TLS->can_tls    ? $IO::Socket::SSL::VERSION  : 'n/a';
   my $nnr = Mojo::IOLoop::Client->can_nnr ? $Net::DNS::Native::VERSION : 'n/a';
+  my $roles = Mojo::Base->ROLES ? $Role::Tiny::VERSION         : 'n/a';
+  my $async = Mojo::Base->ASYNC ? $Future::AsyncAwait::VERSION : 'n/a';
 
   print <<EOF;
 CORE
@@ -23,10 +27,13 @@ CORE
   Mojolicious ($Mojolicious::VERSION, $Mojolicious::CODENAME)
 
 OPTIONAL
-  EV 4.0+                 ($ev)
-  IO::Socket::Socks 0.64+ ($socks)
-  IO::Socket::SSL 1.94+   ($tls)
-  Net::DNS::Native 0.15+  ($nnr)
+  Cpanel::JSON::XS 4.09+   ($json)
+  EV 4.0+                  ($ev)
+  IO::Socket::Socks 0.64+  ($socks)
+  IO::Socket::SSL 2.009+   ($tls)
+  Net::DNS::Native 0.15+   ($nnr)
+  Role::Tiny 2.000001+     ($roles)
+  Future::AsyncAwait 0.36+ ($async)
 
 EOF
 
@@ -105,6 +112,6 @@ Run this command.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

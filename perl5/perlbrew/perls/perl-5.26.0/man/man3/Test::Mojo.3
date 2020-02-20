@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Test::Mojo 3"
-.TH Test::Mojo 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Test::Mojo 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -106,17 +106,20 @@ Test::Mojo \- Testing Mojo
 .IX Header "DESCRIPTION"
 Test::Mojo is a test user agent based on Mojo::UserAgent, it is usually
 used together with Test::More to test Mojolicious applications. Just run
-your tests with the command Mojolicious::Command::test or prove.
+your tests with prove.
 .PP
-.Vb 3
-\&  $ ./script/my_app test
-\&  $ ./script/my_app test \-v t/foo.t
+.Vb 2
+\&  $ prove \-l \-v
 \&  $ prove \-l \-v t/foo.t
 .Ve
 .PP
 If it is not already defined, the \f(CW\*(C`MOJO_LOG_LEVEL\*(C'\fR environment variable will
 be set to \f(CW\*(C`debug\*(C'\fR or \f(CW\*(C`fatal\*(C'\fR, depending on the value of the
-\&\f(CW\*(C`HARNESS_IS_VERBOSE\*(C'\fR environment variable.
+\&\f(CW\*(C`HARNESS_IS_VERBOSE\*(C'\fR environment variable. And to make it esier to test
+\&\s-1HTTPS/WSS\s0 web services \*(L"insecure\*(R" in Mojo::UserAgent will be activated by
+default for \*(L"ua\*(R".
+.PP
+See Mojolicious::Guides::Testing for more.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Test::Mojo implements the following attributes.
@@ -162,7 +165,7 @@ True if the last test was successful.
 \&  };
 \&  $t\->get_ok(\*(Aq/\*(Aq)
 \&    \->status_is(302)
-\&    \->$location_is(\*(Aqhttp://mojolicious.org\*(Aq)
+\&    \->$location_is(\*(Aqhttps://mojolicious.org\*(Aq)
 \&    \->or(sub { diag \*(AqMust have been Joel!\*(Aq });
 .Ve
 .SS "tx"
@@ -251,6 +254,40 @@ Access application with \*(L"app\*(R" in Mojo::UserAgent::Server.
 \&  $t\->get_ok(\*(Aq/hello\*(Aq)\->status_is(200);
 \&  is $stash\->{foo}, \*(Aqbar\*(Aq, \*(Aqright value\*(Aq;
 .Ve
+.SS "attr_is"
+.IX Subsection "attr_is"
+.Vb 2
+\&  $t = $t\->attr_is(\*(Aqimg.cat\*(Aq, \*(Aqalt\*(Aq, \*(AqGrumpy cat\*(Aq);
+\&  $t = $t\->attr_is(\*(Aqimg.cat\*(Aq, \*(Aqalt\*(Aq, \*(AqGrumpy cat\*(Aq, \*(Aqright alt text\*(Aq);
+.Ve
+.PP
+Checks text content of attribute with \*(L"attr\*(R" in Mojo::DOM at the \s-1CSS\s0 selectors
+first matching \s-1HTML/XML\s0 element for exact match with \*(L"at\*(R" in Mojo::DOM.
+.SS "attr_isnt"
+.IX Subsection "attr_isnt"
+.Vb 2
+\&  $t = $t\->attr_isnt(\*(Aqimg.cat\*(Aq, \*(Aqalt\*(Aq, \*(AqCalm cat\*(Aq);
+\&  $t = $t\->attr_isnt(\*(Aqimg.cat\*(Aq, \*(Aqalt\*(Aq, \*(AqCalm cat\*(Aq, \*(Aqdifferent alt text\*(Aq);
+.Ve
+.PP
+Opposite of \*(L"attr_is\*(R".
+.SS "attr_like"
+.IX Subsection "attr_like"
+.Vb 2
+\&  $t = $t\->attr_like(\*(Aqimg.cat\*(Aq, \*(Aqalt\*(Aq, qr/Grumpy/);
+\&  $t = $t\->attr_like(\*(Aqimg.cat\*(Aq, \*(Aqalt\*(Aq, qr/Grumpy/, \*(Aqright alt text\*(Aq);
+.Ve
+.PP
+Checks text content of attribute with \*(L"attr\*(R" in Mojo::DOM at the \s-1CSS\s0 selectors
+first matching \s-1HTML/XML\s0 element for similar match with \*(L"at\*(R" in Mojo::DOM.
+.SS "attr_unlike"
+.IX Subsection "attr_unlike"
+.Vb 2
+\&  $t = $t\->attr_unlike(\*(Aqimg.cat\*(Aq, \*(Aqalt\*(Aq, qr/Calm/);
+\&  $t = $t\->attr_unlike(\*(Aqimg.cat\*(Aq, \*(Aqalt\*(Aq, qr/Calm/, \*(Aqdifferent alt text\*(Aq);
+.Ve
+.PP
+Opposite of \*(L"attr_like\*(R".
 .SS "content_is"
 .IX Subsection "content_is"
 .Vb 2
@@ -396,7 +433,7 @@ arguments as \*(L"get\*(R" in Mojo::UserAgent, except for the callback.
 .PP
 .Vb 2
 \&  # Run tests against remote host
-\&  $t\->get_ok(\*(Aqhttp://mojolicious.org/perldoc\*(Aq)\->status_is(200);
+\&  $t\->get_ok(\*(Aqhttps://mojolicious.org/perldoc\*(Aq)\->status_is(200);
 \&
 \&  # Use relative URL for request with Basic authentication
 \&  $t\->get_ok(\*(Aq//sri:secr3t@/secrets.json\*(Aq)
@@ -419,6 +456,22 @@ arguments as \*(L"get\*(R" in Mojo::UserAgent, except for the callback.
 .PP
 Perform a \f(CW\*(C`HEAD\*(C'\fR request and check for transport errors, takes the same
 arguments as \*(L"head\*(R" in Mojo::UserAgent, except for the callback.
+.SS "header_exists"
+.IX Subsection "header_exists"
+.Vb 2
+\&  $t = $t\->header_exists(\*(AqETag\*(Aq);
+\&  $t = $t\->header_exists(\*(AqETag\*(Aq, \*(Aqheader exists\*(Aq);
+.Ve
+.PP
+Check if response header exists.
+.SS "header_exists_not"
+.IX Subsection "header_exists_not"
+.Vb 2
+\&  $t = $t\->header_exists_not(\*(AqETag\*(Aq);
+\&  $t = $t\->header_exists_not(\*(AqETag\*(Aq, \*(Aqheader is missing\*(Aq);
+.Ve
+.PP
+Opposite of \*(L"header_exists\*(R".
 .SS "header_is"
 .IX Subsection "header_is"
 .Vb 2
@@ -599,19 +652,29 @@ Wait for next WebSocket message to arrive.
 Opposite of \*(L"message_like\*(R".
 .SS "new"
 .IX Subsection "new"
-.Vb 4
+.Vb 7
 \&  my $t = Test::Mojo\->new;
 \&  my $t = Test::Mojo\->new(\*(AqMyApp\*(Aq);
-\&  my $t = Test::Mojo\->new(MyApp => {foo => \*(Aqbar\*(Aq, baz => 23});
+\&  my $t = Test::Mojo\->new(\*(AqMyApp\*(Aq, {foo => \*(Aqbar\*(Aq});
+\&  my $t = Test::Mojo\->new(Mojo::File\->new(\*(Aq/path/to/myapp.pl\*(Aq));
+\&  my $t = Test::Mojo\->new(Mojo::File\->new(\*(Aq/path/to/myapp.pl\*(Aq), {foo => \*(Aqbar\*(Aq});
 \&  my $t = Test::Mojo\->new(MyApp\->new);
+\&  my $t = Test::Mojo\->new(MyApp\->new, {foo => \*(Aqbar\*(Aq});
 .Ve
 .PP
-Construct a new Test::Mojo object. In addition to a class name, you can pass
-along a hash reference with configuration values that will be used to
-instantiate the application. The special configuration value \f(CW\*(C`config_override\*(C'\fR
-will be set in \*(L"config\*(R" in Mojo as well, which is used to disable configuration
-plugins like Mojolicious::Plugin::Config and
+Construct a new Test::Mojo object. In addition to a class name or
+Mojo::File object pointing to the application script, you can pass along a
+hash reference with configuration values that will be used to override the
+application configuration. The special configuration value \f(CW\*(C`config_override\*(C'\fR
+will be set in \*(L"config\*(R" in Mojolicious as well, which is used to disable
+configuration plugins like Mojolicious::Plugin::Config and
 Mojolicious::Plugin::JSONConfig for tests.
+.PP
+.Vb 3
+\&  # Load application script relative to the "t" directory
+\&  use Mojo::File \*(Aqcurfile\*(Aq;
+\&  my $t = Test::Mojo\->new(curfile\->dirname\->sibling(\*(Aqmyapp.pl\*(Aq));
+.Ve
 .SS "options_ok"
 .IX Subsection "options_ok"
 .Vb 5
@@ -806,4 +869,4 @@ arguments as \*(L"websocket\*(R" in Mojo::UserAgent, except for the callback.
 .Ve
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

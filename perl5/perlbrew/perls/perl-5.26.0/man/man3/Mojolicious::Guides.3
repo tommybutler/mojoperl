@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Guides 3"
-.TH Mojolicious::Guides 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Guides 3 "2019-11-21" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -76,9 +76,14 @@
 Mojolicious::Guides \- The Mojolicious Guide to the Galaxy
 .SH "DON'T PANIC!"
 .IX Header "DON'T PANIC!"
-We are constantly working on new documentation. Follow us on
-GitHub <http://github.com/kraih/mojo> or join the official \s-1IRC\s0 channel \f(CW\*(C`#mojo\*(C'\fR
-on \f(CW\*(C`irc.perl.org\*(C'\fR to get all the latest updates.
+The Mojolicious <https://mojolicious.org> documentation is structured into
+three parts. The \*(L"\s-1TUTORIAL\*(R"\s0 everyone starts with, the \*(L"\s-1GUIDES\*(R"\s0 that
+explain all major features in detail, and the class \*(L"\s-1REFERENCE\*(R"\s0 listing
+all available APIs.
+.PP
+Some parts of the documentation only use the Mojolicious::Lite micro web
+framework for examples, but that's merely a convenience for the reader. Almost
+all features are exactly the same for full Mojolicious applications.
 .SH "BASICS"
 .IX Header "BASICS"
 .IP "Learning Perl" 2
@@ -115,6 +120,13 @@ features are enabled, even if examples don't specifically mention it.
 .Sp
 Some modules, like Mojo::Base and Mojolicious::Lite, will enable them for
 you automatically, whenever they are used.
+.IP "Variable names" 2
+.IX Item "Variable names"
+For brevity and clarity, example variables will reflect the type of data the \s-1API\s0
+uses. For instance, \f(CW$bytes\fR or \f(CW$chars\fR to distinguish whether it is encoded
+bytes or decoded characters in a Perl string, \f(CW$bool\fR if the
+value just indicates true or false, \f(CW$c\fR to denote a Mojolicious::Controller
+object, or \f(CW$app\fR to denote the application object.
 .SH "TUTORIAL"
 .IX Header "TUTORIAL"
 .IP "Mojolicious::Guides::Tutorial" 2
@@ -137,6 +149,10 @@ Simple and fun introduction to the Mojolicious router.
 .IP "Mojolicious::Guides::Rendering" 2
 .IX Item "Mojolicious::Guides::Rendering"
 Generating content with the Mojolicious renderer.
+.IP "Mojolicious::Guides::Testing" 2
+.IX Item "Mojolicious::Guides::Testing"
+Powerful yet elegant testing techniques and tools for Mojolicious and other
+web applications.
 .IP "Mojolicious::Guides::Cookbook" 2
 .IX Item "Mojolicious::Guides::Cookbook"
 Cooking with Mojolicious, recipes for every taste.
@@ -199,14 +215,12 @@ PostgreSQL has to offer, generate \s-1CRUD\s0 queries from data structures, mana
 database schema with migrations and build scalable real-time web applications
 with the publish/subscribe pattern.
 .Sp
-And it comes with two great
-example applications <https://github.com/kraih/mojo-pg/tree/master/examples/>
-you can use for inspiration. The minimal
-chat <https://github.com/kraih/mojo-pg/tree/master/examples/chat.pl>
+\&\fBExamples:\fR The minimal
+chat <https://github.com/mojolicious/mojo-pg/tree/master/examples/chat.pl>
 application will show you how to scale WebSockets to multiple servers, and the
 well-structured
-blog <https://github.com/kraih/mojo-pg/tree/master/examples/blog> application
-how to apply the \s-1MVC\s0 design pattern in practice.
+blog <https://github.com/mojolicious/mojo-pg/tree/master/examples/blog> 
+application how to apply the \s-1MVC\s0 design pattern in practice.
 .IP "Minion" 2
 .IX Item "Minion"
 A full featured job queue for Mojolicious with support for multiple backends
@@ -216,18 +230,18 @@ outside of the request/response lifecycle. Among those tasks you'll commonly
 find image resizing, spam filtering, \s-1HTTP\s0 downloads, building tarballs, warming
 caches and basically everything else you can imagine that's not super fast.
 .Sp
-And it comes with a great example application you can use for inspiration. The
-link checker <https://github.com/kraih/minion/tree/master/examples/linkcheck>
+\&\fBExamples:\fR The
+link
+checker <https://github.com/mojolicious/minion/tree/master/examples/linkcheck>
 will show you how to integrate background jobs into well-structured
 Mojolicious applications.
 .SH "REFERENCE"
 .IX Header "REFERENCE"
 This is the class hierarchy of the Mojolicious distribution.
 .IP "\(bu" 2
-Mojo::Base
-.RS 2
-.IP "\(bu" 2
 Mojo
+.IP "\(bu" 2
+Mojo::Base
 .RS 2
 .IP "\(bu" 2
 Mojolicious
@@ -236,9 +250,6 @@ Mojolicious
 Mojo::HelloWorld
 .IP "\(bu" 2
 Mojolicious::Lite
-.RE
-.RS 2
-.RE
 .RE
 .RS 2
 .RE
@@ -288,11 +299,11 @@ Mojo::IOLoop
 .IP "\(bu" 2
 Mojo::IOLoop::Client
 .IP "\(bu" 2
-Mojo::IOLoop::Delay
-.IP "\(bu" 2
 Mojo::IOLoop::Server
 .IP "\(bu" 2
 Mojo::IOLoop::Stream
+.IP "\(bu" 2
+Mojo::IOLoop::Subprocess
 .IP "\(bu" 2
 Mojo::IOLoop::TLS
 .IP "\(bu" 2
@@ -361,13 +372,19 @@ Mojo::Exception
 .IP "\(bu" 2
 Mojo::Headers
 .IP "\(bu" 2
-Mojo::IOLoop::Subprocess
-.IP "\(bu" 2
 Mojo::JSON::Pointer
 .IP "\(bu" 2
 Mojo::Parameters
 .IP "\(bu" 2
 Mojo::Path
+.IP "\(bu" 2
+Mojo::Promise
+.RS 2
+.IP "\(bu" 2
+Mojo::IOLoop::Delay
+.RE
+.RS 2
+.RE
 .IP "\(bu" 2
 Mojo::Server::Hypnotoad
 .IP "\(bu" 2
@@ -400,23 +417,11 @@ Mojolicious::Command
 .IP "\(bu" 2
 Mojolicious::Command::cgi
 .IP "\(bu" 2
-Mojolicious::Command::cpanify
-.IP "\(bu" 2
 Mojolicious::Command::daemon
 .IP "\(bu" 2
 Mojolicious::Command::eval
 .IP "\(bu" 2
-Mojolicious::Command::generate::app
-.IP "\(bu" 2
-Mojolicious::Command::generate::lite_app
-.IP "\(bu" 2
-Mojolicious::Command::generate::makefile
-.IP "\(bu" 2
-Mojolicious::Command::generate::plugin
-.IP "\(bu" 2
 Mojolicious::Command::get
-.IP "\(bu" 2
-Mojolicious::Command::inflate
 .IP "\(bu" 2
 Mojolicious::Command::prefork
 .IP "\(bu" 2
@@ -424,14 +429,24 @@ Mojolicious::Command::psgi
 .IP "\(bu" 2
 Mojolicious::Command::routes
 .IP "\(bu" 2
-Mojolicious::Command::test
-.IP "\(bu" 2
 Mojolicious::Command::version
+.IP "\(bu" 2
+Mojolicious::Command::Author::cpanify
+.IP "\(bu" 2
+Mojolicious::Command::Author::generate::app
+.IP "\(bu" 2
+Mojolicious::Command::Author::generate::lite_app
+.IP "\(bu" 2
+Mojolicious::Command::Author::generate::makefile
+.IP "\(bu" 2
+Mojolicious::Command::Author::generate::plugin
+.IP "\(bu" 2
+Mojolicious::Command::Author::inflate
 .IP "\(bu" 2
 Mojolicious::Commands
 .RS 2
 .IP "\(bu" 2
-Mojolicious::Command::generate
+Mojolicious::Command::Author::generate
 .RE
 .RS 2
 .RE
@@ -465,8 +480,6 @@ Mojolicious::Plugin::EPRenderer
 Mojolicious::Plugin::HeaderCondition
 .IP "\(bu" 2
 Mojolicious::Plugin::Mount
-.IP "\(bu" 2
-Mojolicious::Plugin::PODRenderer
 .IP "\(bu" 2
 Mojolicious::Plugin::TagHelpers
 .RE
@@ -506,6 +519,8 @@ Mojo::ByteStream
 .IP "\(bu" 2
 Mojo::Collection
 .IP "\(bu" 2
+Mojo::DynamicMethods
+.IP "\(bu" 2
 Mojo::DOM
 .IP "\(bu" 2
 Mojo::File
@@ -528,11 +543,11 @@ ojo
 .SH "MORE"
 .IX Header "MORE"
 A lot more documentation and examples by many different authors can be found in
-the Mojolicious wiki <http://github.com/kraih/mojo/wiki>.
+the Mojolicious wiki <http://github.com/mojolicious/mojo/wiki>.
 .SH "SUPPORT"
 .IX Header "SUPPORT"
 If you have any questions the documentation might not yet answer, don't
 hesitate to ask on the
 mailing list <http://groups.google.com/group/mojolicious> or the official \s-1IRC\s0
-channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.perl.org\*(C'\fR
-(chat now! <https://chat.mibbit.com/?channel=%23mojo&server=irc.perl.org>).
+channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.freenode.net\*(C'\fR (chat
+now! <https://kiwiirc.com/nextclient/#irc://irc.freenode.net/mojo?nick=guest-?>).

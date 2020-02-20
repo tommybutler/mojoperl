@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Guides::Contributing 3"
-.TH Mojolicious::Guides::Contributing 3 "2017-07-18" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Guides::Contributing 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -80,8 +80,8 @@ There are many ways to contribute to Mojolicious, this guide will show you a
 few of them.
 .SH "REPORTING BUGS"
 .IX Header "REPORTING BUGS"
-We use the GitHub issue tracker <https://github.com/kraih/mojo/issues>, so
-you'll need to create a (free) GitHub account to be able to submit issues,
+We use the GitHub issue tracker <https://github.com/mojolicious/mojo/issues>, 
+so you'll need to create a (free) GitHub account to be able to submit issues,
 comments and pull requests.
 .PP
 First of all, make sure you are using the latest version of Mojolicious, it
@@ -103,13 +103,13 @@ it might get closed pretty quickly. But don't be disheartened, if there's new
 activity it will get reopened just as quickly.
 .SS "Reporting security issues"
 .IX Subsection "Reporting security issues"
-Please report security issues directly to the pumpkin-holder via email, which is
-currently Sebastian Riedel (\f(CW\*(C`sri@cpan.org\*(C'\fR), and give us a few days to develop
-and release a proper fix.
+Please report security issues directly to Sebastian Riedel
+(\f(CW\*(C`kraih@mojolicious.org\*(C'\fR), and give us a few days to develop and release a
+proper fix.
 .SH "RESOLVING ISSUES"
 .IX Header "RESOLVING ISSUES"
 There are many ways in which you can help us resolve existing issues on the
-GitHub issue tracker <https://github.com/kraih/mojo/issues>.
+GitHub issue tracker <https://github.com/mojolicious/mojo/issues>.
 .PP
 Can you replicate the problem on your computer? Add a comment saying that
 you're seeing the same. Perhaps you can provide additional information that
@@ -125,7 +125,7 @@ One of the easiest ways to contribute to Mojolicious is through
 documentation improvements. While the Mojolicious::Guides are carefully
 curated by the core team, everybody with a (free) GitHub account can make
 changes and add new information to the
-Mojolicious wiki <http://github.com/kraih/mojo/wiki>.
+Mojolicious wiki <http://github.com/mojolicious/mojo/wiki>.
 .PP
 Pull requests with additions or changes to the documentation included in the
 Mojolicious distribution follow the same rules as code contributions. Please
@@ -135,20 +135,26 @@ a comma or semicolon.
 .IX Header "CONTRIBUTING CODE"
 All code contributions should be sent as
 GitHub pull requests <https://help.github.com/articles/using-pull-requests>.
+But please try to avoid pull requests with very simplistic changes, such as a
+single typo fix somewhere in the documentation or comments.
 .PP
 An expressive title and detailed description are invaluable during the review
 process, which usually ends when members of the community have voiced their
-opinions and the core team voted for or against a change. All code changes
-should emulate the style of the surrounding code, include tests that fail
-without them, and update relevant documentation.
+opinions and the core team voted for or against a change. To reach the formal
+voting stage, a member of the core team needs to call for a vote. You are
+responsible for securing this vote call as well as the required votes. The exact
+\&\*(L"Voting Rules\*(R" can be found below.
+.PP
+All code changes should emulate the style of the surrounding code, include tests
+that fail without them, and update relevant documentation.
 .PP
 While the Mojolicious distribution covers a wide range of features, we are
 rather conservative when it comes to adding new ones. So if your contribution
-is not a bug fix, you can drastically increase its chances of getting accepted
-by discussing it in advance on the
-mailing list <http://groups.google.com/group/mojolicious> or the official \s-1IRC\s0
-channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.perl.org\*(C'\fR
-(chat now! <https://chat.mibbit.com/?channel=%23mojo&server=irc.perl.org>).
+is not a simple bug fix, it is \fBstrongly recommended\fR that you discuss it in
+advance on the mailing list <http://groups.google.com/group/mojolicious> or the
+official \s-1IRC\s0 channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.freenode.net\*(C'\fR (chat
+now! <https://kiwiirc.com/nextclient/#irc://irc.freenode.net/mojo?nick=guest-?>),
+to avoid unnecessary work and to increase its chances of getting accepted.
 .PP
 The following mission statement and rules are the foundation of all Mojo and
 Mojolicious development. Please make sure that your contribution aligns well
@@ -171,6 +177,8 @@ infrastructure and just consider the higher levels of the Mojolicious
 distribution an example application.
 .SS "Rules"
 .IX Subsection "Rules"
+General rules for the project:
+.Sp
 .RS 2
 Web development should be easy and fun, this is what we optimize for.
 .Sp
@@ -180,14 +188,6 @@ Keep it simple, no magic unless absolutely necessary.
 .Sp
 The installation process should be as fast and painless as possible. (Less than
 a minute on most common hardware is a good rule of thumb)
-.Sp
-The addition and modification of features is decided by majority vote or the
-pumpkin-holder.
-.Sp
-Any core developer may nominate a new one, who must then be accepted by a 2/3
-majority vote.
-.Sp
-The pumpkin-holder has veto rights and may select their successor.
 .Sp
 It's not a feature without a test and documentation.
 .Sp
@@ -208,9 +208,10 @@ name based on a Unicode character.
 Only add dependencies if absolutely necessary and make them optional if
 possible.
 .Sp
-Domain specific languages should be avoided in favor of Perl-ish solutions.
+Emulate the style of the existing code and documentation, but don't be afraid to
+adopt newer best practices if you can apply them consistently.
 .Sp
-No inline \s-1POD.\s0
+Domain specific languages should be avoided in favor of Perl-ish solutions.
 .Sp
 Documentation belongs to the guides, module \s-1POD\s0 is just an \s-1API\s0 reference.
 .Sp
@@ -224,7 +225,7 @@ The master source code repository should always be kept in a stable state, use
 feature branches for actual development.
 .Sp
 Code has to be run through Perl::Tidy with the included
-\&.perltidyrc <https://github.com/kraih/mojo/blob/master/.perltidyrc>, and
+\&.perltidyrc <https://github.com/mojolicious/mojo/blob/master/.perltidyrc>, and
 everything should look like it was written by a single person.
 .Sp
 Functions and methods should be as short as possible, no spaghetti code.
@@ -234,24 +235,20 @@ optional if it doesn't increase readability.
 .Sp
 No names outside of \f(CW\*(C`Mojolicious.pm\*(C'\fR.
 .RE
-.SH "DONATIONS"
-.IX Header "DONATIONS"
-Mojolicious is open source and free to use. However, the amount of effort
-needed to maintain the project and develop new features for it is not
-sustainable without proper financial backing. You can support the ongoing
-development of Mojolicious through
-Gratipay <https://gratipay.com/mojolicious>,
-PayPal <https://www.paypal.me/kraih> or Bitcoin
-(\f(CW\*(C`1Cid78CmK4hvf78Ry8K2XeDx8pQHNh4hbz\*(C'\fR).
-.PP
-If you run a business and use Mojolicious in a revenue generating product, it
-makes business sense to support Mojolicious development. Because it ensures
-that the project your product relies on stays healthy and actively maintained.
-It can also help your exposure within the community and will make it easier to
-attract Mojolicious developers.
-.PP
-Please email Sebastian Riedel (\f(CW\*(C`sri@cpan.org\*(C'\fR) if you have any questions about
-becoming a sponsor.
+.SS "Voting Rules"
+.IX Subsection "Voting Rules"
+The voting process used to make decisions for the project:
+.Sp
+.RS 2
+A feature can be added or modified when at least 3 members of the core team have
+cast a vote in favour, or the \s-1BDFL\s0 overruled the vote.
+.Sp
+Any core team member may nominate new members, who must then be accepted by a
+2/3 majority vote.
+.Sp
+Sebastian has veto rights on all decisions and will resolve issues that could
+not be decided with a vote.
+.RE
 .SH "CODE OF CONDUCT"
 .IX Header "CODE OF CONDUCT"
 Like the technical community as a whole, the Mojolicious team and community
@@ -264,7 +261,7 @@ issues and unhappiness. To that end, we have a few ground rules that we ask
 people to adhere to. This code applies equally to founders, mentors and those
 seeking help and guidance.
 .PP
-This isn’t an exhaustive list of things that you can’t do. Rather, take it in
+This isn't an exhaustive list of things that you can't do. Rather, take it in
 the spirit in which it’s intended \- a guide to make it easier to enrich all of
 us and the technical communities in which we participate.
 .PP
@@ -275,7 +272,7 @@ In addition, violations of this code outside these spaces may affect a person's
 ability to participate within them.
 .PP
 If you believe someone is violating the code of conduct, we ask that you report
-it by emailing Joel Berger (\f(CW\*(C`jberger@cpan.org\*(C'\fR) or other members of
+it by emailing Joel Berger (\f(CW\*(C`jberger@mojolicious.org\*(C'\fR) or other members of
 the team.
 .IP "\(bu" 2
 \&\fBBe friendly and patient.\fR
@@ -355,12 +352,12 @@ bug fixes.
 .SH "MORE"
 .IX Header "MORE"
 You can continue with Mojolicious::Guides now or take a look at the
-Mojolicious wiki <http://github.com/kraih/mojo/wiki>, which contains a lot
-more documentation and examples by many different authors.
+Mojolicious wiki <http://github.com/mojolicious/mojo/wiki>, which contains a
+lot more documentation and examples by many different authors.
 .SH "SUPPORT"
 .IX Header "SUPPORT"
 If you have any questions the documentation might not yet answer, don't
 hesitate to ask on the
 mailing list <http://groups.google.com/group/mojolicious> or the official \s-1IRC\s0
-channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.perl.org\*(C'\fR
-(chat now! <https://chat.mibbit.com/?channel=%23mojo&server=irc.perl.org>).
+channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.freenode.net\*(C'\fR (chat
+now! <https://kiwiirc.com/nextclient/#irc://irc.freenode.net/mojo?nick=guest-?>).

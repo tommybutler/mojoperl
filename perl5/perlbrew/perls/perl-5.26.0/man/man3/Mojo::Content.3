@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Content 3"
-.TH Mojo::Content 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Content 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -140,7 +140,7 @@ Emitted once all data has been written.
 Emitted when a new chunk of content arrives.
 .PP
 .Vb 4
-\&  $content\->unsubscribe(\*(Aqread\*(Aq)\->on(read => sub {
+\&  $content\->on(read => sub {
 \&    my ($content, $bytes) = @_;
 \&    say "Streaming: $bytes";
 \&  });
@@ -164,14 +164,6 @@ Decompress content automatically if \*(L"is_compressed\*(R" is true.
 .Ve
 .PP
 Try to detect when relaxed parsing is necessary.
-.SS "expect_close"
-.IX Subsection "expect_close"
-.Vb 2
-\&  my $bool = $content\->expect_close;
-\&  $content = $content\->expect_close($bool);
-.Ve
-.PP
-Expect a response that is terminated with a connection close.
 .SS "headers"
 .IX Subsection "headers"
 .Vb 2
@@ -188,7 +180,7 @@ Content headers, defaults to a Mojo::Headers object.
 .Ve
 .PP
 Maximum size in bytes of buffer for content parser, defaults to the value of
-the \f(CW\*(C`MOJO_MAX_BUFFER_SIZE\*(C'\fR environment variable or \f(CW262144\fR (256KB).
+the \f(CW\*(C`MOJO_MAX_BUFFER_SIZE\*(C'\fR environment variable or \f(CW262144\fR (256KiB).
 .SS "max_leftover_size"
 .IX Subsection "max_leftover_size"
 .Vb 2
@@ -198,7 +190,7 @@ the \f(CW\*(C`MOJO_MAX_BUFFER_SIZE\*(C'\fR environment variable or \f(CW262144\f
 .PP
 Maximum size in bytes of buffer for pipelined \s-1HTTP\s0 requests, defaults to the
 value of the \f(CW\*(C`MOJO_MAX_LEFTOVER_SIZE\*(C'\fR environment variable or \f(CW262144\fR
-(256KB).
+(256KiB).
 .SS "relaxed"
 .IX Subsection "relaxed"
 .Vb 2
@@ -425,4 +417,4 @@ time to end the stream.
 .Ve
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

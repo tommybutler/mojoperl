@@ -34,7 +34,7 @@ sub load_plugin {
   my ($self, $name) = @_;
 
   # Try all namespaces and full module name
-  my $suffix = $name =~ /^[a-z]/ ? camelize $name : $name;
+  my $suffix  = $name =~ /^[a-z]/ ? camelize $name : $name;
   my @classes = map {"${_}::$suffix"} @{$self->namespaces};
   for my $class (@classes, $name) { return $class->new if _load($class) }
 
@@ -105,11 +105,6 @@ JSON configuration files.
 =item L<Mojolicious::Plugin::Mount>
 
 Mount whole L<Mojolicious> applications.
-
-=item L<Mojolicious::Plugin::PODRenderer>
-
-Renderer for turning POD into HTML and documentation browser for
-L<Mojolicious::Guides>.
 
 =item L<Mojolicious::Plugin::TagHelpers>
 
@@ -188,6 +183,6 @@ C<register>, optional arguments are passed through.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

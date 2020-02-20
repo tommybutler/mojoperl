@@ -1,0 +1,10 @@
+prefix=/home/tommy/.cpanm/work/1582161622.8392/Alien-hiredis-0.008/blib/lib/auto/share/dist/Alien-hiredis
+exec_prefix=${prefix}
+libdir=/home/tommy/.cpanm/work/1582161622.8392/Alien-hiredis-0.008/blib/lib/auto/share/dist/Alien-hiredis/lib
+includedir=/home/tommy/.cpanm/work/1582161622.8392/Alien-hiredis-0.008/blib/lib/auto/share/dist/Alien-hiredis/include/hiredis
+
+Name: hiredis
+Description: Minimalistic C client library for Redis.
+Version: 0.14.0
+Libs: -L${libdir} -lhiredis
+Cflags: -I${includedir} -D_FILE_OFFSET_BITS=64

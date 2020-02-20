@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Validator 3"
-.TH Mojolicious::Validator 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Validator 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -79,11 +79,11 @@ Mojolicious::Validator \- Validate values
 .Vb 1
 \&  use Mojolicious::Validator;
 \&
-\&  my $validator  = Mojolicious::Validator\->new;
-\&  my $validation = $validator\->validation;
-\&  $validation\->input({foo => \*(Aqbar\*(Aq});
-\&  $validation\->required(\*(Aqfoo\*(Aq)\->like(qr/ar$/);
-\&  say $validation\->param(\*(Aqfoo\*(Aq);
+\&  my $validator = Mojolicious::Validator\->new;
+\&  my $v = $validator\->validation;
+\&  $v\->input({foo => \*(Aqbar\*(Aq});
+\&  $v\->required(\*(Aqfoo\*(Aq)\->like(qr/ar$/);
+\&  say $v\->param(\*(Aqfoo\*(Aq);
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
@@ -94,28 +94,40 @@ These validation checks are available by default.
 .SS "equal_to"
 .IX Subsection "equal_to"
 .Vb 1
-\&  $validation = $validation\->equal_to(\*(Aqfoo\*(Aq);
+\&  $v = $v\->equal_to(\*(Aqfoo\*(Aq);
 .Ve
 .PP
 String value needs to be equal to the value of another field.
 .SS "in"
 .IX Subsection "in"
 .Vb 1
-\&  $validation = $validation\->in(\*(Aqfoo\*(Aq, \*(Aqbar\*(Aq, \*(Aqbaz\*(Aq);
+\&  $v = $v\->in(\*(Aqfoo\*(Aq, \*(Aqbar\*(Aq, \*(Aqbaz\*(Aq);
 .Ve
 .PP
 String value needs to match one of the values in the list.
 .SS "like"
 .IX Subsection "like"
 .Vb 1
-\&  $validation = $validation\->like(qr/^[A\-Z]/);
+\&  $v = $v\->like(qr/^[A\-Z]/);
 .Ve
 .PP
 String value needs to match the regular expression.
+.SS "num"
+.IX Subsection "num"
+.Vb 5
+\&  $v = $v\->num;
+\&  $v = $v\->num(2, 5);
+\&  $v = $v\->num(\-3, 7);
+\&  $v = $v\->num(2, undef);
+\&  $v = $v\->num(undef, 5);
+.Ve
+.PP
+String value needs to be a non-fractional number (positive or negative) and if
+provided in the given range.
 .SS "size"
 .IX Subsection "size"
 .Vb 1
-\&  $validation = $validation\->size(2, 5);
+\&  $v = $v\->size(2, 5);
 .Ve
 .PP
 String value length or size of Mojo::Upload object in bytes needs to be
@@ -123,7 +135,7 @@ between these two values.
 .SS "upload"
 .IX Subsection "upload"
 .Vb 1
-\&  $validation = $validation\->upload;
+\&  $v = $v\->upload;
 .Ve
 .PP
 Value needs to be a Mojo::Upload object, representing a file upload.
@@ -133,7 +145,7 @@ These filters are available by default.
 .SS "trim"
 .IX Subsection "trim"
 .Vb 1
-\&  $validation = $validation\->optional(\*(Aqfoo\*(Aq, \*(Aqtrim\*(Aq);
+\&  $v = $v\->optional(\*(Aqfoo\*(Aq, \*(Aqtrim\*(Aq);
 .Ve
 .PP
 Trim whitespace characters from both ends of string value with
@@ -149,7 +161,7 @@ Mojolicious::Validator implements the following attributes.
 .Ve
 .PP
 Registered validation checks, by default only \*(L"equal_to\*(R", \*(L"in\*(R",
-\&\*(L"like\*(R", \*(L"size\*(R" and \*(L"upload\*(R" are already defined.
+\&\*(L"like\*(R", \*(L"num\*(R", \*(L"size\*(R" and \*(L"upload\*(R" are already defined.
 .SH "METHODS"
 .IX Header "METHODS"
 Mojolicious::Validator inherits all methods from Mojo::Base and
@@ -164,7 +176,7 @@ Register a validation check.
 .PP
 .Vb 5
 \&  $validator\->add_check(foo => sub {
-\&    my ($validation, $name, $value, @args) = @_;
+\&    my ($v, $name, $value, @args) = @_;
 \&    ...
 \&    return undef;
 \&  });
@@ -179,25 +191,32 @@ Register a new filter.
 .PP
 .Vb 5
 \&  $validator\->add_filter(foo => sub {
-\&    my ($validation, $name, $value) = @_;
+\&    my ($v, $name, $value) = @_;
 \&    ...
 \&    return $value;
 \&  });
 .Ve
+.SS "new"
+.IX Subsection "new"
+.Vb 1
+\&  my $validator = Mojolicious::Validator\->new;
+.Ve
+.PP
+Construct a new Mojolicious::Validator object.
 .SS "validation"
 .IX Subsection "validation"
 .Vb 1
-\&  my $validation = $validator\->validation;
+\&  my $v = $validator\->validation;
 .Ve
 .PP
 Build Mojolicious::Validator::Validation object to perform validations.
 .PP
 .Vb 4
-\&  my $validation = $validator\->validation;
-\&  $validation\->input({foo => \*(Aqbar\*(Aq});
-\&  $validation\->required(\*(Aqfoo\*(Aq)\->size(1, 5);
-\&  say $validation\->param(\*(Aqfoo\*(Aq);
+\&  my $v = $validator\->validation;
+\&  $v\->input({foo => \*(Aqbar\*(Aq});
+\&  $v\->required(\*(Aqfoo\*(Aq)\->size(1, 5);
+\&  say $v\->param(\*(Aqfoo\*(Aq);
 .Ve
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

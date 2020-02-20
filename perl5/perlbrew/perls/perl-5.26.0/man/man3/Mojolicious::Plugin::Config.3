@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Plugin::Config 3"
-.TH Mojolicious::Plugin::Config 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Plugin::Config 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -98,7 +98,7 @@ Mojolicious::Plugin::Config \- Perl\-ish configuration plugin
 \&  say $config\->{foo};
 \&
 \&  # foo.html.ep
-\&  %= $config\->{foo}
+\&  %= config\->{foo}
 \&
 \&  # The configuration is available application\-wide
 \&  my $config = app\->config;
@@ -119,8 +119,8 @@ directory will be generated from the value of \*(L"moniker\*(R" in Mojolicious
 \&\f(CW\*(C`$moniker.conf\*(C'\fR with \f(CW\*(C`mode\*(C'\fR specific ones like \f(CW\*(C`$moniker.$mode.conf\*(C'\fR, which
 will be detected automatically.
 .PP
-If the configuration value \f(CW\*(C`config_override\*(C'\fR has been set in \*(L"config\*(R" in Mojo
-when this plugin is loaded, it will not do anything.
+If the configuration value \f(CW\*(C`config_override\*(C'\fR has been set in
+\&\*(L"config\*(R" in Mojolicious when this plugin is loaded, it will not do anything.
 .PP
 The code of this plugin is a good example for learning to build new plugins,
 you're welcome to fork it.
@@ -201,4 +201,4 @@ Parse configuration file.
 Register plugin in Mojolicious application and merge configuration.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Guides::Routing 3"
-.TH Mojolicious::Guides::Routing 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Guides::Routing 3 "2019-11-21" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -191,23 +191,23 @@ expression \f(CW\*(C`([^/.]+)\*(C'\fR.
 \&  /sebastian 23/hello \-> /:name/hello \-> {name => \*(Aqsebastian 23\*(Aq}
 .Ve
 .PP
-All placeholders can be surrounded by parentheses to separate them from the
-surrounding text.
+All placeholders can be surrounded by \f(CW\*(C`<\*(C'\fR and \f(CW\*(C`>\*(C'\fR to separate them
+from the surrounding text.
 .PP
 .Vb 6
-\&  /hello             \-> /(:name)hello \-> undef
-\&  /sebastian/23hello \-> /(:name)hello \-> undef
-\&  /sebastian.23hello \-> /(:name)hello \-> undef
-\&  /sebastianhello    \-> /(:name)hello \-> {name => \*(Aqsebastian\*(Aq}
-\&  /sebastian23hello  \-> /(:name)hello \-> {name => \*(Aqsebastian23\*(Aq}
-\&  /sebastian 23hello \-> /(:name)hello \-> {name => \*(Aqsebastian 23\*(Aq}
+\&  /hello             \-> /<:name>hello \-> undef
+\&  /sebastian/23hello \-> /<:name>hello \-> undef
+\&  /sebastian.23hello \-> /<:name>hello \-> undef
+\&  /sebastianhello    \-> /<:name>hello \-> {name => \*(Aqsebastian\*(Aq}
+\&  /sebastian23hello  \-> /<:name>hello \-> {name => \*(Aqsebastian23\*(Aq}
+\&  /sebastian 23hello \-> /<:name>hello \-> {name => \*(Aqsebastian 23\*(Aq}
 .Ve
 .PP
 The colon prefix is optional for standard placeholders that are surrounded by
-parentheses.
+\&\f(CW\*(C`<\*(C'\fR and \f(CW\*(C`>\*(C'\fR.
 .PP
 .Vb 1
-\&  /i♥mojolicious \-> /(one)♥(two) \-> {one => \*(Aqi\*(Aq, two => \*(Aqmojolicious\*(Aq}
+\&  /i♥mojolicious \-> /<one>♥<two> \-> {one => \*(Aqi\*(Aq, two => \*(Aqmojolicious\*(Aq}
 .Ve
 .SS "Relaxed placeholders"
 .IX Subsection "Relaxed placeholders"
@@ -243,6 +243,12 @@ similar to the regular expression \f(CW\*(C`(.+)\*(C'\fR.
 \&  /sebastian/hello    \-> /*name/hello \-> {name => \*(Aqsebastian\*(Aq}
 \&  /sebastian23/hello  \-> /*name/hello \-> {name => \*(Aqsebastian23\*(Aq}
 \&  /sebastian 23/hello \-> /*name/hello \-> {name => \*(Aqsebastian 23\*(Aq}
+.Ve
+.PP
+They can be useful for manually matching entire file paths.
+.PP
+.Vb 1
+\&  /music/rock/song.mp3 \-> /music/*filepath \-> {filepath => \*(Aqrock/song.mp3\*(Aq}
 .Ve
 .SH "BASICS"
 .IX Header "BASICS"
@@ -669,6 +675,44 @@ non-capturing groups \f(CW\*(C`(?:...)\*(C'\fR are fine though.
 .PP
 This way you get easily readable routes and the raw power of regular
 expressions.
+.SS "Placeholder types"
+.IX Subsection "Placeholder types"
+And if you have multiple routes using restrictive placeholders you can also turn
+them into placeholder types with \*(L"add_type\*(R" in Mojolicious::Routes.
+.PP
+.Vb 2
+\&  # A type with alternatives
+\&  $r\->add_type(futurama_name => [\*(Aqbender\*(Aq, \*(Aqleela\*(Aq]);
+\&
+\&  # /fry    \-> undef
+\&  # /bender \-> {controller => \*(Aqfoo\*(Aq, action => \*(Aqbar\*(Aq, name => \*(Aqbender\*(Aq}
+\&  # /leela  \-> {controller => \*(Aqfoo\*(Aq, action => \*(Aqbar\*(Aq, name => \*(Aqleela\*(Aq}
+\&  $r\->get(\*(Aq/<name:futurama_name>\*(Aq)\->to(\*(Aqfoo#bar\*(Aq);
+.Ve
+.PP
+Placeholder types work just like restrictive placeholders, they are just
+reusable with the \f(CW\*(C`<placeholder:type>\*(C'\fR notation.
+.PP
+.Vb 2
+\&  # A type adjusting the regular expression
+\&  $r\->add_type(upper => qr/[A\-Z]+/);
+\&
+\&  # /user/ROOT \-> {controller => \*(Aqusers\*(Aq, action => \*(Aqshow\*(Aq, name => \*(AqROOT\*(Aq}
+\&  # /user/root \-> undef
+\&  # /user/23   \-> undef
+\&  $r\->get(\*(Aq/user/<name:upper>\*(Aq)\->to(\*(Aqusers#show\*(Aq);
+.Ve
+.PP
+Some types like \f(CW\*(C`num\*(C'\fR are used so commonly that they are available by default.
+.PP
+.Vb 3
+\&  # /article/12   \-> {controller => \*(Aqarticle\*(Aq, action => \*(Aqshow\*(Aq, id => 12}
+\&  # /article/test \-> undef
+\&  $r\->get(\*(Aq/article/<id:num>\*(Aq)\->to(\*(Aqarticles#show\*(Aq);
+.Ve
+.PP
+For a full list of available placeholder types see also
+\&\*(L"\s-1TYPES\*(R"\s0 in Mojolicious::Routes.
 .SS "Introspection"
 .IX Subsection "Introspection"
 The command Mojolicious::Command::routes can be used from the command line
@@ -717,9 +761,9 @@ authentication.
 \&  $auth\->get(\*(Aq/blackjack\*(Aq)\->to(\*(Aqhideout#blackjack\*(Aq);
 .Ve
 .PP
-Broken dispatch chains can be continued by calling the method
-\&\*(L"continue\*(R" in Mojolicious::Controller, this allows for example, non-blocking
-operations to finish before reaching the next dispatch cycle.
+Broken dispatch chains can be continued by calling
+\&\*(L"continue\*(R" in Mojolicious::Plugin::DefaultHelpers, this allows for example,
+non-blocking operations to finish before reaching the next dispatch cycle.
 .PP
 .Vb 2
 \&  my $maybe = $r\->under(\*(Aq/maybe\*(Aq => sub {
@@ -989,7 +1033,7 @@ with \*(L"add_shortcut\*(R" in Mojolicious::Routes.
 \&    my $resource = $r\->any("/$name")\->to("$name#");
 \&
 \&    # Render a list of resources
-\&    $resource\->get\->to(\*(Aq#index\*(Aq)\->name($name);
+\&    $resource\->get(\*(Aq/\*(Aq)\->to(\*(Aq#index\*(Aq)\->name($name);
 \&
 \&    # Render a form to create a new resource (submitted to "store")
 \&    $resource\->get(\*(Aq/create\*(Aq)\->to(\*(Aq#create\*(Aq)\->name("create_$name");
@@ -1194,12 +1238,13 @@ be passed along in the \f(CW\*(C`path\*(C'\fR stash value.
 \&  $r\->any(\*(Aq/foo\*(Aq)\->detour(\*(Aqbar#\*(Aq, name => \*(AqMojo\*(Aq);
 .Ve
 .PP
-A minimal embeddable application is nothing more than a subclass of Mojo,
-containing a \f(CW\*(C`handler\*(C'\fR method accepting Mojolicious::Controller objects.
+A minimal embeddable application is nothing more than a subclass of
+Mojolicious, containing a \f(CW\*(C`handler\*(C'\fR method accepting
+Mojolicious::Controller objects.
 .PP
 .Vb 2
 \&  package MyApp::Controller::Bar;
-\&  use Mojo::Base \*(AqMojo\*(Aq;
+\&  use Mojo::Base \*(AqMojolicious\*(Aq;
 \&
 \&  sub handler {
 \&    my ($self, $c) = @_;
@@ -1210,6 +1255,11 @@ containing a \f(CW\*(C`handler\*(C'\fR method accepting Mojolicious::Controller 
 \&
 \&  1;
 .Ve
+.PP
+The host application will only share very little information with the embedded
+application through the stash. So you cannot currently use route placeholders in
+routes leading to embedded applications, since that would cause problems with
+\&\*(L"url_for\*(R" in Mojolicious::Controller.
 .SS "Application plugins"
 .IX Subsection "Application plugins"
 You can even package applications as self-contained reusable plugins.
@@ -1258,12 +1308,12 @@ done.
 .SH "MORE"
 .IX Header "MORE"
 You can continue with Mojolicious::Guides now or take a look at the
-Mojolicious wiki <http://github.com/kraih/mojo/wiki>, which contains a lot
-more documentation and examples by many different authors.
+Mojolicious wiki <http://github.com/mojolicious/mojo/wiki>, which contains a
+lot more documentation and examples by many different authors.
 .SH "SUPPORT"
 .IX Header "SUPPORT"
 If you have any questions the documentation might not yet answer, don't
 hesitate to ask on the
 mailing list <http://groups.google.com/group/mojolicious> or the official \s-1IRC\s0
-channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.perl.org\*(C'\fR
-(chat now! <https://chat.mibbit.com/?channel=%23mojo&server=irc.perl.org>).
+channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.freenode.net\*(C'\fR (chat
+now! <https://kiwiirc.com/nextclient/#irc://irc.freenode.net/mojo?nick=guest-?>).

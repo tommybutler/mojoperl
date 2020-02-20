@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Plugin::TagHelpers 3"
-.TH Mojolicious::Plugin::TagHelpers 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Plugin::TagHelpers 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -101,9 +101,10 @@ necessary attributes always be generated automatically.
 \&  <%= radio_button country => \*(Aquk\*(Aq      %> UK
 .Ve
 .PP
-For fields that failed validation with \*(L"validation\*(R" in Mojolicious::Controller
-the \f(CW\*(C`field\-with\-error\*(C'\fR class will be automatically added through
-\&\*(L"tag_with_error\*(R", to make styling with \s-1CSS\s0 easier.
+For fields that failed validation with
+\&\*(L"validation\*(R" in Mojolicious::Plugin::DefaultHelpers the \f(CW\*(C`field\-with\-error\*(C'\fR
+class will be automatically added through \*(L"tag_with_error\*(R", to make styling
+with \s-1CSS\s0 easier.
 .PP
 .Vb 1
 \&  <input class="field\-with\-error" name="age" type="text" value="250">
@@ -355,8 +356,9 @@ and shown as default.
 .Ve
 .SS "javascript"
 .IX Subsection "javascript"
-.Vb 4
+.Vb 5
 \&  %= javascript \*(Aq/script.js\*(Aq
+\&  %= javascript \*(Aq/script.js\*(Aq, defer => undef
 \&  %= javascript begin
 \&    var a = \*(Aqb\*(Aq;
 \&  % end
@@ -364,8 +366,9 @@ and shown as default.
 .PP
 Generate portable \f(CW\*(C`script\*(C'\fR tag for JavaScript asset.
 .PP
-.Vb 4
+.Vb 5
 \&  <script src="/path/to/script.js"></script>
+\&  <script defer src="/path/to/script.js"></script>
 \&  <script><![CDATA[
 \&    var a = \*(Aqb\*(Aq;
 \&  ]]></script>
@@ -406,7 +409,7 @@ Generate \f(CW\*(C`label\*(C'\fR tag.
 \&  %= link_to Contact => \*(Aqmailto:sri@example.com\*(Aq
 \&  <%= link_to index => begin %>Home<% end %>
 \&  <%= link_to \*(Aq/file.txt\*(Aq => begin %>File<% end %>
-\&  <%= link_to \*(Aqhttp://mojolicious.org\*(Aq => begin %>Mojolicious<% end %>
+\&  <%= link_to \*(Aqhttps://mojolicious.org\*(Aq => begin %>Mojolicious<% end %>
 \&  <%= link_to url_for\->query(foo => \*(Aqbar\*(Aq)\->to_abs => begin %>Retry<% end %>
 .Ve
 .PP
@@ -422,7 +425,7 @@ to using the capitalized link target as content.
 \&  <a href="mailto:sri@example.com">Contact</a>
 \&  <a href="/path/to/index">Home</a>
 \&  <a href="/path/to/file.txt">File</a>
-\&  <a href="http://mojolicious.org">Mojolicious</a>
+\&  <a href="https://mojolicious.org">Mojolicious</a>
 \&  <a href="http://127.0.0.1:3000/current/path?foo=bar">Retry</a>
 .Ve
 .SS "month_field"
@@ -564,8 +567,9 @@ get picked up and shown as default.
 .Ve
 .SS "stylesheet"
 .IX Subsection "stylesheet"
-.Vb 4
+.Vb 5
 \&  %= stylesheet \*(Aq/foo.css\*(Aq
+\&  %= stylesheet \*(Aq/foo.css\*(Aq, title => \*(AqFoo style\*(Aq
 \&  %= stylesheet begin
 \&    body {color: #000}
 \&  % end
@@ -573,8 +577,9 @@ get picked up and shown as default.
 .PP
 Generate portable \f(CW\*(C`style\*(C'\fR or \f(CW\*(C`link\*(C'\fR tag for \s-1CSS\s0 asset.
 .PP
-.Vb 4
+.Vb 5
 \&  <link href="/path/to/foo.css" rel="stylesheet">
+\&  <link href="/path/to/foo.css" rel="stylesheet" title="Foo style">
 \&  <style><![CDATA[
 \&    body {color: #000}
 \&  ]]></style>
@@ -609,17 +614,16 @@ Alias for \*(L"tag\*(R".
 \&  %= tag \*(Aqbr\*(Aq
 \&  %= tag \*(Aqdiv\*(Aq
 \&  %= tag \*(Aqdiv\*(Aq, id => \*(Aqfoo\*(Aq, hidden => undef
-\&  %= tag div => \*(Aqtest & 123\*(Aq
-\&  %= tag div => (id => \*(Aqfoo\*(Aq) => \*(Aqtest & 123\*(Aq
-\&  %= tag div => (data => {my_id => 1, Name => \*(Aqtest\*(Aq}) => \*(Aqtest & 123\*(Aq
+\&  %= tag \*(Aqdiv\*(Aq, \*(Aqtest & 123\*(Aq
+\&  %= tag \*(Aqdiv\*(Aq, id => \*(Aqfoo\*(Aq, \*(Aqtest & 123\*(Aq
+\&  %= tag \*(Aqdiv\*(Aq, data => {my_id => 1, Name => \*(Aqtest\*(Aq}, \*(Aqtest & 123\*(Aq
 \&  %= tag div => begin
 \&    test & 123
 \&  % end
 \&  <%= tag div => (id => \*(Aqfoo\*(Aq) => begin %>test & 123<% end %>
 .Ve
 .PP
-\&\s-1HTML\s0 tag generator, the \f(CW\*(C`data\*(C'\fR attribute may contain a hash reference with
-key/value pairs to generate attributes from.
+Alias for \*(L"new_tag\*(R" in Mojo::DOM.
 .PP
 .Vb 10
 \&  <br>
@@ -639,8 +643,8 @@ Very useful for reuse in more specific tag helpers.
 .Vb 4
 \&  my $output = $c\->tag(\*(Aqmeta\*(Aq);
 \&  my $output = $c\->tag(\*(Aqmeta\*(Aq, charset => \*(AqUTF\-8\*(Aq);
-\&  my $output = $c\->tag(div => \*(Aq<p>This will be escaped</p>\*(Aq);
-\&  my $output = $c\->tag(div => sub { \*(Aq<p>This will not be escaped</p>\*(Aq });
+\&  my $output = $c\->tag(\*(Aqdiv\*(Aq, \*(Aq<p>This will be escaped</p>\*(Aq);
+\&  my $output = $c\->tag(\*(Aqdiv\*(Aq, sub { \*(Aq<p>This will not be escaped</p>\*(Aq });
 .Ve
 .PP
 Results are automatically wrapped in Mojo::ByteStream objects to prevent
@@ -730,8 +734,8 @@ get picked up and shown as default.
 .IX Subsection "url_field"
 .Vb 3
 \&  %= url_field \*(Aqaddress\*(Aq
-\&  %= url_field address => \*(Aqhttp://mojolicious.org\*(Aq
-\&  %= url_field address => \*(Aqhttp://mojolicious.org\*(Aq, id => \*(Aqfoo\*(Aq
+\&  %= url_field address => \*(Aqhttps://mojolicious.org\*(Aq
+\&  %= url_field address => \*(Aqhttps://mojolicious.org\*(Aq, id => \*(Aqfoo\*(Aq
 .Ve
 .PP
 Generate \f(CW\*(C`input\*(C'\fR tag of type \f(CW\*(C`url\*(C'\fR. Previous input values will automatically
@@ -739,8 +743,8 @@ get picked up and shown as default.
 .PP
 .Vb 3
 \&  <input name="address" type="url">
-\&  <input name="address" type="url" value="http://mojolicious.org">
-\&  <input id="foo" name="address" type="url" value="http://mojolicious.org">
+\&  <input name="address" type="url" value="https://mojolicious.org">
+\&  <input id="foo" name="address" type="url" value="https://mojolicious.org">
 .Ve
 .SS "week_field"
 .IX Subsection "week_field"
@@ -771,4 +775,4 @@ Mojolicious::Plugin and implements the following new ones.
 Register helpers in Mojolicious application.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

@@ -51,7 +51,7 @@ sub connection { shift->handshake->connection }
 sub finish {
   my $self = shift;
 
-  my $close = $self->{close} = [@_];
+  my $close   = $self->{close} = [@_];
   my $payload = $close->[0] ? pack('n', $close->[0]) : '';
   $payload .= encode 'UTF-8', $close->[1] if defined $close->[1];
   $close->[0] //= 1005;
@@ -74,7 +74,7 @@ sub parse_message {
   # Ping/Pong
   my $op = $frame->[4];
   return $self->send([1, 0, 0, 0, WS_PONG, $frame->[5]]) if $op == WS_PING;
-  return if $op == WS_PONG;
+  return undef                                           if $op == WS_PONG;
 
   # Close
   if ($op == WS_CLOSE) {
@@ -84,17 +84,18 @@ sub parse_message {
   }
 
   # Append chunk and check message size
-  $self->{op} = $op unless exists $self->{op};
+  @{$self}{qw(op pmc)} = ($op, $self->compressed && $frame->[1])
+    unless exists $self->{op};
   $self->{message} .= $frame->[5];
   my $max = $self->max_websocket_size;
   return $self->finish(1009) if length $self->{message} > $max;
 
   # No FIN bit (Continuation)
-  return unless $frame->[0];
+  return undef unless $frame->[0];
 
   # "permessage-deflate" extension (handshake and RSV1)
   my $msg = delete $self->{message};
-  if ($self->compressed && $frame->[1]) {
+  if ($self->compressed && $self->{pmc}) {
     my $inflate = $self->{inflate} ||= Compress::Raw::Zlib::Inflate->new(
       Bufsize     => $max,
       LimitOutput => 1,
@@ -355,7 +356,7 @@ Mask outgoing frames with XOR cipher and a random 32-bit key.
   $ws      = $ws->max_websocket_size(1024);
 
 Maximum WebSocket message size in bytes, defaults to the value of the
-C<MOJO_MAX_WEBSOCKET_SIZE> environment variable or C<262144> (256KB).
+C<MOJO_MAX_WEBSOCKET_SIZE> environment variable or C<262144> (256KiB).
 
 =head1 METHODS
 
@@ -515,6 +516,6 @@ Negotiate subprotocol for this WebSocket connection.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

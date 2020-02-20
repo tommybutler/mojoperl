@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Asset::File 3"
-.TH Mojo::Asset::File 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Asset::File 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -160,7 +160,7 @@ Check if asset contains a specific string.
 .Ve
 .PP
 Get chunk of data starting from a specific position, defaults to a maximum
-chunk size of \f(CW131072\fR bytes (128KB).
+chunk size of \f(CW131072\fR bytes (128KiB).
 .SS "is_file"
 .IX Subsection "is_file"
 .Vb 1
@@ -182,6 +182,15 @@ Move asset data into a specific file and disable \*(L"cleanup\*(R".
 .Ve
 .PP
 Modification time of asset.
+.SS "new"
+.IX Subsection "new"
+.Vb 3
+\&  my $file = Mojo::Asset::File\->new;
+\&  my $file = Mojo::Asset::File\->new(path => \*(Aq/home/sri/test.txt\*(Aq);
+\&  my $file = Mojo::Asset::File\->new({path => \*(Aq/home/sri/test.txt\*(Aq});
+.Ve
+.PP
+Construct a new Mojo::Asset::File object.
 .SS "size"
 .IX Subsection "size"
 .Vb 1
@@ -196,6 +205,14 @@ Size of asset data in bytes.
 .Ve
 .PP
 Read all asset data at once.
+.SS "to_file"
+.IX Subsection "to_file"
+.Vb 1
+\&  $file = $file\->to_file;
+.Ve
+.PP
+Does nothing but return the invocant, since we already have a
+Mojo::Asset::File object.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

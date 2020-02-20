@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Asset::Memory 3"
-.TH Mojo::Asset::Memory 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Asset::Memory 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -129,7 +129,7 @@ automatically upgrade to a Mojo::Asset::File object.
 .PP
 Maximum size in bytes of data to keep in memory before automatically upgrading
 to a Mojo::Asset::File object, defaults to the value of the
-\&\f(CW\*(C`MOJO_MAX_MEMORY_SIZE\*(C'\fR environment variable or \f(CW262144\fR (256KB).
+\&\f(CW\*(C`MOJO_MAX_MEMORY_SIZE\*(C'\fR environment variable or \f(CW262144\fR (256KiB).
 .SS "mtime"
 .IX Subsection "mtime"
 .Vb 2
@@ -165,7 +165,7 @@ Check if asset contains a specific string.
 .Ve
 .PP
 Get chunk of data starting from a specific position, defaults to a maximum
-chunk size of \f(CW131072\fR bytes (128KB).
+chunk size of \f(CW131072\fR bytes (128KiB).
 .SS "move_to"
 .IX Subsection "move_to"
 .Vb 1
@@ -187,6 +187,13 @@ Size of asset data in bytes.
 .Ve
 .PP
 Read all asset data at once.
+.SS "to_file"
+.IX Subsection "to_file"
+.Vb 1
+\&  my $file = $mem\->to_file;
+.Ve
+.PP
+Convert asset to Mojo::Asset::File object.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

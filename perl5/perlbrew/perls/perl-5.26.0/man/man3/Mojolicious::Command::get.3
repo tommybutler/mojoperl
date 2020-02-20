@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Command::get 3"
-.TH Mojolicious::Command::get 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Command::get 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -85,6 +85,7 @@ Mojolicious::Command::get \- Get command
 \&    mojo get mojolicious.org
 \&    mojo get \-v \-r \-o 25 \-i 50 google.com
 \&    mojo get \-v \-H \*(AqHost: mojolicious.org\*(Aq \-H \*(AqAccept: */*\*(Aq mojolicious.org
+\&    mojo get \-u \*(Aqsri:s3cret\*(Aq https://mojolicious.org
 \&    mojo get mojolicious.org > example.html
 \&    mojo get \-M PUT mojolicious.org < example.html
 \&    mojo get \-f \*(Aqq=Mojolicious\*(Aq \-f \*(Aqsize=5\*(Aq https://metacpan.org/search
@@ -110,6 +111,8 @@ Mojolicious::Command::get \- Get command
 \&                                         MOJO_HOME or auto\-detection
 \&    \-i, \-\-inactivity\-timeout <seconds>   Inactivity timeout, defaults to the
 \&                                         value of MOJO_INACTIVITY_TIMEOUT or 20
+\&    \-k, \-\-insecure                       Do not require a valid TLS certificate
+\&                                         to access HTTPS sites
 \&    \-M, \-\-method <method>                HTTP method to use, defaults to "GET"
 \&    \-m, \-\-mode <name>                    Operating mode for your application,
 \&                                         defaults to the value of
@@ -118,14 +121,16 @@ Mojolicious::Command::get \- Get command
 \&                                         of MOJO_CONNECT_TIMEOUT or 10
 \&    \-r, \-\-redirect                       Follow up to 10 redirects
 \&    \-S, \-\-response\-size <size>           Maximum response size in bytes,
-\&                                         defaults to 2147483648 (2GB)
+\&                                         defaults to 2147483648 (2GiB)
+\&    \-u, \-\-user <userinfo>                Alternate mechanism for specifying
+\&                                         colon\-separated username and password
 \&    \-v, \-\-verbose                        Print request and response headers to
 \&                                         STDERR
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojolicious::Command::get is a command line interface for
-Mojo::UserAgent.
+Mojolicious::Command::get performs requests to remote hosts or local
+applications.
 .PP
 This is a core command, that means it is always enabled and its code a good
 example for learning to build new commands, you're welcome to fork it.
@@ -134,8 +139,8 @@ See \*(L"\s-1COMMANDS\*(R"\s0 in Mojolicious::Commands for a list of commands th
 available by default.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojolicious::Command::get performs requests to remote hosts or local
-applications.
+Mojolicious::Command::get inherits all attributes from
+Mojolicious::Command and implements the following new ones.
 .SS "description"
 .IX Subsection "description"
 .Vb 2
@@ -165,4 +170,4 @@ and implements the following new ones.
 Run this command.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

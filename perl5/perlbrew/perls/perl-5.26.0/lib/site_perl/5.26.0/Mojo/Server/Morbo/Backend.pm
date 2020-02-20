@@ -3,7 +3,7 @@ use Mojo::Base -base;
 
 use Carp 'croak';
 
-has watch => sub { [qw(lib templates)] };
+has watch         => sub { [qw(lib templates)] };
 has watch_timeout => sub { $ENV{MOJO_MORBO_TIMEOUT} || 1 };
 
 sub modified_files {
@@ -70,6 +70,6 @@ subclass.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

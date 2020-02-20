@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::IOLoop::TLS 3"
-.TH Mojo::IOLoop::TLS 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::IOLoop::TLS 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -132,7 +132,7 @@ Mojo::IOLoop::TLS implements the following attributes.
 .Ve
 .PP
 Low-level event reactor, defaults to the \f(CW\*(C`reactor\*(C'\fR attribute value of the
-global Mojo::IOLoop singleton.
+global Mojo::IOLoop singleton. Note that this attribute is weakened.
 .SH "METHODS"
 .IX Header "METHODS"
 Mojo::IOLoop::TLS inherits all methods from Mojo::EventEmitter and
@@ -143,7 +143,7 @@ implements the following new ones.
 \&  my $bool = Mojo::IOLoop::TLS\->can_tls;
 .Ve
 .PP
-True if IO::Socket::SSL 1.94+ is installed and \s-1TLS\s0 support enabled.
+True if IO::Socket::SSL 2.009+ is installed and \s-1TLS\s0 support enabled.
 .SS "negotiate"
 .IX Subsection "negotiate"
 .Vb 2
@@ -167,8 +167,7 @@ Negotiate \s-1TLS\s0 from the server-side, defaults to the client-side.
 \&  tls_ca => \*(Aq/etc/tls/ca.crt\*(Aq
 .Ve
 .Sp
-Path to \s-1TLS\s0 certificate authority file. Also activates hostname verification on
-the client-side.
+Path to \s-1TLS\s0 certificate authority file.
 .IP "tls_cert" 2
 .IX Item "tls_cert"
 .Vb 2
@@ -194,14 +193,20 @@ server-side.
 .Ve
 .Sp
 Path to the \s-1TLS\s0 key file, defaults to a built-in test key on the server-side.
+.IP "tls_protocols" 2
+.IX Item "tls_protocols"
+.Vb 1
+\&  tls_protocols => [\*(Aqfoo\*(Aq, \*(Aqbar\*(Aq]
+.Ve
+.Sp
+\&\s-1ALPN\s0 protocols to negotiate.
 .IP "tls_verify" 2
 .IX Item "tls_verify"
 .Vb 1
 \&  tls_verify => 0x00
 .Ve
 .Sp
-\&\s-1TLS\s0 verification mode, defaults to \f(CW0x03\fR on the server-side and \f(CW0x01\fR on the
-client-side if a certificate authority file has been provided, or \f(CW0x00\fR.
+\&\s-1TLS\s0 verification mode.
 .IP "tls_version" 2
 .IX Item "tls_version"
 .Vb 1
@@ -218,4 +223,4 @@ client-side if a certificate authority file has been provided, or \f(CW0x00\fR.
 Construct a new Mojo::IOLoop::Stream object.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

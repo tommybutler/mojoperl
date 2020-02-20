@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Renderer 3"
-.TH Mojolicious::Renderer 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Renderer 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -120,6 +120,16 @@ application startup.
 \&  # Add another class with templates in DATA section and higher precedence
 \&  unshift @{$renderer\->classes}, \*(AqMojolicious::Plugin::MoreFun\*(Aq;
 .Ve
+.SS "compress"
+.IX Subsection "compress"
+.Vb 2
+\&  my $bool  = $renderer\->compress;
+\&  $renderer = $renderer\->compress($bool);
+.Ve
+.PP
+Try to negotiate compression for dynamically generated response content and
+\&\f(CW\*(C`gzip\*(C'\fR compress it automatically, defaults to false. Note that this attribute
+is \fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
 .SS "default_format"
 .IX Subsection "default_format"
 .Vb 2
@@ -128,7 +138,8 @@ application startup.
 .Ve
 .PP
 The default format to render if \f(CW\*(C`format\*(C'\fR is not set in the stash, defaults to
-\&\f(CW\*(C`html\*(C'\fR.
+\&\f(CW\*(C`html\*(C'\fR. Note that changing the default away from \f(CW\*(C`html\*(C'\fR is not recommended, as
+it has the potential to break, for example, plugins with bundled templates.
 .SS "default_handler"
 .IX Subsection "default_handler"
 .Vb 2
@@ -164,6 +175,16 @@ Registered handlers.
 .Ve
 .PP
 Registered helpers.
+.SS "min_compress_size"
+.IX Subsection "min_compress_size"
+.Vb 2
+\&  my $size  = $renderer\->min_compress_size;
+\&  $renderer = $renderer\->min_compress_size(1024);
+.Ve
+.PP
+Minimum output size in bytes required for compression to be used if enabled,
+defaults to \f(CW860\fR. Note that this attribute is \fB\s-1EXPERIMENTAL\s0\fR and might change
+without warning!
 .SS "paths"
 .IX Subsection "paths"
 .Vb 2
@@ -192,12 +213,9 @@ the following new ones.
 .Ve
 .PP
 Select best possible representation for Mojolicious::Controller object from
-\&\f(CW\*(C`Accept\*(C'\fR request header, \f(CW\*(C`format\*(C'\fR stash value or \f(CW\*(C`format\*(C'\fR \f(CW\*(C`GET\*(C'\fR/\f(CW\*(C`POST\*(C'\fR
-parameter, defaults to returning the first extension if no preference could be
-detected. Since browsers often don't really know what they actually want,
-unspecific \f(CW\*(C`Accept\*(C'\fR request headers with more than one \s-1MIME\s0 type will be
-ignored, unless the \f(CW\*(C`X\-Requested\-With\*(C'\fR header is set to the value
-\&\f(CW\*(C`XMLHttpRequest\*(C'\fR.
+\&\f(CW\*(C`format\*(C'\fR \f(CW\*(C`GET\*(C'\fR/\f(CW\*(C`POST\*(C'\fR parameter, \f(CW\*(C`format\*(C'\fR stash value, or \f(CW\*(C`Accept\*(C'\fR request
+header, defaults to returning the first extension if no preference could be
+detected.
 .SS "add_handler"
 .IX Subsection "add_handler"
 .Vb 1
@@ -261,6 +279,17 @@ helpers can be called.
 .PP
 Render output through one of the renderers. See
 \&\*(L"render\*(R" in Mojolicious::Controller for a more user-friendly interface.
+.SS "respond"
+.IX Subsection "respond"
+.Vb 3
+\&  my $bool = $renderer\->respond(Mojolicious::Controller\->new, $output, $format);
+\&  my $bool = $renderer\->respond(
+\&    Mojolicious::Controller\->new, $output, $format, $status);
+.Ve
+.PP
+Finalize dynamically generated response content and \*(L"compress\*(R" it if
+possible. Note that this method is \fB\s-1EXPERIMENTAL\s0\fR and might change without
+warning!
 .SS "template_for"
 .IX Subsection "template_for"
 .Vb 1
@@ -315,4 +344,4 @@ exist in \*(L"paths\*(R", usually used by handlers.
 Prepare templates from \*(L"classes\*(R" for future use.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

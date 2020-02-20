@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::UserAgent::CookieJar 3"
-.TH Mojo::UserAgent::CookieJar 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::UserAgent::CookieJar 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -130,7 +130,7 @@ A callback used to decide if a cookie should be ignored by \*(L"collect\*(R".
 \&  $jar     = $jar\->max_cookie_size(4096);
 .Ve
 .PP
-Maximum cookie size in bytes, defaults to \f(CW4096\fR (4KB).
+Maximum cookie size in bytes, defaults to \f(CW4096\fR (4KiB).
 .SH "METHODS"
 .IX Header "METHODS"
 Mojo::UserAgent::CookieJar inherits all methods from Mojo::Base and
@@ -190,4 +190,4 @@ Find Mojo::Cookie::Request objects in the jar for Mojo::URL object.
 Prepare request cookies for transaction.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Static 3"
-.TH Mojolicious::Static 3 "2017-07-26" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Static 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -173,8 +173,10 @@ traversing to parent directories.
 .Ve
 .SS "is_fresh"
 .IX Subsection "is_fresh"
-.Vb 1
+.Vb 3
 \&  my $bool = $static\->is_fresh(Mojolicious::Controller\->new, {etag => \*(Aqabc\*(Aq});
+\&  my $bool = $static\->is_fresh(
+\&    Mojolicious::Controller\->new, {etag => \*(AqW/"def"\*(Aq});
 .Ve
 .PP
 Check freshness of request by comparing the \f(CW\*(C`If\-None\-Match\*(C'\fR and
@@ -184,8 +186,9 @@ response headers.
 These options are currently available:
 .IP "etag" 2
 .IX Item "etag"
-.Vb 1
+.Vb 2
 \&  etag => \*(Aqabc\*(Aq
+\&  etag => \*(AqW/"abc"\*(Aq
 .Ve
 .Sp
 Add \f(CW\*(C`ETag\*(C'\fR header before comparing.
@@ -223,4 +226,4 @@ Serve a Mojo::Asset::File or Mojo::Asset::Memory object with \f(CW\*(C`Range\*(C
 Prepare static files from \*(L"classes\*(R" for future use.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

@@ -64,72 +64,10 @@
 .        nr F 2
 .    \}
 .\}
-.\"
-.\" Accent mark definitions (@(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2).
-.\" Fear.  Run.  Save yourself.  No user-serviceable parts.
-.    \" fudge factors for nroff and troff
-.if n \{\
-.    ds #H 0
-.    ds #V .8m
-.    ds #F .3m
-.    ds #[ \f1
-.    ds #] \fP
-.\}
-.if t \{\
-.    ds #H ((1u-(\\\\n(.fu%2u))*.13m)
-.    ds #V .6m
-.    ds #F 0
-.    ds #[ \&
-.    ds #] \&
-.\}
-.    \" simple accents for nroff and troff
-.if n \{\
-.    ds ' \&
-.    ds ` \&
-.    ds ^ \&
-.    ds , \&
-.    ds ~ ~
-.    ds /
-.\}
-.if t \{\
-.    ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
-.    ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
-.    ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
-.    ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
-.    ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
-.    ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
-.\}
-.    \" troff and (daisy-wheel) nroff accents
-.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
-.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
-.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
-.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
-.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
-.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
-.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
-.ds ae a\h'-(\w'a'u*4/10)'e
-.ds Ae A\h'-(\w'A'u*4/10)'E
-.    \" corrections for vroff
-.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
-.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
-.    \" for low resolution devices (crt and lpr)
-.if \n(.H>23 .if \n(.V>19 \
-\{\
-.    ds : e
-.    ds 8 ss
-.    ds o a
-.    ds d- d\h'-1'\(ga
-.    ds D- D\h'-1'\(hy
-.    ds th \o'bp'
-.    ds Th \o'LP'
-.    ds ae ae
-.    ds Ae AE
-.\}
-.rm #[ #] #H #V #F C
 .\" ========================================================================
 .\"
 .IX Title "Test::More 3"
-.TH Test::More 3 "2017-04-19" "perl v5.26.0" "Perl Programmers Reference Guide"
+.TH Test::More 3 "2020-01-17" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -191,8 +129,10 @@ Test::More \- yet another framework for writing test scripts
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
 \&\fB\s-1STOP\s0!\fR If you're just getting started writing tests, have a look at
-Test::Simple first.  This is a drop in replacement for Test::Simple
-which you can switch to once you get the hang of basic testing.
+Test2::Suite first.
+.PP
+This is a drop in replacement for Test::Simple which you can switch to once you
+get the hang of basic testing.
 .PP
 The purpose of this module is to provide a wide range of testing
 utilities.  Various ways to say \*(L"ok\*(R" with better diagnostics,
@@ -1045,7 +985,7 @@ You then know the thing you had todo is done and can remove the
 \&\s-1TODO\s0 flag.
 .Sp
 The nice part about todo tests, as opposed to simply commenting out a
-block of tests, is it's like having a programmatic todo list.  You know
+block of tests, is that it is like having a programmatic todo list.  You know
 how much work is left to be done, you're aware of what bugs there are,
 and you'll know immediately when they're fixed.
 .Sp
@@ -1316,6 +1256,8 @@ magic side-effects are kept to a minimum.  \s-1WYSIWYG.\s0
 .IX Subsection ""
 .SS "\s-1ALTERNATIVES\s0"
 .IX Subsection "ALTERNATIVES"
+Test2::Suite is the most recent and modern set of tools for testing.
+.PP
 Test::Simple if all this confuses you and you just want to write
 some tests.  You can upgrade to Test::More later (it's forward
 compatible).
@@ -1323,14 +1265,6 @@ compatible).
 Test::Legacy tests written with Test.pm, the original testing
 module, do not play well with other testing libraries.  Test::Legacy
 emulates the Test.pm interface and does play well with others.
-.SS "\s-1TESTING FRAMEWORKS\s0"
-.IX Subsection "TESTING FRAMEWORKS"
-Fennec The Fennec framework is a testers toolbox. It uses Test::Builder
-under the hood. It brings enhancements for forking, defining state, and
-mocking. Fennec enhances several modules to work better together than they
-would if you loaded them individually on your own.
-.PP
-Fennec::Declare Provides enhanced (Devel::Declare) syntax for Fennec.
 .SS "\s-1ADDITIONAL LIBRARIES\s0"
 .IX Subsection "ADDITIONAL LIBRARIES"
 Test::Differences for more ways to test complex data structures.

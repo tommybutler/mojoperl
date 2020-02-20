@@ -1,6 +1,8 @@
 package Mojolicious::Plugin::HeaderCondition;
 use Mojo::Base 'Mojolicious::Plugin';
 
+use re 'is_regexp';
+
 sub register {
   my ($self, $app) = @_;
 
@@ -13,8 +15,7 @@ sub register {
 
 sub _check {
   my ($value, $pattern) = @_;
-  return 1
-    if $value && $pattern && ref $pattern eq 'Regexp' && $value =~ $pattern;
+  return 1 if $value && $pattern && is_regexp($pattern) && $value =~ $pattern;
   return $value && defined $pattern && $pattern eq $value;
 }
 
@@ -84,6 +85,6 @@ Register conditions in L<Mojolicious> application.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

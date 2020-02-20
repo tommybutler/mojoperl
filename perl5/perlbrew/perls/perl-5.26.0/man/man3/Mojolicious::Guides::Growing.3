@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Guides::Growing 3"
-.TH Mojolicious::Guides::Growing 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Guides::Growing 3 "2019-11-21" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -227,6 +227,7 @@ organized \s-1CPAN\s0 distribution to maximize maintainability.
 \&  |  +\- MyApp                # Application namespace
 \&  |     +\- Controller        # Controller namespace
 \&  |        +\- Example.pm     # Controller class
+\&  |\- my_app.conf             # Configuration file
 \&  |\- t                       # Test directory
 \&  |  +\- basic.t              # Random test
 \&  |\- log                     # Log directory
@@ -241,8 +242,8 @@ organized \s-1CPAN\s0 distribution to maximize maintainability.
 .Ve
 .PP
 Both application skeletons can be automatically generated with the commands
-Mojolicious::Command::generate::lite_app and
-Mojolicious::Command::generate::app.
+Mojolicious::Command::Author::generate::lite_app and
+Mojolicious::Command::Author::generate::app.
 .PP
 .Vb 2
 \&  $ mojo generate lite_app myapp.pl
@@ -421,8 +422,8 @@ Mojo::DOM.
 \&  use Test::Mojo;
 \&
 \&  # Include application
-\&  use FindBin;
-\&  require "$FindBin::Bin/../myapp.pl";
+\&  use Mojo::File \*(Aqcurfile\*(Aq;
+\&  require(curfile\->dirname\->sibling(\*(Aqmyapp.pl\*(Aq));
 \&
 \&  # Allow 302 redirect responses
 \&  my $t = Test::Mojo\->new;
@@ -437,13 +438,15 @@ Mojo::DOM.
 \&
 \&  # Test login with valid credentials
 \&  $t\->post_ok(\*(Aq/\*(Aq => form => {user => \*(Aqsebastian\*(Aq, pass => \*(Aqsecr3t\*(Aq})
-\&    \->status_is(200)\->text_like(\*(Aqhtml body\*(Aq => qr/Welcome sebastian/);
+\&    \->status_is(200)
+\&    \->text_like(\*(Aqhtml body\*(Aq => qr/Welcome sebastian/);
 \&
 \&  # Test accessing a protected page
 \&  $t\->get_ok(\*(Aq/protected\*(Aq)\->status_is(200)\->text_like(\*(Aqa\*(Aq => qr/Logout/);
 \&
 \&  # Test if HTML login form shows up again after logout
-\&  $t\->get_ok(\*(Aq/logout\*(Aq)\->status_is(200)
+\&  $t\->get_ok(\*(Aq/logout\*(Aq)
+\&    \->status_is(200)
 \&    \->element_exists(\*(Aqform input[name="user"]\*(Aq)
 \&    \->element_exists(\*(Aqform input[name="pass"]\*(Aq)
 \&    \->element_exists(\*(Aqform input[type="submit"]\*(Aq);
@@ -452,12 +455,12 @@ Mojo::DOM.
 .Ve
 .PP
 Your application won't pass these tests, but from now on you can use them to
-check your progress with the command Mojolicious::Command::test.
+check your progress.
 .PP
 .Vb 3
-\&  $ ./myapp.pl test
-\&  $ ./myapp.pl test t/login.t
-\&  $ ./myapp.pl test \-v t/login.t
+\&  $ prove \-l
+\&  $ prove \-l t/login.t
+\&  $ prove \-l \-v t/login.t
 .Ve
 .PP
 Or perform quick requests right from the command line with
@@ -517,8 +520,8 @@ set an absolute expiration date in the past.
 .PP
 For data that should only be visible on the next request, like a confirmation
 message after a \f(CW302\fR redirect performed with
-\&\*(L"redirect_to\*(R" in Mojolicious::Controller, you can use the flash, accessible
-through the method \*(L"flash\*(R" in Mojolicious::Controller.
+\&\*(L"redirect_to\*(R" in Mojolicious::Plugin::DefaultHelpers, you can use the flash,
+accessible through \*(L"flash\*(R" in Mojolicious::Plugin::DefaultHelpers.
 .PP
 .Vb 2
 \&  $c\->flash(message => \*(AqEverything is fine.\*(Aq);
@@ -526,7 +529,7 @@ through the method \*(L"flash\*(R" in Mojolicious::Controller.
 .Ve
 .PP
 Just remember that all session data gets serialized with Mojo::JSON and
-stored in \s-1HMAC\-SHA1\s0 signed cookies, which usually have a \f(CW4096\fR byte (4KB)
+stored in \s-1HMAC\-SHA1\s0 signed cookies, which usually have a \f(CW4096\fR byte (4KiB)
 limit, depending on browser.
 .SS "Final prototype"
 .IX Subsection "Final prototype"
@@ -649,7 +652,7 @@ possibilities.
 .IX Subsection "Inflating templates"
 All templates and static files inlined in the \f(CW\*(C`DATA\*(C'\fR section can be
 automatically turned into separate files in the \f(CW\*(C`templates\*(C'\fR and \f(CW\*(C`public\*(C'\fR
-directories with the command Mojolicious::Command::inflate.
+directories with the command Mojolicious::Command::Author::inflate.
 .PP
 .Vb 1
 \&  $ ./myapp.pl inflate
@@ -854,8 +857,9 @@ Finally \f(CW\*(C`myapp.pl\*(C'\fR can be moved into a \f(CW\*(C`script\*(C'\fR 
 \&  $ mv myapp.pl script/my_app
 .Ve
 .PP
-Just a few small details change, instead of lib we now use FindBin and
-\&\f(CW@INC\fR, allowing us to start the application from outside its home directory.
+Just a few small details change, instead of a relative path to lib we now
+use Mojo::File to get an absolute path, allowing us to start the application
+from outside its home directory.
 .PP
 .Vb 1
 \&  #!/usr/bin/env perl
@@ -863,8 +867,8 @@ Just a few small details change, instead of lib we now use FindBin and
 \&  use strict;
 \&  use warnings;
 \&
-\&  use FindBin;
-\&  BEGIN { unshift @INC, "$FindBin::Bin/../lib" }
+\&  use Mojo::File \*(Aqcurfile\*(Aq;
+\&  use lib curfile\->dirname\->sibling(\*(Aqlib\*(Aq)\->to_string;
 \&  use Mojolicious::Commands;
 \&
 \&  # Start command line interface for application
@@ -890,11 +894,13 @@ can be simplified.
 \&    \->element_exists(\*(Aqform input[type="submit"]\*(Aq);
 \&
 \&  $t\->post_ok(\*(Aq/\*(Aq => form => {user => \*(Aqsebastian\*(Aq, pass => \*(Aqsecr3t\*(Aq})
-\&    \->status_is(200)\->text_like(\*(Aqhtml body\*(Aq => qr/Welcome sebastian/);
+\&    \->status_is(200)
+\&    \->text_like(\*(Aqhtml body\*(Aq => qr/Welcome sebastian/);
 \&
 \&  $t\->get_ok(\*(Aq/protected\*(Aq)\->status_is(200)\->text_like(\*(Aqa\*(Aq => qr/Logout/);
 \&
-\&  $t\->get_ok(\*(Aq/logout\*(Aq)\->status_is(200)
+\&  $t\->get_ok(\*(Aq/logout\*(Aq)
+\&    \->status_is(200)
 \&    \->element_exists(\*(Aqform input[name="user"]\*(Aq)
 \&    \->element_exists(\*(Aqform input[name="pass"]\*(Aq)
 \&    \->element_exists(\*(Aqform input[type="submit"]\*(Aq);
@@ -930,12 +936,12 @@ powerful tool.
 .SH "MORE"
 .IX Header "MORE"
 You can continue with Mojolicious::Guides now or take a look at the
-Mojolicious wiki <http://github.com/kraih/mojo/wiki>, which contains a lot
-more documentation and examples by many different authors.
+Mojolicious wiki <http://github.com/mojolicious/mojo/wiki>, which contains a
+lot more documentation and examples by many different authors.
 .SH "SUPPORT"
 .IX Header "SUPPORT"
 If you have any questions the documentation might not yet answer, don't
 hesitate to ask on the
 mailing list <http://groups.google.com/group/mojolicious> or the official \s-1IRC\s0
-channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.perl.org\*(C'\fR
-(chat now! <https://chat.mibbit.com/?channel=%23mojo&server=irc.perl.org>).
+channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.freenode.net\*(C'\fR (chat
+now! <https://kiwiirc.com/nextclient/#irc://irc.freenode.net/mojo?nick=guest-?>).

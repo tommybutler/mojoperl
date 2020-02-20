@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Command 3"
-.TH Mojolicious::Command 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Command 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -120,7 +120,8 @@ Mojolicious::Command implements the following attributes.
 \&  $command = $command\->app(Mojolicious\->new);
 .Ve
 .PP
-Application for command, defaults to a Mojo::HelloWorld object.
+Application for command, defaults to a Mojo::HelloWorld object. Note that
+this attribute is weakened.
 .PP
 .Vb 2
 \&  # Introspect
@@ -142,6 +143,15 @@ Short description of command, used for the command list.
 .Ve
 .PP
 Limited command output.
+.SS "template"
+.IX Subsection "template"
+.Vb 2
+\&  my $template = $command\->template;
+\&  $command     = $command\->template({vars => 1});
+.Ve
+.PP
+Attribute values passed to Mojo::Template objects used to render templates
+with \*(L"render_data\*(R", defaults to activating \f(CW\*(C`vars\*(C'\fR.
 .SS "usage"
 .IX Subsection "usage"
 .Vb 2
@@ -174,14 +184,15 @@ Portably change mode of a file relative to the current working directory.
 \&  $command = $command\->create_dir(\*(Aq/home/sri/foo/bar\*(Aq);
 .Ve
 .PP
-Create a directory.
+Create a directory if it does not exist already.
 .SS "create_rel_dir"
 .IX Subsection "create_rel_dir"
 .Vb 1
 \&  $command = $command\->create_rel_dir(\*(Aqfoo/bar/baz\*(Aq);
 .Ve
 .PP
-Portably create a directory relative to the current working directory.
+Portably create a directory relative to the current working directory if it does
+not exist already.
 .SS "extract_usage"
 .IX Subsection "extract_usage"
 .Vb 1
@@ -206,32 +217,38 @@ Print usage information for command.
 Return a Mojo::File object relative to the current working directory.
 .SS "render_data"
 .IX Subsection "render_data"
-.Vb 2
+.Vb 3
 \&  my $data = $command\->render_data(\*(Aqfoo_bar\*(Aq);
 \&  my $data = $command\->render_data(\*(Aqfoo_bar\*(Aq, @args);
+\&  my $data = $command\->render_data(\*(Aqfoo_bar\*(Aq, {foo => \*(Aqbar\*(Aq});
 .Ve
 .PP
 Render a template from the \f(CW\*(C`DATA\*(C'\fR section of the command class with
-Mojo::Loader and Mojo::Template.
+Mojo::Loader and Mojo::Template. The template can be configured with
+\&\*(L"template\*(R".
 .SS "render_to_file"
 .IX Subsection "render_to_file"
-.Vb 2
+.Vb 4
 \&  $command = $command\->render_to_file(\*(Aqfoo_bar\*(Aq, \*(Aq/home/sri/foo.txt\*(Aq);
 \&  $command = $command\->render_to_file(\*(Aqfoo_bar\*(Aq, \*(Aq/home/sri/foo.txt\*(Aq, @args);
+\&  $command = $command\->render_to_file(
+\&    \*(Aqfoo_bar\*(Aq, \*(Aq/home/sri/foo.txt\*(Aq, {foo => \*(Aqbar\*(Aq});
 .Ve
 .PP
-Render a template from the \f(CW\*(C`DATA\*(C'\fR section of the command class with
-Mojo::Template to a file and create directory if necessary.
+Render a template with \*(L"render_data\*(R" to a file if it does not exist already,
+and create the directory if necessary.
 .SS "render_to_rel_file"
 .IX Subsection "render_to_rel_file"
-.Vb 2
+.Vb 4
 \&  $command = $command\->render_to_rel_file(\*(Aqfoo_bar\*(Aq, \*(Aqfoo/bar.txt\*(Aq);
 \&  $command = $command\->render_to_rel_file(\*(Aqfoo_bar\*(Aq, \*(Aqfoo/bar.txt\*(Aq, @args);
+\&  $command = $command\->render_to_rel_file(
+\&    \*(Aqfoo_bar\*(Aq, \*(Aqfoo/bar.txt\*(Aq, {foo => \*(Aqbar\*(Aq});
 .Ve
 .PP
-Portably render a template from the \f(CW\*(C`DATA\*(C'\fR section of the command class with
-Mojo::Template to a file relative to the current working directory and
-create directory if necessary.
+Portably render a template with \*(L"render_data\*(R" to a file relative to the
+current working directory if it does not exist already, and create the directory
+if necessary.
 .SS "run"
 .IX Subsection "run"
 .Vb 2
@@ -246,15 +263,16 @@ Run command. Meant to be overloaded in a subclass.
 \&  $command = $command\->write_file(\*(Aq/home/sri/foo.txt\*(Aq, \*(AqHello World!\*(Aq);
 .Ve
 .PP
-Write text to a file and create directory if necessary.
+Write text to a file if it does not exist already, and create the directory if
+necessary.
 .SS "write_rel_file"
 .IX Subsection "write_rel_file"
 .Vb 1
 \&  $command = $command\->write_rel_file(\*(Aqfoo/bar.txt\*(Aq, \*(AqHello World!\*(Aq);
 .Ve
 .PP
-Portably write text to a file relative to the current working directory and
-create directory if necessary.
+Portably write text to a file relative to the current working directory if it
+does not exist already, and create the directory if necessary.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

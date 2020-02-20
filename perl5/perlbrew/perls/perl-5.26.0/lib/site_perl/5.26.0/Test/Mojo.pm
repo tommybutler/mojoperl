@@ -17,7 +17,8 @@ use Mojo::Util qw(decode encode);
 use Test::More ();
 
 has [qw(message success tx)];
-has ua => sub { Mojo::UserAgent->new->ioloop(Mojo::IOLoop->singleton) };
+has ua =>
+  sub { Mojo::UserAgent->new(insecure => 1)->ioloop(Mojo::IOLoop->singleton) };
 
 # Silent or loud tests
 $ENV{MOJO_LOG_LEVEL} ||= $ENV{HARNESS_IS_VERBOSE} ? 'debug' : 'fatal';
@@ -27,6 +28,34 @@ sub app {
   return $self->ua->server->app unless $app;
   $self->ua->server->app($app);
   return $self;
+}
+
+sub attr_is {
+  my ($self, $selector, $attr, $value, $desc) = @_;
+  $desc = _desc($desc,
+    qq{exact match for attribute "$attr" at selector "$selector"});
+  return $self->_test('is', $self->_attr($selector, $attr), $value, $desc);
+}
+
+sub attr_isnt {
+  my ($self, $selector, $attr, $value, $desc) = @_;
+  $desc
+    = _desc($desc, qq{no match for attribute "$attr" at selector "$selector"});
+  return $self->_test('isnt', $self->_attr($selector, $attr), $value, $desc);
+}
+
+sub attr_like {
+  my ($self, $selector, $attr, $regex, $desc) = @_;
+  $desc = _desc($desc,
+    qq{similar match for attribute "$attr" at selector "$selector"});
+  return $self->_test('like', $self->_attr($selector, $attr), $regex, $desc);
+}
+
+sub attr_unlike {
+  my ($self, $selector, $attr, $regex, $desc) = @_;
+  $desc = _desc($desc,
+    qq{no similar match for attribute "$attr" at selector "$selector"});
+  return $self->_test('unlike', $self->_attr($selector, $attr), $regex, $desc);
 }
 
 sub content_is {
@@ -119,6 +148,20 @@ sub finished_ok {
 
 sub get_ok  { shift->_build_ok(GET  => @_) }
 sub head_ok { shift->_build_ok(HEAD => @_) }
+
+sub header_exists {
+  my ($self, $name, $desc) = @_;
+  $desc = _desc($desc, qq{header "$name" exists});
+  return $self->_test('ok', !!@{$self->tx->res->headers->every_header($name)},
+    $desc);
+}
+
+sub header_exists_not {
+  my ($self, $name, $desc) = @_;
+  $desc = _desc($desc, qq{no "$name" header});
+  return $self->_test('ok', !@{$self->tx->res->headers->every_header($name)},
+    $desc);
+}
 
 sub header_is {
   my ($self, $name, $value, $desc) = @_;
@@ -244,8 +287,9 @@ sub new {
   return $self unless my $app = shift;
 
   my @args = @_ ? {config => {config_override => 1, %{shift()}}} : ();
-  return $self->app(
-    ref $app ? $app : Mojo::Server->new->build_app($app, @args));
+  return $self->app(Mojo::Server->new->build_app($app, @args)) unless ref $app;
+  $app = Mojo::Server->new->load_app($app) unless $app->isa('Mojolicious');
+  return $self->app(@args ? $app->config($args[0]{config}) : $app);
 }
 
 sub options_ok { shift->_build_ok(OPTIONS => @_) }
@@ -321,6 +365,12 @@ sub websocket_ok {
   return $self->_request_ok($self->ua->build_websocket_tx(@_), $_[0]);
 }
 
+sub _attr {
+  my ($self, $selector, $attr) = @_;
+  return '' unless my $e = $self->tx->res->dom->at($selector);
+  return $e->attr($attr) || '';
+}
+
 sub _build_ok {
   my ($self, $method, $url) = (shift, shift, shift);
   local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -343,7 +393,7 @@ sub _message {
   if (ref $value eq 'HASH') {
     my $expect = exists $value->{text} ? 'text' : 'binary';
     $value = $value->{$expect};
-    $msg = '' unless ($type // '') eq $expect;
+    $msg   = '' unless ($type // '') eq $expect;
   }
 
   # Decode text frame if there is no type check
@@ -366,7 +416,7 @@ sub _request_ok {
         $self->{finished} = [] unless $self->tx($tx)->tx->is_websocket;
         $tx->on(finish => sub { shift; $self->{finished} = [@_] });
         $tx->on(binary => sub { push @{$self->{messages}}, [binary => pop] });
-        $tx->on(text   => sub { push @{$self->{messages}}, [text   => pop] });
+        $tx->on(text => sub { push @{$self->{messages}}, [text => pop] });
         Mojo::IOLoop->stop;
       }
     );
@@ -440,15 +490,18 @@ Test::Mojo - Testing Mojo
 
 L<Test::Mojo> is a test user agent based on L<Mojo::UserAgent>, it is usually
 used together with L<Test::More> to test L<Mojolicious> applications. Just run
-your tests with the command L<Mojolicious::Command::test> or L<prove>.
+your tests with L<prove>.
 
-  $ ./script/my_app test
-  $ ./script/my_app test -v t/foo.t
+  $ prove -l -v
   $ prove -l -v t/foo.t
 
 If it is not already defined, the C<MOJO_LOG_LEVEL> environment variable will
 be set to C<debug> or C<fatal>, depending on the value of the
-C<HARNESS_IS_VERBOSE> environment variable.
+C<HARNESS_IS_VERBOSE> environment variable. And to make it esier to test
+HTTPS/WSS web services L<Mojo::UserAgent/"insecure"> will be activated by
+default for L</"ua">.
+
+See L<Mojolicious::Guides::Testing> for more.
 
 =head1 ATTRIBUTES
 
@@ -490,7 +543,7 @@ True if the last test was successful.
   };
   $t->get_ok('/')
     ->status_is(302)
-    ->$location_is('http://mojolicious.org')
+    ->$location_is('https://mojolicious.org')
     ->or(sub { diag 'Must have been Joel!' });
 
 =head2 tx
@@ -570,6 +623,36 @@ Access application with L<Mojo::UserAgent::Server/"app">.
   $t->app->hook(after_dispatch => sub { $stash = shift->stash });
   $t->get_ok('/hello')->status_is(200);
   is $stash->{foo}, 'bar', 'right value';
+
+=head2 attr_is
+
+  $t = $t->attr_is('img.cat', 'alt', 'Grumpy cat');
+  $t = $t->attr_is('img.cat', 'alt', 'Grumpy cat', 'right alt text');
+
+Checks text content of attribute with L<Mojo::DOM/"attr"> at the CSS selectors
+first matching HTML/XML element for exact match with L<Mojo::DOM/"at">.
+
+=head2 attr_isnt
+
+  $t = $t->attr_isnt('img.cat', 'alt', 'Calm cat');
+  $t = $t->attr_isnt('img.cat', 'alt', 'Calm cat', 'different alt text');
+
+Opposite of L</"attr_is">.
+
+=head2 attr_like
+
+  $t = $t->attr_like('img.cat', 'alt', qr/Grumpy/);
+  $t = $t->attr_like('img.cat', 'alt', qr/Grumpy/, 'right alt text');
+
+Checks text content of attribute with L<Mojo::DOM/"attr"> at the CSS selectors
+first matching HTML/XML element for similar match with L<Mojo::DOM/"at">.
+
+=head2 attr_unlike
+
+  $t = $t->attr_unlike('img.cat', 'alt', qr/Calm/);
+  $t = $t->attr_unlike('img.cat', 'alt', qr/Calm/, 'different alt text');
+
+Opposite of L</"attr_like">.
 
 =head2 content_is
 
@@ -697,7 +780,7 @@ Perform a C<GET> request and check for transport errors, takes the same
 arguments as L<Mojo::UserAgent/"get">, except for the callback.
 
   # Run tests against remote host
-  $t->get_ok('http://mojolicious.org/perldoc')->status_is(200);
+  $t->get_ok('https://mojolicious.org/perldoc')->status_is(200);
 
   # Use relative URL for request with Basic authentication
   $t->get_ok('//sri:secr3t@/secrets.json')
@@ -718,6 +801,20 @@ arguments as L<Mojo::UserAgent/"get">, except for the callback.
 
 Perform a C<HEAD> request and check for transport errors, takes the same
 arguments as L<Mojo::UserAgent/"head">, except for the callback.
+
+=head2 header_exists
+
+  $t = $t->header_exists('ETag');
+  $t = $t->header_exists('ETag', 'header exists');
+
+Check if response header exists.
+
+=head2 header_exists_not
+
+  $t = $t->header_exists_not('ETag');
+  $t = $t->header_exists_not('ETag', 'header is missing');
+
+Opposite of L</"header_exists">.
 
 =head2 header_is
 
@@ -880,15 +977,23 @@ Opposite of L</"message_like">.
 
   my $t = Test::Mojo->new;
   my $t = Test::Mojo->new('MyApp');
-  my $t = Test::Mojo->new(MyApp => {foo => 'bar', baz => 23});
+  my $t = Test::Mojo->new('MyApp', {foo => 'bar'});
+  my $t = Test::Mojo->new(Mojo::File->new('/path/to/myapp.pl'));
+  my $t = Test::Mojo->new(Mojo::File->new('/path/to/myapp.pl'), {foo => 'bar'});
   my $t = Test::Mojo->new(MyApp->new);
+  my $t = Test::Mojo->new(MyApp->new, {foo => 'bar'});
 
-Construct a new L<Test::Mojo> object. In addition to a class name, you can pass
-along a hash reference with configuration values that will be used to
-instantiate the application. The special configuration value C<config_override>
-will be set in L<Mojo/"config"> as well, which is used to disable configuration
-plugins like L<Mojolicious::Plugin::Config> and
+Construct a new L<Test::Mojo> object. In addition to a class name or
+L<Mojo::File> object pointing to the application script, you can pass along a
+hash reference with configuration values that will be used to override the
+application configuration. The special configuration value C<config_override>
+will be set in L<Mojolicious/"config"> as well, which is used to disable
+configuration plugins like L<Mojolicious::Plugin::Config> and
 L<Mojolicious::Plugin::JSONConfig> for tests.
+
+  # Load application script relative to the "t" directory
+  use Mojo::File 'curfile';
+  my $t = Test::Mojo->new(curfile->dirname->sibling('myapp.pl'));
 
 =head2 options_ok
 
@@ -1059,6 +1164,6 @@ arguments as L<Mojo::UserAgent/"websocket">, except for the callback.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

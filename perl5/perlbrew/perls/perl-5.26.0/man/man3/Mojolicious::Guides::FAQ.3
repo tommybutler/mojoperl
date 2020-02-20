@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Guides::FAQ 3"
-.TH Mojolicious::Guides::FAQ 3 "2017-07-21" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Guides::FAQ 3 "2019-11-21" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -100,8 +100,9 @@ without compromises. While there are no rules in
 Mojolicious::Guides::Contributing that forbid dependencies, we do currently
 discourage adding non-optional ones in favor of a faster and more painless
 installation process. And we do in fact already use several optional \s-1CPAN\s0
-modules such as \s-1EV\s0, IO::Socket::Socks, IO::Socket::SSL,
-Net::DNS::Native and Plack to provide advanced functionality if possible.
+modules such as Cpanel::JSON::XS, \s-1EV\s0, IO::Socket::Socks,
+IO::Socket::SSL, Net::DNS::Native, Plack and Role::Tiny to provide
+advanced functionality if possible.
 .SS "Why reinvent wheels?"
 .IX Subsection "Why reinvent wheels?"
 Because we can make them rounder. Components specifically designed for
@@ -117,7 +118,9 @@ experimental to explicitly exclude them from these rules. This gives us the
 necessary freedom to ensure a healthy future for Mojolicious. So, as long as
 you are not using anything marked experimental, untested or undocumented, you
 can always count on backwards compatibility, everything else would be
-considered a bug.
+considered a bug. However, to completely avoid any risk of accidental breakage,
+we do recommend following current best practices for version pinning with
+Carton for production setups.
 .SS "Why not split up Mojolicious into many smaller distributions?"
 .IX Subsection "Why not split up Mojolicious into many smaller distributions?"
 Because there are no advantages, it drastically increases maintenance costs and
@@ -127,22 +130,30 @@ already have done in the past.
 .SS "Where can i discuss my patches for Mojolicious?"
 .IX Subsection "Where can i discuss my patches for Mojolicious?"
 We'd love to discuss your contributions to Mojolicious on our official \s-1IRC\s0
-channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.perl.org\*(C'\fR
-(chat now! <https://chat.mibbit.com/?channel=%23mojo&server=irc.perl.org>).
+channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.freenode.net\*(C'\fR (chat
+now! <https://kiwiirc.com/nextclient/#irc://irc.freenode.net/mojo?nick=guest-?>).
 .SS "Which versions of Perl are supported by Mojolicious?"
 .IX Subsection "Which versions of Perl are supported by Mojolicious?"
 First of all, you need to be aware that according to the perlpolicy, only
 the two most recent stable release series of Perl are supported by the
-community and receive bug fixes, which are currently 5.26.x and 5.24.x.
+community and receive bug fixes, which are currently 5.30.x and 5.28.x.
 Mojolicious follows this model and fully supports these two release series.
-In addition we will also keep the distribution installable up to a certain
-legacy version that we deem worthy of supporting, but not specifically optimize
-for it, this is currently 5.10.1.
+In addition we will also keep the distribution installable (and that means
+passing all tests) up to a certain legacy version that the core team deems
+worthy of supporting, but not specifically optimize for it, this is currently
+5.10.1.
+.PP
+Note that Perl versions 5.10.x and 5.12.x are known to work very poorly with
+Mojolicious, and we strongly suggest you do not use them, to avoid stability
+and security issues. If it wasn't for a very vocal minority within the community
+we would not support these versions at all.
 .SS "How well is Windows supported by Mojolicious?"
 .IX Subsection "How well is Windows supported by Mojolicious?"
-Windows is fully supported by Mojolicious, some of the more advanced
-features, such as subprocesses and the
-Hypnotoad web server, will however require the use of
+Windows is not officially supported by Mojolicious, even though we try to
+keep the distribution installable. There may be serious security and/or
+reliability issues. Some of the more advanced features, such as
+subprocesses and the
+Hypnotoad web server, will also require the use of
 the Windows Subsystem for Linux <https://msdn.microsoft.com/commandline/wsl/>.
 .SS "Do I need to clean my environment before testing Mojolicious?"
 .IX Subsection "Do I need to clean my environment before testing Mojolicious?"
@@ -189,13 +200,24 @@ Hypnotoad.
 .Vb 1
 \&  $ ./myapp.pl prefork \-m production \-l http://*:8080 \-w 10
 .Ve
+.ie n .SS "What does the error ""...certificate verify failed"" mean?"
+.el .SS "What does the error ``...certificate verify failed'' mean?"
+.IX Subsection "What does the error ...certificate verify failed mean?"
+There are many variations of this error, but most of them mean that \s-1TLS\s0
+certificate verification in Mojo::UserAgent failed. This usually happens for
+two reasons. The most common one is that the peer certificate is simply invalid.
+If that's the case and you are certain that no \s-1MITM\s0 attack is being attempted,
+you can use the attribute \*(L"insecure\*(R" in Mojo::UserAgent or \f(CW\*(C`MOJO_INSECURE\*(C'\fR
+environment variable to disable certificate verification. And if that's not the
+case you might be missing the Mozilla::CA module, which is often required by
+IO::Socket::SSL to be able to verify certificates.
 .ie n .SS "What does the error ""Maximum message size exceeded"" mean?"
 .el .SS "What does the error ``Maximum message size exceeded'' mean?"
 .IX Subsection "What does the error Maximum message size exceeded mean?"
 To protect your applications from excessively large requests and responses, our
 \&\s-1HTTP\s0 parser has a cap after which it will automatically stop accepting new
-data, and in most cases force the connection to be closed. The limit is 16MB for
-requests, and 2GB for responses by default. You can use the attributes
+data, and in most cases force the connection to be closed. The limit is 16MiB
+for requests, and 2GiB for responses by default. You can use the attributes
 \&\*(L"max_request_size\*(R" in Mojolicious and \*(L"max_response_size\*(R" in Mojo::UserAgent to
 change these values.
 .ie n .SS "What does the error ""Maximum start-line size exceeded"" mean?"
@@ -203,7 +225,7 @@ change these values.
 .IX Subsection "What does the error Maximum start-line size exceeded mean?"
 This is a very similar protection mechanism to the one described in the
 previous answer, but a little more specific. It limits the maximum length of
-the start-line for \s-1HTTP\s0 requests and responses. The limit is 8KB by default,
+the start-line for \s-1HTTP\s0 requests and responses. The limit is 8KiB by default,
 you can use the attribute \*(L"max_line_size\*(R" in Mojo::Message or
 \&\f(CW\*(C`MOJO_MAX_LINE_SIZE\*(C'\fR environment variable to change this value.
 .ie n .SS "What does the error ""Maximum header size exceeded"" mean?"
@@ -211,7 +233,7 @@ you can use the attribute \*(L"max_line_size\*(R" in Mojo::Message or
 .IX Subsection "What does the error Maximum header size exceeded mean?"
 Almost the same as the previous answer, but this protection mechanism limits
 the number and maximum length of \s-1HTTP\s0 request and response headers. The limits
-are 100 headers with 8KB each by default, you can use the attributes
+are 100 headers with 8KiB each by default, you can use the attributes
 \&\*(L"max_lines\*(R" in Mojo::Headers and \*(L"max_line_size\*(R" in Mojo::Headers or the
 \&\f(CW\*(C`MOJO_MAX_LINES\*(C'\fR and \f(CW\*(C`MOJO_MAX_LINE_SIZE\*(C'\fR environment variables to change
 these values.
@@ -220,7 +242,7 @@ these values.
 .IX Subsection "What does the error Maximum buffer size exceeded mean?"
 This protection mechanism limits how much content the \s-1HTTP\s0 parser is allowed to
 buffer when parsing chunked, compressed and multipart messages. The limit is
-around 256KB by default, you can use the attribute
+around 256KiB by default, you can use the attribute
 \&\*(L"max_buffer_size\*(R" in Mojo::Content or \f(CW\*(C`MOJO_MAX_BUFFER_SIZE\*(C'\fR environment
 variable to change this value.
 .ie n .SS "What does ""Your secret passphrase needs to be changed"" mean?"
@@ -270,7 +292,7 @@ be closed immediately.
 \&  # The variable $ua goes out of scope and gets destroyed too early
 \&  Mojo::IOLoop\->timer(5 => sub {
 \&    my $ua = Mojo::UserAgent\->new;
-\&    $ua\->get(\*(Aqhttp://mojolicious.org\*(Aq => sub {
+\&    $ua\->get(\*(Aqhttps://mojolicious.org\*(Aq => sub {
 \&      my ($ua, $tx) = @_;
 \&      say $tx\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
 \&    });
@@ -286,26 +308,37 @@ operation such as an infinite loop in your application can prevent this, and
 will force the affected worker to be restarted after a timeout. This timeout
 defaults to \f(CW30\fR seconds and can be extended with the attribute
 \&\*(L"heartbeat_timeout\*(R" in Mojo::Server::Prefork if your application requires it.
-.ie n .SS "What does ""Connection already closed"" mean?"
-.el .SS "What does ``Connection already closed'' mean?"
-.IX Subsection "What does Connection already closed mean?"
+.ie n .SS "What does ""Transaction already destroyed"" mean?"
+.el .SS "What does ``Transaction already destroyed'' mean?"
+.IX Subsection "What does Transaction already destroyed mean?"
 This error message usually appears after waiting for the results of a
 non-blocking operation for longer periods of time, because the underlying
 connection has been closed in the meantime and the value of the attribute
 \&\*(L"tx\*(R" in Mojolicious::Controller is no longer available. While there might not be
-a way to prevent the connection from getting closed, you can also avoid this
+a way to prevent the connection from getting closed, you can try to avoid this
 error message by keeping a reference to the transaction object that is not
-weakened. The helper \*(L"delay\*(R" in Mojolicious::Plugin::DefaultHelpers will do this
-automatically for you.
+weakened.
+.PP
+.Vb 9
+\&  # Keep a strong reference to the transaction object
+\&  my $tx = $c\->render_later\->tx;
+\&  $c\->ua\->get_p(\*(Aqhttps://mojolicious.org\*(Aq)\->then(sub {
+\&    $c\->render(text => \*(AqVisited mojolicious.org\*(Aq);
+\&  })\->catch(sub {
+\&    my $err = shift;
+\&    $tx;
+\&    $c\->reply\->exception($err);
+\&  });
+.Ve
 .SH "MORE"
 .IX Header "MORE"
 You can continue with Mojolicious::Guides now or take a look at the
-Mojolicious wiki <http://github.com/kraih/mojo/wiki>, which contains a lot
-more documentation and examples by many different authors.
+Mojolicious wiki <http://github.com/mojolicious/mojo/wiki>, which contains a lot more
+documentation and examples by many different authors.
 .SH "SUPPORT"
 .IX Header "SUPPORT"
 If you have any questions the documentation might not yet answer, don't
 hesitate to ask on the
 mailing list <http://groups.google.com/group/mojolicious> or the official \s-1IRC\s0
-channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.perl.org\*(C'\fR
-(chat now! <https://chat.mibbit.com/?channel=%23mojo&server=irc.perl.org>).
+channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.freenode.net\*(C'\fR (chat
+now! <https://kiwiirc.com/nextclient/#irc://irc.freenode.net/mojo?nick=guest-?>).

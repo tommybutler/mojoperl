@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious::Command';
 use Mojo::Server::PSGI;
 
 has description => 'Start application with PSGI';
-has usage => sub { shift->extract_usage };
+has usage       => sub { shift->extract_usage };
 
 sub run { Mojo::Server::PSGI->new(app => shift->app)->to_psgi_app }
 
@@ -72,6 +72,6 @@ Run this command.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

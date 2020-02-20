@@ -67,13 +67,13 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::IOLoop::Delay 3"
-.TH Mojo::IOLoop::Delay 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::IOLoop::Delay 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
 .nh
 .SH "NAME"
-Mojo::IOLoop::Delay \- Manage callbacks and control the flow of events
+Mojo::IOLoop::Delay \- Promises/A+ and flow\-control helpers
 .SH "SYNOPSIS"
 .IX Header "SYNOPSIS"
 .Vb 1
@@ -115,34 +115,19 @@ Mojo::IOLoop::Delay \- Manage callbacks and control the flow of events
 \&      say \*(AqAnd done after 5 seconds total.\*(Aq;
 \&    }
 \&  )\->wait;
-\&
-\&  # Handle exceptions in all steps
-\&  Mojo::IOLoop::Delay\->new\->steps(
-\&    sub {
-\&      my $delay = shift;
-\&      die \*(AqIntentional error\*(Aq;
-\&    },
-\&    sub {
-\&      my ($delay, @args) = @_;
-\&      say \*(AqNever actually reached.\*(Aq;
-\&    }
-\&  )\->catch(sub {
-\&    my ($delay, $err) = @_;
-\&    say "Something went wrong: $err";
-\&  })\->wait;
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::IOLoop::Delay manages callbacks and controls the flow of events for
-Mojo::IOLoop, which can help you avoid deep nested closures that often
-result from continuation-passing style.
+Mojo::IOLoop::Delay adds flow-control helpers to Mojo::Promise, which can
+help you avoid deep nested closures that often result from continuation-passing
+style.
 .PP
 .Vb 1
 \&  use Mojo::IOLoop;
 \&
 \&  # These deep nested closures are often referred to as "Callback Hell"
 \&  Mojo::IOLoop\->timer(3 => sub {
-\&    my loop = shift;
+\&    my $loop = shift;
 \&
 \&    say \*(Aq3 seconds\*(Aq;
 \&    Mojo::IOLoop\->timer(3 => sub {
@@ -169,8 +154,8 @@ that leads to the next closure in the series when executed.
 .Vb 1
 \&  use Mojo::IOLoop;
 \&
-\&  # Instead of nested closures we now have a simple chain
-\&  my $delay = Mojo::IOloop\->delay(
+\&  # Instead of nested closures we now have a simple chain of steps
+\&  my $delay = Mojo::IOLoop\->delay(
 \&    sub {
 \&      my $delay = shift;
 \&      Mojo::IOLoop\->timer(3 => $delay\->begin);
@@ -195,56 +180,16 @@ that leads to the next closure in the series when executed.
 .PP
 Another positive side effect of this pattern is that we do not need to call
 \&\*(L"start\*(R" in Mojo::IOLoop and \*(L"stop\*(R" in Mojo::IOLoop manually, because we know
-exactly when our series of closures has reached the end. So \*(L"wait\*(R" can stop
-the event loop automatically if it had to be started at all in the first place.
-.SH "EVENTS"
-.IX Header "EVENTS"
-Mojo::IOLoop::Delay inherits all events from Mojo::EventEmitter and can
-emit the following new ones.
-.SS "error"
-.IX Subsection "error"
-.Vb 4
-\&  $delay\->on(error => sub {
-\&    my ($delay, $err) = @_;
-\&    ...
-\&  });
-.Ve
-.PP
-Emitted if an exception gets thrown in one of the steps, breaking the chain,
-fatal if unhandled.
-.SS "finish"
-.IX Subsection "finish"
-.Vb 4
-\&  $delay\->on(finish => sub {
-\&    my ($delay, @args) = @_;
-\&    ...
-\&  });
-.Ve
-.PP
-Emitted once the event counter reaches zero and there are no more steps.
+exactly when our chain of \*(L"steps\*(R" has reached the end. So
+\&\*(L"wait\*(R" in Mojo::Promise can stop the event loop automatically if it had to be
+started at all in the first place.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojo::IOLoop::Delay implements the following attributes.
-.SS "ioloop"
-.IX Subsection "ioloop"
-.Vb 2
-\&  my $loop = $delay\->ioloop;
-\&  $delay   = $delay\->ioloop(Mojo::IOLoop\->new);
-.Ve
-.PP
-Event loop object to control, defaults to the global Mojo::IOLoop singleton.
-.SS "remaining"
-.IX Subsection "remaining"
-.Vb 2
-\&  my $remaining = $delay\->remaining;
-\&  $delay        = $delay\->remaining([sub {...}]);
-.Ve
-.PP
-Remaining \*(L"steps\*(R" in chain.
+Mojo::IOLoop::Delay inherits all attributes from Mojo::Promise.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::IOLoop::Delay inherits all methods from Mojo::EventEmitter and
-implements the following new ones.
+Mojo::IOLoop::Delay inherits all methods from Mojo::Promise and implements
+the following new ones.
 .SS "begin"
 .IX Subsection "begin"
 .Vb 3
@@ -272,7 +217,7 @@ reached zero, \*(L"steps\*(R" will continue.
 Arguments passed to the returned code reference are spliced with the given
 offset and length, defaulting to an offset of \f(CW1\fR with no default length. The
 arguments are then combined in the same order \*(L"begin\*(R" was called, and passed
-together to the next step or \*(L"finish\*(R" event.
+together to the next step.
 .PP
 .Vb 7
 \&  # Capture all arguments
@@ -300,24 +245,6 @@ together to the next step or \*(L"finish\*(R" event.
 \&  Mojo::IOLoop\->client({port => 4000} => $delay\->begin);
 \&  $delay\->wait;
 .Ve
-.SS "data"
-.IX Subsection "data"
-.Vb 4
-\&  my $hash = $delay\->data;
-\&  my $foo  = $delay\->data(\*(Aqfoo\*(Aq);
-\&  $delay   = $delay\->data({foo => \*(Aqbar\*(Aq, baz => 23});
-\&  $delay   = $delay\->data(foo => \*(Aqbar\*(Aq, baz => 23);
-.Ve
-.PP
-Data shared between all \*(L"steps\*(R".
-.PP
-.Vb 2
-\&  # Remove value
-\&  my $foo = delete $delay\->data\->{foo};
-\&
-\&  # Assign multiple values at once
-\&  $delay\->data(foo => \*(Aqtest\*(Aq, bar => 23);
-.Ve
 .SS "pass"
 .IX Subsection "pass"
 .Vb 2
@@ -325,8 +252,7 @@ Data shared between all \*(L"steps\*(R".
 \&  $delay = $delay\->pass(@args);
 .Ve
 .PP
-Increment event counter and decrement it again right away to pass values to the
-next step.
+Shortcut for passing values between \*(L"steps\*(R".
 .PP
 .Vb 2
 \&  # Longer version
@@ -341,16 +267,10 @@ next step.
 Sequentialize multiple events, every time the event counter reaches zero a
 callback will run, the first one automatically runs during the next reactor tick
 unless it is delayed by incrementing the event counter. This chain will continue
-until there are no \*(L"remaining\*(R" callbacks, a callback does not increment the
-event counter or an exception gets thrown in a callback.
-.SS "wait"
-.IX Subsection "wait"
-.Vb 1
-\&  $delay\->wait;
-.Ve
-.PP
-Start \*(L"ioloop\*(R" and stop it again once an \*(L"error\*(R" or \*(L"finish\*(R" event
-gets emitted, does nothing when \*(L"ioloop\*(R" is already running.
+until there are no remaining callbacks, a callback does not increment the event
+counter or an exception gets thrown in a callback. Finishing the chain will also
+result in the promise being fulfilled, or if an exception got thrown it will be
+rejected.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

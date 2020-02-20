@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Guides::Tutorial 3"
-.TH Mojolicious::Guides::Tutorial 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Guides::Tutorial 3 "2019-11-21" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -105,8 +105,8 @@ Mojolicious::Lite, turning your script into a full featured web application.
 \&  app\->start;
 .Ve
 .PP
-With Mojolicious::Command::generate::lite_app there is also a helper command
-to generate a small example application.
+With Mojolicious::Command::Author::generate::lite_app there is also a helper
+command to generate a small example application.
 .PP
 .Vb 1
 \&  $ mojo generate lite_app myapp.pl
@@ -454,7 +454,7 @@ accessible via \*(L"stash\*(R" in Mojolicious::Controller and
 \&
 \&  # /testsomething/foo
 \&  # /test123something/foo
-\&  get \*(Aq/(:bar)something/foo\*(Aq => sub {
+\&  get \*(Aq/<:bar>something/foo\*(Aq => sub {
 \&    my $c   = shift;
 \&    my $bar = $c\->param(\*(Aqbar\*(Aq);
 \&    $c\->render(text => "Our :bar placeholder matched $bar");
@@ -464,7 +464,7 @@ accessible via \*(L"stash\*(R" in Mojolicious::Controller and
 .Ve
 .PP
 To separate them from the surrounding text, you can surround your placeholders
-with parentheses, which also makes the colon prefix optional.
+with \f(CW\*(C`<\*(C'\fR and \f(CW\*(C`>\*(C'\fR, which also makes the colon prefix optional.
 .SS "Relaxed Placeholders"
 .IX Subsection "Relaxed Placeholders"
 Relaxed placeholders allow matching of everything until a \f(CW\*(C`/\*(C'\fR occurs, similar
@@ -769,7 +769,8 @@ placeholder.
 .SS "Content negotiation"
 .IX Subsection "Content negotiation"
 For resources with different representations and that require truly RESTful
-content negotiation you can also use \*(L"respond_to\*(R" in Mojolicious::Controller.
+content negotiation you can also use
+\&\*(L"respond_to\*(R" in Mojolicious::Plugin::DefaultHelpers.
 .PP
 .Vb 1
 \&  use Mojolicious::Lite;
@@ -857,6 +858,41 @@ They have a higher precedence than templates in the \f(CW\*(C`DATA\*(C'\fR secti
 \&
 \&  app\->start;
 .Ve
+.SS "Home"
+.IX Subsection "Home"
+You can use \*(L"home\*(R" in Mojolicious to interact with the directory your
+application considers its home. This is the directory it will search for
+\&\f(CW\*(C`public\*(C'\fR and \f(CW\*(C`templates\*(C'\fR directories, but you can use it to store all sorts of
+application specific data.
+.PP
+.Vb 2
+\&  $ mkdir cache
+\&  $ echo \*(AqHello World!\*(Aq > cache/hello.txt
+.Ve
+.PP
+There are many useful methods Mojo::Home inherits from Mojo::File, like
+\&\*(L"child\*(R" in Mojo::File and \*(L"slurp\*(R" in Mojo::File, that will help you keep your
+application portable across many different operating systems.
+.PP
+.Vb 1
+\&  use Mojolicious::Lite;
+\&
+\&  # Load message into memory
+\&  my $hello = app\->home\->child(\*(Aqcache\*(Aq, \*(Aqhello.txt\*(Aq)\->slurp;
+\&
+\&  # Display message
+\&  get \*(Aq/\*(Aq => sub {
+\&    my $c = shift;
+\&    $c\->render(text => $hello);
+\&  };
+.Ve
+.PP
+You can also introspect your application from the command line with
+Mojolicious::Command::eval.
+.PP
+.Vb 1
+\&  $ ./myapp.pl eval \-v \*(Aqapp\->home\*(Aq
+.Ve
 .SS "Conditions"
 .IX Subsection "Conditions"
 Conditions such as \f(CW\*(C`agent\*(C'\fR and \f(CW\*(C`host\*(C'\fR from
@@ -919,7 +955,7 @@ really tamper resistant.
 .IX Subsection "File uploads"
 All files uploaded via \f(CW\*(C`multipart/form\-data\*(C'\fR request are automatically
 available as Mojo::Upload objects from \*(L"param\*(R" in Mojolicious::Controller.
-And you don't have to worry about memory usage, because all files above 250KB
+And you don't have to worry about memory usage, because all files above 250KiB
 will be automatically streamed into a temporary file. To build \s-1HTML\s0 forms more
 efficiently, you can also use tag helpers like
 \&\*(L"form_for\*(R" in Mojolicious::Plugin::TagHelpers.
@@ -961,12 +997,12 @@ efficiently, you can also use tag helpers like
 \&  </html>
 .Ve
 .PP
-To protect you from excessively large files there is also a limit of 16MB by
+To protect you from excessively large files there is also a limit of 16MiB by
 default, which you can tweak with the attribute
 \&\*(L"max_request_size\*(R" in Mojolicious.
 .PP
 .Vb 2
-\&  # Increase limit to 1GB
+\&  # Increase limit to 1GiB
 \&  app\->max_request_size(1073741824);
 .Ve
 .SS "User agent"
@@ -982,7 +1018,7 @@ Mojo::JSON and Mojo::DOM this can be a very powerful tool.
 \&  # Blocking
 \&  get \*(Aq/headers\*(Aq => sub {
 \&    my $c   = shift;
-\&    my $url = $c\->param(\*(Aqurl\*(Aq) || \*(Aqhttp://mojolicious.org\*(Aq;
+\&    my $url = $c\->param(\*(Aqurl\*(Aq) || \*(Aqhttps://mojolicious.org\*(Aq;
 \&    my $dom = $c\->ua\->get($url)\->result\->dom;
 \&    $c\->render(json => $dom\->find(\*(Aqh1, h2, h3\*(Aq)\->map(\*(Aqtext\*(Aq)\->to_array);
 \&  };
@@ -998,21 +1034,16 @@ Mojo::JSON and Mojo::DOM this can be a very powerful tool.
 \&
 \&  # Concurrent non\-blocking
 \&  get \*(Aq/titles\*(Aq => sub {
-\&    my $c = shift;
-\&    $c\->delay(
-\&      sub {
-\&        my $delay = shift;
-\&        $c\->ua\->get(\*(Aqhttp://mojolicious.org\*(Aq => $delay\->begin);
-\&        $c\->ua\->get(\*(Aqhttps://metacpan.org\*(Aq   => $delay\->begin);
-\&      },
-\&      sub {
-\&        my ($delay, $mojo, $cpan) = @_;
-\&        $c\->render(json => {
-\&          mojo => $mojo\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text,
-\&          cpan => $cpan\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text
-\&        });
-\&      }
-\&    );
+\&    my $c  = shift;
+\&    my $mojo = $c\->ua\->get_p(\*(Aqhttps://mojolicious.org\*(Aq);
+\&    my $cpan = $c\->ua\->get_p(\*(Aqhttps://metacpan.org\*(Aq);
+\&    Mojo::Promise\->all($mojo, $cpan)\->then(sub {
+\&      my ($mojo, $cpan) = @_;
+\&      $c\->render(json => {
+\&        mojo => $mojo\->[0]\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text,
+\&        cpan => $cpan\->[0]\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text
+\&      });
+\&    })\->wait;
 \&  };
 \&
 \&  app\->start;
@@ -1066,10 +1097,10 @@ For more information about real-time web features see also
 \&\*(L"REAL-TIME \s-1WEB\*(R"\s0 in Mojolicious::Guides::Cookbook.
 .SS "Mode"
 .IX Subsection "Mode"
-You can use the Mojo::Log object from \*(L"log\*(R" in Mojo to portably collect
-debug messages and automatically disable them later in a production setup by
-changing the Mojolicious operating mode, which can also be retrieved from
-the attribute \*(L"mode\*(R" in Mojolicious.
+You can use the Mojo::Log object from \*(L"log\*(R" in Mojolicious to portably
+collect debug messages and automatically disable them later in a production
+setup by changing the Mojolicious operating mode, which can also be retrieved
+from the attribute \*(L"mode\*(R" in Mojolicious.
 .PP
 .Vb 1
 \&  use Mojolicious::Lite;
@@ -1113,35 +1144,35 @@ Testing your application is as easy as creating a \f(CW\*(C`t\*(C'\fR directory 
 with normal Perl tests like \f(CW\*(C`t/basic.t\*(C'\fR, which can be a lot of fun thanks to
 Test::Mojo.
 .PP
-.Vb 2
+.Vb 3
 \&  use Test::More;
+\&  use Mojo::File \*(Aqcurfile\*(Aq;
 \&  use Test::Mojo;
 \&
-\&  use FindBin;
-\&  require "$FindBin::Bin/../myapp.pl";
+\&  # Portably point to "../myapp.pl"
+\&  my $script = curfile\->dirname\->sibling(\*(Aqmyapp.pl\*(Aq);
 \&
-\&  my $t = Test::Mojo\->new;
+\&  my $t = Test::Mojo\->new($script);
 \&  $t\->get_ok(\*(Aq/\*(Aq)\->status_is(200)\->content_like(qr/Funky/);
 \&
 \&  done_testing();
 .Ve
 .PP
-Just run your tests with the command Mojolicious::Command::test or prove.
+Just run your tests with prove.
 .PP
-.Vb 3
-\&  $ ./myapp.pl test
-\&  $ ./myapp.pl test \-v t/basic.t
+.Vb 2
+\&  $ prove \-l \-v
 \&  $ prove \-l \-v t/basic.t
 .Ve
 .SH "MORE"
 .IX Header "MORE"
 You can continue with Mojolicious::Guides now or take a look at the
-Mojolicious wiki <http://github.com/kraih/mojo/wiki>, which contains a lot
-more documentation and examples by many different authors.
+Mojolicious wiki <http://github.com/mojolicious/mojo/wiki>, which contains a
+lot more documentation and examples by many different authors.
 .SH "SUPPORT"
 .IX Header "SUPPORT"
 If you have any questions the documentation might not yet answer, don't
 hesitate to ask on the
 mailing list <http://groups.google.com/group/mojolicious> or the official \s-1IRC\s0
-channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.perl.org\*(C'\fR
-(chat now! <https://chat.mibbit.com/?channel=%23mojo&server=irc.perl.org>).
+channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.freenode.net\*(C'\fR (chat
+now! <https://kiwiirc.com/nextclient/#irc://irc.freenode.net/mojo?nick=guest-?>).

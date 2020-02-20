@@ -1,0 +1,1 @@
+{"target":"Alien::hiredis","dist":"Alien-hiredis-0.008","pathname":"D/DB/DBOOK/Alien-hiredis-0.008.tar.gz","name":"Alien::hiredis","version":"0.008","provides":{"Alien::hiredis":{"version":"0.008","file":"lib/Alien/hiredis.pm"}}}

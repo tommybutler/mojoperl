@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Controller 3"
-.TH Mojolicious::Controller 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Controller 3 "2020-02-11" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -96,8 +96,7 @@ controllers. It is also the default controller class unless you set
 \&\*(L"controller_class\*(R" in Mojolicious.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojolicious::Controller inherits all attributes from Mojo::Base and
-implements the following new ones.
+Mojolicious::Controller implements the following attributes.
 .SS "app"
 .IX Subsection "app"
 .Vb 2
@@ -106,7 +105,7 @@ implements the following new ones.
 .Ve
 .PP
 A reference back to the application that dispatched to this controller, usually
-a Mojolicious object.
+a Mojolicious object. Note that this attribute is weakened.
 .PP
 .Vb 2
 \&  # Use application logger
@@ -140,16 +139,16 @@ Mojolicious::Routes::Match object.
 .PP
 The transaction that is currently being processed, usually a
 Mojo::Transaction::HTTP or Mojo::Transaction::WebSocket object. Note that
-this reference is usually weakened, so the object needs to be referenced
-elsewhere as well when you're performing non-blocking operations and the
-underlying connection might get closed early.
+this attribute is weakened. So the object needs to be referenced elsewhere as
+well when you're performing non-blocking operations and the underlying
+connection might get closed early.
 .PP
 .Vb 3
 \&  # Check peer information
 \&  my $address = $c\->tx\->remote_address;
 \&  my $port    = $c\->tx\->remote_port;
 \&
-\&  # Increase size limit for WebSocket messages to 16MB
+\&  # Increase size limit for WebSocket messages to 16MiB
 \&  $c\->tx\->max_websocket_size(16777216) if $c\->tx\->is_websocket;
 \&
 \&  # Perform non\-blocking operation without knowing the connection status
@@ -162,14 +161,6 @@ underlying connection might get closed early.
 .IX Header "METHODS"
 Mojolicious::Controller inherits all methods from Mojo::Base and
 implements the following new ones.
-.SS "continue"
-.IX Subsection "continue"
-.Vb 1
-\&  $c\->continue;
-.Ve
-.PP
-Continue dispatch chain from an intermediate destination with
-\&\*(L"continue\*(R" in Mojolicious::Routes.
 .SS "cookie"
 .IX Subsection "cookie"
 .Vb 3
@@ -240,21 +231,6 @@ sharing the same name as an array reference.
 Close WebSocket connection or long poll stream gracefully. This method will
 automatically respond to WebSocket handshake requests with a \f(CW101\fR response
 status, to establish the WebSocket connection.
-.SS "flash"
-.IX Subsection "flash"
-.Vb 3
-\&  my $foo = $c\->flash(\*(Aqfoo\*(Aq);
-\&  $c      = $c\->flash({foo => \*(Aqbar\*(Aq});
-\&  $c      = $c\->flash(foo => \*(Aqbar\*(Aq);
-.Ve
-.PP
-Data storage persistent only for the next request, stored in the \*(L"session\*(R".
-.PP
-.Vb 3
-\&  # Show message after redirect
-\&  $c\->flash(message => \*(AqUser created successfully!\*(Aq);
-\&  $c\->redirect_to(\*(Aqshow_user\*(Aq, id => 23);
-.Ve
 .SS "helpers"
 .IX Subsection "helpers"
 .Vb 1
@@ -325,7 +301,7 @@ message body, in that order. If there are multiple values sharing the same
 name, and you want to access more than just the last one, you can use
 \&\*(L"every_param\*(R". Parts of the request body need to be loaded into memory to
 parse \f(CW\*(C`POST\*(C'\fR parameters, so you have to make sure it is not excessively large.
-There's a 16MB limit for requests by default.
+There's a 16MiB limit for requests by default.
 .PP
 .Vb 2
 \&  # Get first value
@@ -346,27 +322,6 @@ For more control you can also access request information directly.
 \&
 \&  # Only file uploads
 \&  my $foo = $c\->req\->upload(\*(Aqfoo\*(Aq);
-.Ve
-.SS "redirect_to"
-.IX Subsection "redirect_to"
-.Vb 4
-\&  $c = $c\->redirect_to(\*(Aqnamed\*(Aq, foo => \*(Aqbar\*(Aq);
-\&  $c = $c\->redirect_to(\*(Aqnamed\*(Aq, {foo => \*(Aqbar\*(Aq});
-\&  $c = $c\->redirect_to(\*(Aq/index.html\*(Aq);
-\&  $c = $c\->redirect_to(\*(Aqhttp://example.com/index.html\*(Aq);
-.Ve
-.PP
-Prepare a \f(CW302\fR (if the status code is not already \f(CW\*(C`3xx\*(C'\fR) redirect response
-with \f(CW\*(C`Location\*(C'\fR header, takes the same arguments as \*(L"url_for\*(R".
-.PP
-.Vb 3
-\&  # Moved Permanently
-\&  $c\->res\->code(301);
-\&  $c\->redirect_to(\*(Aqsome_route\*(Aq);
-\&
-\&  # Temporary Redirect
-\&  $c\->res\->code(307);
-\&  $c\->redirect_to(\*(Aqsome_route\*(Aq);
 .Ve
 .SS "render"
 .IX Subsection "render"
@@ -443,7 +398,9 @@ automatic rendering would result in a response.
 .PP
 Try to render content, but do not call
 \&\*(L"reply\->not_found\*(R" in Mojolicious::Plugin::DefaultHelpers if no response
-could be generated, takes the same arguments as \*(L"render\*(R".
+could be generated, all arguments get localized automatically and are only
+available during this render operation, takes the same arguments as
+\&\*(L"render\*(R".
 .PP
 .Vb 2
 \&  # Render template "index_local" only if it exists
@@ -493,6 +450,7 @@ Get Mojo::Message::Request object from \*(L"tx\*(R".
 \&  my $req = $c\->tx\->req;
 \&
 \&  # Extract request information
+\&  my $id     = $c\->req\->request_id;
 \&  my $method = $c\->req\->method;
 \&  my $url    = $c\->req\->url\->to_abs;
 \&  my $info   = $c\->req\->url\->to_abs\->userinfo;
@@ -530,36 +488,6 @@ Get Mojo::Message::Response object from \*(L"tx\*(R".
 \&  $c\->res\->headers\->cache_control(\*(Aqpublic, max\-age=300\*(Aq);
 \&  $c\->res\->headers\->append(Vary => \*(AqAccept\-Encoding\*(Aq);
 .Ve
-.SS "respond_to"
-.IX Subsection "respond_to"
-.Vb 5
-\&  $c = $c\->respond_to(
-\&    json => {json => {message => \*(AqWelcome!\*(Aq}},
-\&    html => {template => \*(Aqwelcome\*(Aq},
-\&    any  => sub {...}
-\&  );
-.Ve
-.PP
-Automatically select best possible representation for resource from \f(CW\*(C`Accept\*(C'\fR
-request header, \f(CW\*(C`format\*(C'\fR stash value or \f(CW\*(C`format\*(C'\fR \f(CW\*(C`GET\*(C'\fR/\f(CW\*(C`POST\*(C'\fR parameter,
-defaults to \*(L"default_format\*(R" in Mojolicious::Renderer or rendering an empty
-\&\f(CW204\fR response. Each representation can be handled with a callback or a hash
-reference containing arguments to be passed to \*(L"render\*(R". Since browsers
-often don't really know what they actually want, unspecific \f(CW\*(C`Accept\*(C'\fR request
-headers with more than one \s-1MIME\s0 type will be ignored, unless the
-\&\f(CW\*(C`X\-Requested\-With\*(C'\fR header is set to the value \f(CW\*(C`XMLHttpRequest\*(C'\fR.
-.PP
-.Vb 6
-\&  # Everything else than "json" and "xml" gets a 204 response
-\&  $c\->respond_to(
-\&    json => sub { $c\->render(json => {just => \*(Aqworks\*(Aq}) },
-\&    xml  => {text => \*(Aq<just>works</just>\*(Aq},
-\&    any  => {data => \*(Aq\*(Aq, status => 204}
-\&  );
-.Ve
-.PP
-For more advanced negotiation logic you can also use the helper
-\&\*(L"accepts\*(R" in Mojolicious::Plugin::DefaultHelpers.
 .SS "send"
 .IX Subsection "send"
 .Vb 6
@@ -618,7 +546,7 @@ usually defaults to \f(CW15\fR seconds.
 Persistent data storage for the next few requests, all session data gets
 serialized with Mojo::JSON and stored Base64 encoded in \s-1HMAC\-SHA1\s0 signed
 cookies, to prevent tampering. Note that cookies usually have a \f(CW4096\fR byte
-(4KB) limit, depending on browser.
+(4KiB) limit, depending on browser.
 .PP
 .Vb 4
 \&  # Manipulate session
@@ -690,6 +618,18 @@ values have a special meaning and are reserved, the full list is currently
 Generate a portable Mojo::URL object with base for a path, \s-1URL\s0 or route.
 .PP
 .Vb 2
+\&  # Rebuild URL for the current route
+\&  $c\->url_for;
+\&
+\&  # Rebuild URL for the current route, but replace the "name" placeholder value
+\&  $c\->url_for(name => \*(Aqsebastian\*(Aq);
+\&
+\&  # Absolute URL for the current route
+\&  $c\->url_for\->to_abs;
+\&
+\&  # Build URL for route "test" with two placeholder values
+\&  $c\->url_for(\*(Aqtest\*(Aq, name => \*(Aqsebastian\*(Aq, foo => \*(Aqbar\*(Aq);
+\&
 \&  # "http://127.0.0.1:3000/index.html" if application was started with Morbo
 \&  $c\->url_for(\*(Aq/index.html\*(Aq)\->to_abs;
 \&
@@ -708,31 +648,7 @@ to inherit query parameters from the current request.
 .PP
 .Vb 2
 \&  # "/list?q=mojo&page=2" if current request was for "/list?q=mojo&page=1"
-\&  $c\->url_with\->query([page => 2]);
-.Ve
-.SS "validation"
-.IX Subsection "validation"
-.Vb 1
-\&  my $validation = $c\->validation;
-.Ve
-.PP
-Get Mojolicious::Validator::Validation object for current request to
-validate file uploads as well as \f(CW\*(C`GET\*(C'\fR and \f(CW\*(C`POST\*(C'\fR parameters extracted from
-the query string and \f(CW\*(C`application/x\-www\-form\-urlencoded\*(C'\fR or
-\&\f(CW\*(C`multipart/form\-data\*(C'\fR message body. Parts of the request body need to be loaded
-into memory to parse \f(CW\*(C`POST\*(C'\fR parameters, so you have to make sure it is not
-excessively large. There's a 16MB limit for requests by default.
-.PP
-.Vb 4
-\&  # Validate GET/POST parameter
-\&  my $validation = $c\->validation;
-\&  $validation\->required(\*(Aqtitle\*(Aq, \*(Aqtrim\*(Aq)\->size(3, 50);
-\&  my $title = $validation\->param(\*(Aqtitle\*(Aq);
-\&
-\&  # Validate file upload
-\&  my $validation = $c\->validation;
-\&  $validation\->required(\*(Aqtarball\*(Aq)\->upload\->size(1, 1048576);
-\&  my $tarball = $validation\->param(\*(Aqtarball\*(Aq);
+\&  $c\->url_with\->query({page => 2});
 .Ve
 .SS "write"
 .IX Subsection "write"
@@ -835,8 +751,8 @@ the stream.
 \&  o!
 \&  0
 .Ve
-.SH "AUTOLOAD"
-.IX Header "AUTOLOAD"
+.SH "HELPERS"
+.IX Header "HELPERS"
 In addition to the \*(L"\s-1ATTRIBUTES\*(R"\s0 and \*(L"\s-1METHODS\*(R"\s0 above you can also call
 helpers provided by \*(L"app\*(R" on Mojolicious::Controller objects. This
 includes all helpers from Mojolicious::Plugin::DefaultHelpers and
@@ -852,4 +768,4 @@ Mojolicious::Plugin::TagHelpers.
 .Ve
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Message::Request 3"
-.TH Mojo::Message::Request 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Message::Request 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -149,6 +149,14 @@ Proxy \s-1URL\s0 for request.
 .Ve
 .PP
 Request has been performed through a reverse proxy.
+.SS "request_id"
+.IX Subsection "request_id"
+.Vb 2
+\&  my $id = $req\->request_id;
+\&  $req   = $req\->request_id(\*(Aqaee7d5d8\*(Aq);
+.Ve
+.PP
+Request \s-1ID,\s0 defaults to a reasonably unique value.
 .SS "url"
 .IX Subsection "url"
 .Vb 2
@@ -267,7 +275,7 @@ than just the last one, you can use \*(L"every_param\*(R". Note that this method
 caches all data, so it should not be called before the entire request body has
 been received. Parts of the request body need to be loaded into memory to parse
 \&\f(CW\*(C`POST\*(C'\fR parameters, so you have to make sure it is not excessively large.
-There's a 16MB limit for requests by default.
+There's a 16MiB limit for requests by default.
 .SS "params"
 .IX Subsection "params"
 .Vb 1
@@ -279,7 +287,7 @@ All \f(CW\*(C`GET\*(C'\fR and \f(CW\*(C`POST\*(C'\fR parameters extracted from t
 usually a Mojo::Parameters object. Note that this method caches all data, so
 it should not be called before the entire request body has been received. Parts
 of the request body need to be loaded into memory to parse \f(CW\*(C`POST\*(C'\fR parameters,
-so you have to make sure it is not excessively large. There's a 16MB limit for
+so you have to make sure it is not excessively large. There's a 16MiB limit for
 requests by default.
 .PP
 .Vb 2
@@ -315,4 +323,4 @@ All \f(CW\*(C`GET\*(C'\fR parameters, usually a Mojo::Parameters object.
 Size of the request-line in bytes. Note that this method finalizes the request.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

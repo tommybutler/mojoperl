@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::File 3"
-.TH Mojo::File 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::File 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -105,6 +105,14 @@ friendly \s-1API\s0 for dealing with different operating systems.
 .IX Header "FUNCTIONS"
 Mojo::File implements the following functions, which can be imported
 individually.
+.SS "curfile"
+.IX Subsection "curfile"
+.Vb 1
+\&  my $path = curfile;
+.Ve
+.PP
+Construct a new scalar-based Mojo::File object for the absolute path to the
+current source file.
 .SS "path"
 .IX Subsection "path"
 .Vb 4
@@ -180,6 +188,13 @@ Return a new Mojo::File object relative to the path.
 \&  # "/home/sri/.vimrc" (on UNIX)
 \&  path(\*(Aq/home\*(Aq)\->child(\*(Aqsri\*(Aq, \*(Aq.vimrc\*(Aq);
 .Ve
+.SS "chmod"
+.IX Subsection "chmod"
+.Vb 1
+\&  $path = $path\->chmod(0644);
+.Ve
+.PP
+Change file permissions.
 .SS "copy_to"
 .IX Subsection "copy_to"
 .Vb 2
@@ -272,6 +287,13 @@ These options are currently available:
 .Ve
 .Sp
 Include directories.
+.IP "dont_use_nlink" 2
+.IX Item "dont_use_nlink"
+.Vb 1
+\&  dont_use_nlink => 1
+.Ve
+.Sp
+Force File::Find to always stat directories.
 .IP "hidden" 2
 .IX Item "hidden"
 .Vb 1
@@ -279,6 +301,28 @@ Include directories.
 .Ve
 .Sp
 Include hidden files and directories.
+.IP "max_depth" 2
+.IX Item "max_depth"
+.Vb 1
+\&  max_depth => 3
+.Ve
+.Sp
+Maximum number of levels to descend when searching for files.
+.SS "lstat"
+.IX Subsection "lstat"
+.Vb 1
+\&  my $stat = $path\->lstat;
+.Ve
+.PP
+Return a File::stat object for the symlink.
+.PP
+.Vb 2
+\&  # Get symlink size
+\&  say path(\*(Aq/usr/sbin/sendmail\*(Aq)\->lstat\->size;
+\&
+\&  # Get symlink modification time
+\&  say path(\*(Aq/usr/sbin/sendmail\*(Aq)\->lstat\->mtime;
+.Ve
 .SS "make_path"
 .IX Subsection "make_path"
 .Vb 2
@@ -337,6 +381,13 @@ Open file with IO::File.
 .Ve
 .PP
 Resolve the path with Cwd and return the result as a Mojo::File object.
+.SS "remove"
+.IX Subsection "remove"
+.Vb 1
+\&  $path = $path\->remove;
+.Ve
+.PP
+Delete file.
 .SS "remove_tree"
 .IX Subsection "remove_tree"
 .Vb 2
@@ -376,6 +427,21 @@ Read all data at once from the file.
 .Ve
 .PP
 Write all data at once to the file.
+.SS "stat"
+.IX Subsection "stat"
+.Vb 1
+\&  my $stat = $path\->stat;
+.Ve
+.PP
+Return a File::stat object for the path.
+.PP
+.Vb 2
+\&  # Get file size
+\&  say path(\*(Aq/home/sri/.bashrc\*(Aq)\->stat\->size;
+\&
+\&  # Get file modification time
+\&  say path(\*(Aq/home/sri/.bashrc\*(Aq)\->stat\->mtime;
+.Ve
 .SS "tap"
 .IX Subsection "tap"
 .Vb 1
@@ -423,6 +489,28 @@ Mojo::File object.
 .Ve
 .PP
 Stringify the path.
+.SS "touch"
+.IX Subsection "touch"
+.Vb 1
+\&  $path = $path\->touch;
+.Ve
+.PP
+Create file if it does not exist or change the modification and access time to
+the current time.
+.PP
+.Vb 2
+\&  # Safely read file
+\&  say path(\*(Aq.bashrc\*(Aq)\->touch\->slurp;
+.Ve
+.SS "with_roles"
+.IX Subsection "with_roles"
+.Vb 3
+\&  my $new_class = Mojo::File\->with_roles(\*(AqMojo::File::Role::One\*(Aq);
+\&  my $new_class = Mojo::File\->with_roles(\*(Aq+One\*(Aq, \*(Aq+Two\*(Aq);
+\&  $path         = $path\->with_roles(\*(Aq+One\*(Aq, \*(Aq+Two\*(Aq);
+.Ve
+.PP
+Alias for \*(L"with_roles\*(R" in Mojo::Base.
 .SH "OPERATORS"
 .IX Header "OPERATORS"
 Mojo::File overloads the following operators.
@@ -449,4 +537,4 @@ Always true.
 Alias for \*(L"to_string\*(R".
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

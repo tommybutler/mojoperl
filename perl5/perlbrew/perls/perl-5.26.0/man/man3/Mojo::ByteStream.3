@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::ByteStream 3"
-.TH Mojo::ByteStream 3 "2017-07-21" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::ByteStream 3 "2020-02-11" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -183,6 +183,20 @@ Encode bytestream with \*(L"encode\*(R" in Mojo::Util, defaults to using \f(CW\*
 \&  # "%E2%99%A5"
 \&  b(\*(Aq♥\*(Aq)\->encode\->url_escape;
 .Ve
+.SS "gunzip"
+.IX Subsection "gunzip"
+.Vb 1
+\&  $stream = $stream\->gunzip;
+.Ve
+.PP
+Uncompress bytestream with \*(L"gunzip\*(R" in Mojo::Util.
+.SS "gzip"
+.IX Subsection "gzip"
+.Vb 1
+\&  stream = $stream\->gzip;
+.Ve
+.PP
+Compress bytestream with \*(L"gzip\*(R" in Mojo::Util.
 .SS "hmac_sha1_sum"
 .IX Subsection "hmac_sha1_sum"
 .Vb 1
@@ -207,6 +221,15 @@ Unescape all \s-1HTML\s0 entities in bytestream with \*(L"html_unescape\*(R" in 
 \&  # "%3Chtml%3E"
 \&  b(\*(Aq&lt;html&gt;\*(Aq)\->html_unescape\->url_escape;
 .Ve
+.SS "humanize_bytes"
+.IX Subsection "humanize_bytes"
+.Vb 1
+\&  $stream = $stream\->humanize_bytes;
+.Ve
+.PP
+Turn number of bytes into a simplified human readable format for bytestream with
+\&\*(L"humanize_bytes\*(R" in Mojo::Util. Note that this method is \fB\s-1EXPERIMENTAL\s0\fR and
+might change without warning!
 .SS "md5_bytes"
 .IX Subsection "md5_bytes"
 .Vb 1
@@ -295,8 +318,9 @@ Size of bytestream.
 Generate \s-1URL\s0 slug for bytestream with \*(L"slugify\*(R" in Mojo::Util.
 .SS "split"
 .IX Subsection "split"
-.Vb 1
+.Vb 2
 \&  my $collection = $stream\->split(\*(Aq,\*(Aq);
+\&  my $collection = $stream\->split(\*(Aq,\*(Aq, \-1);
 .Ve
 .PP
 Turn bytestream into Mojo::Collection object containing Mojo::ByteStream
@@ -305,6 +329,9 @@ objects.
 .Vb 2
 \&  # "One,Two,Three"
 \&  b("one,two,three")\->split(\*(Aq,\*(Aq)\->map(\*(Aqcamelize\*(Aq)\->join(\*(Aq,\*(Aq);
+\&
+\&  # "One,Two,Three,,,"
+\&  b("one,two,three,,,")\->split(\*(Aq,\*(Aq, \-1)\->map(\*(Aqcamelize\*(Aq)\->join(\*(Aq,\*(Aq);
 .Ve
 .SS "tap"
 .IX Subsection "tap"
@@ -381,6 +408,15 @@ Decode percent encoded characters in bytestream with
 \&  # "&lt;html&gt;"
 \&  b(\*(Aq%3Chtml%3E\*(Aq)\->url_unescape\->xml_escape;
 .Ve
+.SS "with_roles"
+.IX Subsection "with_roles"
+.Vb 3
+\&  my $new_class = Mojo::ByteStream\->with_roles(\*(AqMojo::ByteStream::Role::One\*(Aq);
+\&  my $new_class = Mojo::ByteStream\->with_roles(\*(Aq+One\*(Aq, \*(Aq+Two\*(Aq);
+\&  $stream       = $stream\->with_roles(\*(Aq+One\*(Aq, \*(Aq+Two\*(Aq);
+.Ve
+.PP
+Alias for \*(L"with_roles\*(R" in Mojo::Base.
 .SS "xml_escape"
 .IX Subsection "xml_escape"
 .Vb 1
@@ -420,4 +456,4 @@ Always true.
 Alias for \*(L"to_string\*(R".
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

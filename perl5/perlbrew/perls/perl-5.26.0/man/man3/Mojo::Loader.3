@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Loader 3"
-.TH Mojo::Loader 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Loader 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -165,7 +165,8 @@ Search for modules in a namespace non-recursively.
 Load a class and catch exceptions, returns a false value if loading was
 successful, a true value if the class was not found, or a Mojo::Exception
 object if loading failed. Note that classes are checked for a \f(CW\*(C`new\*(C'\fR method to
-see if they are already loaded.
+see if they are already loaded, so trying to load the same class multiple times
+may yield different results.
 .PP
 .Vb 4
 \&  # Handle exceptions
@@ -175,4 +176,4 @@ see if they are already loaded.
 .Ve
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

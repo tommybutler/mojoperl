@@ -5,6 +5,7 @@ use Carp 'croak';
 use Fcntl ':flock';
 use Mojo::File;
 use Mojo::Util 'encode';
+use Time::HiRes 'time';
 
 has format => sub { shift->short ? \&_short : \&_default };
 has handle => sub {
@@ -15,15 +16,17 @@ has handle => sub {
   # File
   return Mojo::File->new($path)->open('>>');
 };
-has history => sub { [] };
-has level => 'debug';
+has history          => sub { [] };
+has level            => 'debug';
 has max_history_size => 10;
 has 'path';
-has short =>
-  sub { $ENV{INVOCATION_ID} && $ENV{JOURNAL_STREAM} && !shift->path };
+has short => sub { $ENV{MOJO_LOG_SHORT} };
 
 # Supported log levels
 my %LEVEL = (debug => 1, info => 2, warn => 3, error => 4, fatal => 5);
+
+# Systemd magic numbers
+my %MAGIC = (debug => 7, info => 6, warn => 4, error => 3, fatal => 2);
 
 sub append {
   my ($self, $msg) = @_;
@@ -34,12 +37,18 @@ sub append {
   flock $handle, LOCK_UN;
 }
 
-sub debug { shift->_log(debug => @_) }
-sub error { shift->_log(error => @_) }
-sub fatal { shift->_log(fatal => @_) }
-sub info  { shift->_log(info  => @_) }
+sub debug { 1 >= $LEVEL{$_[0]->level} ? _log(@_, 'debug') : $_[0] }
 
-sub is_level { $LEVEL{pop()} >= $LEVEL{$ENV{MOJO_LOG_LEVEL} || shift->level} }
+sub context {
+  my ($self, $str) = @_;
+  return $self->new(parent => $self, context => $str, level => $self->level);
+}
+
+sub error { 4 >= $LEVEL{$_[0]->level} ? _log(@_, 'error') : $_[0] }
+sub fatal { 5 >= $LEVEL{$_[0]->level} ? _log(@_, 'fatal') : $_[0] }
+sub info  { 2 >= $LEVEL{$_[0]->level} ? _log(@_, 'info')  : $_[0] }
+
+sub is_level { $LEVEL{pop()} >= $LEVEL{shift->level} }
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -47,18 +56,25 @@ sub new {
   return $self;
 }
 
-sub warn { shift->_log(warn => @_) }
+sub warn { 3 >= $LEVEL{$_[0]->level} ? _log(@_, 'warn') : $_[0] }
 
 sub _default {
-  '[' . localtime(shift) . '] [' . shift() . '] ' . join "\n", @_, '';
+  my ($time, $level) = (shift, shift);
+  my ($s, $m, $h, $day, $month, $year) = localtime $time;
+  $time = sprintf '%04d-%02d-%02d %02d:%02d:%08.5f', $year + 1900, $month + 1,
+    $day, $h, $m, "$s." . ((split /\./, $time)[1] // 0);
+  return "[$time] [$$] [$level] " . join "\n", @_, '';
 }
 
-sub _log { shift->emit('message', shift, @_) }
+sub _log {
+  my ($self, $level) = (shift, pop);
+  my @msgs = ref $_[0] eq 'CODE' ? $_[0]() : @_;
+  $msgs[0] = "$self->{context} $msgs[0]" if $self->{context};
+  ($self->{parent} || $self)->emit('message', $level, @msgs);
+}
 
 sub _message {
   my ($self, $level) = (shift, shift);
-
-  return unless $self->is_level($level);
 
   my $max     = $self->max_history_size;
   my $history = $self->history;
@@ -68,7 +84,11 @@ sub _message {
   $self->append($self->format->(@$msg));
 }
 
-sub _short { shift; '[' . shift() . '] ' . join "\n", @_, '' }
+sub _short {
+  my ($time, $level) = (shift, shift);
+  my ($magic, $short) = ("<$MAGIC{$level}>", substr($level, 0, 1));
+  return "${magic}[$$] [$short] " . join("\n$magic", @_) . "\n";
+}
 
 1;
 
@@ -113,7 +133,7 @@ following new ones.
 
 Emitted when a new message gets logged.
 
-  $log->unsubscribe('message')->on(message => sub {
+  $log->on(message => sub {
     my ($log, $level, @lines) = @_;
     say "$level: ", @lines;
   });
@@ -131,7 +151,7 @@ A callback for formatting log messages.
 
   $log->format(sub {
     my ($time, $level, @lines) = @_;
-    return "[Thu May 15 17:47:04 2014] [info] I ♥ Mojolicious\n";
+    return "[2018-11-08 14:20:13.77168] [28320] [info] I ♥ Mojolicious\n";
   });
 
 =head2 handle
@@ -155,8 +175,7 @@ The last few logged messages.
   $log      = $log->level('debug');
 
 Active log level, defaults to C<debug>. Available log levels are C<debug>,
-C<info>, C<warn>, C<error> and C<fatal>, in that order. Note that the
-C<MOJO_LOG_LEVEL> environment variable can override this value.
+C<info>, C<warn>, C<error> and C<fatal>, in that order.
 
 =head2 max_history_size
 
@@ -178,8 +197,7 @@ Log file path used by L</"handle">.
   $log     = $log->short($bool);
 
 Generate short log messages without a timestamp, suitable for systemd, defaults
-to auto-detection based on the presence of a L</"path"> and the
-C<INVOCATION_ID> and C<JOURNAL_STREAM> environment variables.
+to the value of the C<MOJO_LOG_SHORT> environment variables.
 
 =head1 METHODS
 
@@ -188,14 +206,28 @@ following new ones.
 
 =head2 append
 
-  $log->append("[Thu May 15 17:47:04 2014] [info] I ♥ Mojolicious\n");
+  $log->append("[2018-11-08 14:20:13.77168] [28320] [info] I ♥ Mojolicious\n");
 
 Append message to L</"handle">.
+
+=head2 context
+
+  my $new = $log->context('[extra] [information]');
+
+Construct a new child L<Mojo::Log> object that will include context information
+with every log message.
+
+  # Log with context
+  my $log = Mojo::Log->new;
+  my $context = $log->context('[17a60115]');
+  $context->debug('This is a log message with context information');
+  $context->info('And another');
 
 =head2 debug
 
   $log = $log->debug('You screwed up, but that is ok');
   $log = $log->debug('All', 'cool');
+  $log = $log->debug(sub {...});
 
 Emit L</"message"> event and log C<debug> message.
 
@@ -203,6 +235,7 @@ Emit L</"message"> event and log C<debug> message.
 
   $log = $log->error('You really screwed up this time');
   $log = $log->error('Wow', 'seriously');
+  $log = $log->error(sub {...});
 
 Emit L</"message"> event and log C<error> message.
 
@@ -210,6 +243,7 @@ Emit L</"message"> event and log C<error> message.
 
   $log = $log->fatal('Its over...');
   $log = $log->fatal('Bye', 'bye');
+  $log = $log->fatal(sub {...});
 
 Emit L</"message"> event and log C<fatal> message.
 
@@ -217,6 +251,7 @@ Emit L</"message"> event and log C<fatal> message.
 
   $log = $log->info('You are bad, but you prolly know already');
   $log = $log->info('Ok', 'then');
+  $log = $log->info(sub {...});
 
 Emit L</"message"> event and log C<info> message.
 
@@ -237,6 +272,8 @@ Check active log L</"level">.
 =head2 new
 
   my $log = Mojo::Log->new;
+  my $log = Mojo::Log->new(level => 'warn');
+  my $log = Mojo::Log->new({level => 'warn'});
 
 Construct a new L<Mojo::Log> object and subscribe to L</"message"> event with
 default logger.
@@ -245,11 +282,12 @@ default logger.
 
   $log = $log->warn('Dont do that Dave...');
   $log = $log->warn('No', 'really');
+  $log = $log->warn(sub {...});
 
 Emit L</"message"> event and log C<warn> message.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

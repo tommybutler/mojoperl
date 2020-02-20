@@ -1,0 +1,18 @@
+{
+   "alien_build_version" : "2.08",
+   "cflags" : "-D_FILE_OFFSET_BITS=64 -I/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/x86_64-linux-thread-multi-ld/auto/share/dist/Alien-hiredis/include/hiredis ",
+   "cflags_static" : "-D_FILE_OFFSET_BITS=64 -I/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/x86_64-linux-thread-multi-ld/auto/share/dist/Alien-hiredis/include/hiredis ",
+   "install_type" : "share",
+   "legacy" : {
+      "finished_installing" : 1,
+      "install_type" : "share",
+      "name" : "hiredis",
+      "original_prefix" : "/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/x86_64-linux-thread-multi-ld/auto/share/dist/Alien-hiredis",
+      "version" : "0.14.0"
+   },
+   "libs" : "-L/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/x86_64-linux-thread-multi-ld/auto/share/dist/Alien-hiredis/lib -lhiredis ",
+   "libs_static" : "-L/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/x86_64-linux-thread-multi-ld/auto/share/dist/Alien-hiredis/lib -lhiredis ",
+   "perl_module_version" : "0.008",
+   "prefix" : "/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/x86_64-linux-thread-multi-ld/auto/share/dist/Alien-hiredis",
+   "version" : "0.14.0"
+}

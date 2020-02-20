@@ -4,15 +4,13 @@ use Mojo::Base -base;
 use Mojo::Asset::File;
 use Mojo::Asset::Memory;
 use Mojo::Date;
-use Mojo::File 'path';
-use Mojo::Home;
-use Mojo::Loader 'data_section';
-use Mojo::Util 'md5_sum';
+use Mojo::File qw(curfile path);
+use Mojo::Loader qw(data_section file_is_binary);
+use Mojo::Util qw(encode md5_sum trim);
 
 # Bundled files
-my $PUBLIC = Mojo::Home->new(Mojo::Home->new->mojo_lib_dir)
-  ->child('Mojolicious', 'resources', 'public');
-my %EXTRA = $PUBLIC->list_tree->map(
+my $PUBLIC = curfile->sibling('resources', 'public');
+my %EXTRA  = $PUBLIC->list_tree->map(
   sub { join('/', @{$_->to_rel($PUBLIC)}), $_->realpath->to_string })->each;
 
 has classes => sub { ['main'] };
@@ -34,7 +32,8 @@ sub dispatch {
   return undef unless my @parts = @{$path->canonicalize->parts};
 
   # Serve static file and prevent path traversal
-  return undef if $parts[0] eq '..' || !$self->serve($c, join('/', @parts));
+  my $canon_path = join '/', @parts;
+  return undef if $canon_path =~ /^\.\.\/|\\/ || !$self->serve($c, $canon_path);
   $stash->{'mojo.static'} = 1;
   return !!$c->rendered;
 }
@@ -43,9 +42,10 @@ sub file {
   my ($self, $rel) = @_;
 
   # Search all paths
+  my @parts = split '/', $rel;
   for my $path (@{$self->paths}) {
-    my $asset = $self->_get_file(path($path, split('/', $rel))->to_string);
-    return $asset if $asset;
+    next unless my $asset = _get_file(path($path, @parts)->to_string);
+    return $asset;
   }
 
   # Search DATA
@@ -53,7 +53,7 @@ sub file {
 
   # Search extra files
   my $extra = $self->extra;
-  return exists $extra->{$rel} ? $self->_get_file($extra->{$rel}) : undef;
+  return exists $extra->{$rel} ? _get_file($extra->{$rel}) : undef;
 }
 
 sub is_fresh {
@@ -61,8 +61,8 @@ sub is_fresh {
 
   my $res_headers = $c->res->headers;
   my ($last, $etag) = @$options{qw(last_modified etag)};
-  $res_headers->last_modified(Mojo::Date->new($last)->to_string) if $last;
-  $res_headers->etag($etag = qq{"$etag"}) if $etag;
+  $res_headers->last_modified(Mojo::Date->new($last)->to_string)       if $last;
+  $res_headers->etag($etag = ($etag =~ m!^W/"! ? $etag : qq{"$etag"})) if $etag;
 
   # Unconditional
   my $req_headers = $c->req->headers;
@@ -70,7 +70,10 @@ sub is_fresh {
   return undef unless (my $since = $req_headers->if_modified_since) || $match;
 
   # If-None-Match
-  return undef if $match && ($etag // $res_headers->etag // '') ne $match;
+  $etag //= $res_headers->etag // '';
+  return undef
+    if $match && !grep { $_ eq $etag || "W/$_" eq $etag }
+    map { trim($_) } split ',', $match;
 
   # If-Modified-Since
   return !!$match unless ($last //= $res_headers->last_modified) && $since;
@@ -79,25 +82,21 @@ sub is_fresh {
 
 sub serve {
   my ($self, $c, $rel) = @_;
-
   return undef unless my $asset = $self->file($rel);
-  my $headers = $c->res->headers;
-  return !!$self->serve_asset($c, $asset) if $headers->content_type;
-
-  # Content-Type
-  my $types = $c->app->types;
-  my $type = $rel =~ /\.(\w+)$/ ? $types->type($1) : undef;
-  $headers->content_type($type || $types->type('txt'));
+  $c->app->types->content_type($c, {file => $rel});
   return !!$self->serve_asset($c, $asset);
 }
 
 sub serve_asset {
   my ($self, $c, $asset) = @_;
 
+  # Content-Type
+  $c->app->types->content_type($c, {file => $asset->path}) if $asset->is_file;
+
   # Last-Modified and ETag
   my $res = $c->res;
   $res->code(200)->headers->accept_ranges('bytes');
-  my $mtime = $asset->mtime;
+  my $mtime   = $asset->mtime;
   my $options = {etag => md5_sum($mtime), last_modified => $mtime};
   return $res->code(304) if $self->is_fresh($c, $options);
 
@@ -118,7 +117,7 @@ sub serve_asset {
 }
 
 sub warmup {
-  my $self = shift;
+  my $self  = shift;
   my $index = $self->{index} = {};
   for my $class (reverse @{$self->classes}) {
     $index->{$_} = $class for keys %{data_section $class};
@@ -136,13 +135,14 @@ sub _get_data_file {
   $self->warmup unless $self->{index};
 
   # Find file
-  return undef
-    unless defined(my $data = data_section($self->{index}{$rel}, $rel));
-  return Mojo::Asset::Memory->new->add_chunk($data);
+  my @args = ($self->{index}{$rel}, $rel);
+  return undef unless defined(my $data = data_section(@args));
+  return Mojo::Asset::Memory->new->add_chunk(
+    file_is_binary(@args) ? $data : encode 'UTF-8', $data);
 }
 
 sub _get_file {
-  my ($self, $path) = @_;
+  my $path = shift;
   no warnings 'newline';
   return -f $path && -r _ ? Mojo::Asset::File->new(path => $path) : undef;
 }
@@ -244,6 +244,8 @@ traversing to parent directories.
 =head2 is_fresh
 
   my $bool = $static->is_fresh(Mojolicious::Controller->new, {etag => 'abc'});
+  my $bool = $static->is_fresh(
+    Mojolicious::Controller->new, {etag => 'W/"def"'});
 
 Check freshness of request by comparing the C<If-None-Match> and
 C<If-Modified-Since> request headers to the C<ETag> and C<Last-Modified>
@@ -256,6 +258,7 @@ These options are currently available:
 =item etag
 
   etag => 'abc'
+  etag => 'W/"abc"'
 
 Add C<ETag> header before comparing.
 
@@ -291,6 +294,6 @@ Prepare static files from L</"classes"> for future use.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

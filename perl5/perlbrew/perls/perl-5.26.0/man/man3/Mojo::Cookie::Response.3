@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Cookie::Response 3"
-.TH Mojo::Cookie::Response 3 "2017-07-17" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Cookie::Response 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -108,6 +108,15 @@ Cookie domain.
 .Ve
 .PP
 Expiration for cookie.
+.SS "host_only"
+.IX Subsection "host_only"
+.Vb 2
+\&  my $bool = $cookie\->host_only;
+\&  $cookie  = $cookie\->host_only($bool);
+.Ve
+.PP
+Host-only flag, indicating that the canonicalized request-host is identical to
+the cookie's \*(L"domain\*(R".
 .SS "httponly"
 .IX Subsection "httponly"
 .Vb 2
@@ -125,14 +134,6 @@ cookie.
 .Ve
 .PP
 Max age for cookie.
-.SS "origin"
-.IX Subsection "origin"
-.Vb 2
-\&  my $origin = $cookie\->origin;
-\&  $cookie    = $cookie\->origin(\*(Aqmojolicious.org\*(Aq);
-.Ve
-.PP
-Origin of the cookie.
 .SS "path"
 .IX Subsection "path"
 .Vb 2
@@ -141,6 +142,17 @@ Origin of the cookie.
 .Ve
 .PP
 Cookie path.
+.SS "samesite"
+.IX Subsection "samesite"
+.Vb 2
+\&  my $samesite = $cookie\->samesite;
+\&  $cookie      = $cookie\->samesite(\*(AqLax\*(Aq);
+.Ve
+.PP
+SameSite value. Note that this attribute is \fB\s-1EXPERIMENTAL\s0\fR because even though
+most commonly used browsers support the feature, there is no specification yet
+besides
+this draft <https://tools.ietf.org/html/draft-west-first-party-cookies-07>.
 .SS "secure"
 .IX Subsection "secure"
 .Vb 2
@@ -170,4 +182,4 @@ Parse cookies.
 Render cookie.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

@@ -9,13 +9,13 @@ use Mojo::Util 'term_escape';
 use Mojo::WebSocket 'server_handshake';
 use Scalar::Util 'weaken';
 
-use constant DEBUG => $ENV{MOJO_DAEMON_DEBUG} || 0;
+use constant DEBUG => $ENV{MOJO_SERVER_DEBUG} || 0;
 
 has acceptors => sub { [] };
 has [qw(backlog max_clients silent)];
 has inactivity_timeout => sub { $ENV{MOJO_INACTIVITY_TIMEOUT} // 15 };
-has ioloop => sub { Mojo::IOLoop->singleton };
-has listen => sub { [split ',', $ENV{MOJO_LISTEN} || 'http://*:3000'] };
+has ioloop             => sub { Mojo::IOLoop->singleton };
+has listen       => sub { [split ',', $ENV{MOJO_LISTEN} || 'http://*:3000'] };
 has max_requests => 100;
 
 sub DESTROY {
@@ -25,16 +25,14 @@ sub DESTROY {
   $loop->remove($_) for keys %{$self->{connections} || {}}, @{$self->acceptors};
 }
 
-sub ports {
-  [map { $_[0]->ioloop->acceptor($_)->port } @{$_[0]->acceptors}];
-}
+sub ports { [map { $_[0]->ioloop->acceptor($_)->port } @{$_[0]->acceptors}] }
 
 sub run {
   my $self = shift;
 
   # Make sure the event loop can be stopped in regular intervals
   my $loop = $self->ioloop;
-  my $int = $loop->recurring(1 => sub { });
+  my $int  = $loop->recurring(1 => sub { });
   local $SIG{INT} = local $SIG{TERM} = sub { $loop->stop };
   $self->start->ioloop->start;
   $loop->remove($int);
@@ -53,7 +51,10 @@ sub start {
   }
 
   # Start listening
-  elsif (!@{$self->acceptors}) { $self->_listen($_) for @{$self->listen} }
+  elsif (!@{$self->acceptors}) {
+    $self->app->server($self);
+    $self->_listen($_) for @{$self->listen};
+  }
 
   return $self;
 }
@@ -105,8 +106,7 @@ sub _build_tx {
       # Last keep-alive request or corrupted connection
       my $c = $self->{connections}{$id};
       $tx->res->headers->connection('close')
-        and ++Mojo::IOLoop->stream($id)->{closed}
-        if $c->{requests} >= $self->max_requests || $req->error;
+        if ($c->{requests} || 1) >= $self->max_requests || $req->error;
 
       $tx->on(resume => sub { $self->_write($id) });
       $self->_write($id);
@@ -168,7 +168,7 @@ sub _listen {
   croak qq{Invalid listen location "$listen"}
     unless $proto eq 'http' || $proto eq 'https' || $proto eq 'http+unix';
 
-  my $query = $url->query;
+  my $query   = $url->query;
   my $options = {backlog => $self->backlog};
   $options->{$_} = $query->param($_) for qw(fd single_accept reuse);
   if ($proto eq 'http+unix') { $options->{path} = $url->host }
@@ -197,7 +197,7 @@ sub _listen {
       $stream->on(close => sub { $self && $self->_close($id) });
       $stream->on(error =>
           sub { $self && $self->app->log->error(pop) && $self->_close($id) });
-      $stream->on(read => sub { $self->_read($id => pop) });
+      $stream->on(read    => sub { $self->_read($id => pop) });
       $stream->on(timeout => sub { $self->_debug($id, 'Inactivity timeout') });
     }
   );
@@ -213,7 +213,7 @@ sub _read {
   my ($self, $id, $chunk) = @_;
 
   # Make sure we have a transaction
-  my $c = $self->{connections}{$id};
+  my $c  = $self->{connections}{$id};
   my $tx = $c->{tx} ||= $self->_build_tx($id, $c);
   warn term_escape "-- Server <<< Client (@{[_url($tx)]})\n$chunk\n" if DEBUG;
   $tx->server_read($chunk);
@@ -281,7 +281,7 @@ and multiple event loop support.
 For better scalability (epoll, kqueue) and to provide non-blocking name
 resolution, SOCKS5 as well as TLS support, the optional modules L<EV> (4.0+),
 L<Net::DNS::Native> (0.15+), L<IO::Socket::Socks> (0.64+) and
-L<IO::Socket::SSL> (1.94+) will be used automatically if possible. Individual
+L<IO::Socket::SSL> (2.009+) will be used automatically if possible. Individual
 features can also be disabled with the C<MOJO_NO_NNR>, C<MOJO_NO_SOCKS> and
 C<MOJO_NO_TLS> environment variables.
 
@@ -406,7 +406,7 @@ Path to the TLS cert file, defaults to a built-in test certificate.
   ciphers=AES128-GCM-SHA256:RC4:HIGH:!MD5:!aNULL:!EDH
 
 TLS cipher specification string. For more information about the format see
-L<https://www.openssl.org/docs/manmaster/apps/ciphers.html#CIPHER-STRINGS>.
+L<https://www.openssl.org/docs/manmaster/man1/ciphers.html#CIPHER-STRINGS>.
 
 =item fd
 
@@ -438,8 +438,7 @@ Only accept one connection at a time.
 
   verify=0x00
 
-TLS verification mode, defaults to C<0x03> if a certificate authority file has
-been provided, or C<0x00>.
+TLS verification mode.
 
 =item version
 
@@ -514,13 +513,13 @@ Stop accepting connections through L</"ioloop">.
 
 =head1 DEBUGGING
 
-You can set the C<MOJO_DAEMON_DEBUG> environment variable to get some advanced
+You can set the C<MOJO_SERVER_DEBUG> environment variable to get some advanced
 diagnostics information printed to C<STDERR>.
 
-  MOJO_DAEMON_DEBUG=1
+  MOJO_SERVER_DEBUG=1
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

@@ -2,23 +2,23 @@ package Mojolicious::Renderer;
 use Mojo::Base -base;
 
 use Mojo::Cache;
-use Mojo::File 'path';
+use Mojo::DynamicMethods;
+use Mojo::File qw(curfile path);
 use Mojo::JSON 'encode_json';
-use Mojo::Home;
 use Mojo::Loader 'data_section';
-use Mojo::Util qw(decamelize encode md5_sum monkey_patch);
+use Mojo::Util qw(decamelize encode gzip md5_sum monkey_patch);
 
 has cache   => sub { Mojo::Cache->new };
 has classes => sub { ['main'] };
-has default_format => 'html';
-has 'default_handler';
-has encoding => 'UTF-8';
+has [qw(compress default_handler)];
+has default_format         => 'html';
+has encoding               => 'UTF-8';
 has [qw(handlers helpers)] => sub { {} };
-has paths => sub { [] };
+has min_compress_size      => 860;
+has paths                  => sub { [] };
 
 # Bundled templates
-my $TEMPLATES = Mojo::Home->new->mojo_lib_dir->child('Mojolicious', 'resources',
-  'templates');
+my $TEMPLATES = curfile->sibling('resources', 'templates');
 
 sub DESTROY { Mojo::Util::_teardown($_) for @{shift->{namespaces}} }
 
@@ -26,11 +26,10 @@ sub accepts {
   my ($self, $c) = (shift, shift);
 
   # List representations
-  my $req = $c->req;
-  my @exts = @{$c->app->types->detect($req->headers->accept, $req->is_xhr)};
-  if (!@exts && (my $format = $c->stash->{format} || $req->param('format'))) {
-    push @exts, $format;
-  }
+  my $req  = $c->req;
+  my $fmt  = $req->param('format') || $c->stash->{format};
+  my @exts = $fmt ? ($fmt) : ();
+  push @exts, @{$c->app->types->detect($req->headers->accept)};
   return \@exts unless @_;
 
   # Find best representation
@@ -42,8 +41,13 @@ sub add_handler { $_[0]->handlers->{$_[1]} = $_[2] and return $_[0] }
 
 sub add_helper {
   my ($self, $name, $cb) = @_;
+
   $self->helpers->{$name} = $cb;
   delete $self->{proxy};
+  $cb = $self->get_helper($name) if $name =~ s/\..*$//;
+  Mojo::DynamicMethods::register $_, $self, $name, $cb
+    for qw(Mojolicious Mojolicious::Controller);
+
   return $self;
 }
 
@@ -60,7 +64,7 @@ sub get_helper {
 
   my $found;
   my $class = 'Mojolicious::Renderer::Helpers::' . md5_sum "$name:$self";
-  my $re = length $name ? qr/^(\Q$name\E\.([^.]+))/ : qr/^(([^.]+))/;
+  my $re    = length $name ? qr/^(\Q$name\E\.([^.]+))/ : qr/^(([^.]+))/;
   for my $key (keys %{$self->helpers}) {
     $key =~ $re ? ($found, my $method) = (1, $2) : next;
     my $sub = $self->get_helper($1);
@@ -74,18 +78,7 @@ sub get_helper {
 sub render {
   my ($self, $c, $args) = @_;
 
-  # Localize "extends" and "layout" to allow argument overrides
-  my $stash = $c->stash;
-  local $stash->{layout}  = $stash->{layout}  if exists $stash->{layout};
-  local $stash->{extends} = $stash->{extends} if exists $stash->{extends};
-
-  # Rendering to string
-  local @{$stash}{keys %$args} if my $string = delete $args->{'mojo.string'};
-  delete @{$stash}{qw(layout extends)} if $string;
-
-  # All other arguments just become part of the stash
-  @$stash{keys %$args} = values %$args;
-
+  my $stash   = $c->stash;
   my $options = {
     encoding => $self->encoding,
     handler  => $stash->{handler},
@@ -121,8 +114,28 @@ sub render {
     $content->{content} //= $output if $output =~ /\S/;
   }
 
-  return $string ? $output : _maybe($options->{encoding}, $output),
-    $options->{format};
+  return $output if $args->{'mojo.string'};
+  return _maybe($options->{encoding}, $output), $options->{format};
+}
+
+sub respond {
+  my ($self, $c, $output, $format, $status) = @_;
+
+  # Gzip compression
+  my $res = $c->res;
+  if ($self->compress && length($output) >= $self->min_compress_size) {
+    my $headers = $res->headers;
+    $headers->append(Vary => 'Accept-Encoding');
+    my $gzip = ($c->req->headers->accept_encoding // '') =~ /gzip/i;
+    if ($gzip && !$headers->content_encoding) {
+      $headers->content_encoding('gzip');
+      $output = gzip $output;
+    }
+  }
+
+  $res->body($output);
+  $c->app->types->content_type($c, {ext => $format});
+  return !!$c->rendered($status);
 }
 
 sub template_for {
@@ -209,7 +222,7 @@ sub _render_template {
 
   my $handler = $options->{handler} ||= $self->template_handler($options);
   return undef unless $handler;
-  $c->app->log->error(qq{No handler for "$handler" available}) and return undef
+  $c->helpers->log->error(qq{No handler for "$handler" found}) and return undef
     unless my $renderer = $self->handlers->{$handler};
 
   $renderer->($self, $c, $output, $options);
@@ -267,13 +280,23 @@ application startup.
   # Add another class with templates in DATA section and higher precedence
   unshift @{$renderer->classes}, 'Mojolicious::Plugin::MoreFun';
 
+=head2 compress
+
+  my $bool  = $renderer->compress;
+  $renderer = $renderer->compress($bool);
+
+Try to negotiate compression for dynamically generated response content and
+C<gzip> compress it automatically, defaults to false. Note that this attribute
+is B<EXPERIMENTAL> and might change without warning!
+
 =head2 default_format
 
   my $default = $renderer->default_format;
   $renderer   = $renderer->default_format('html');
 
 The default format to render if C<format> is not set in the stash, defaults to
-C<html>.
+C<html>. Note that changing the default away from C<html> is not recommended, as
+it has the potential to break, for example, plugins with bundled templates.
 
 =head2 default_handler
 
@@ -306,6 +329,15 @@ Registered handlers.
 
 Registered helpers.
 
+=head2 min_compress_size
+
+  my $size  = $renderer->min_compress_size;
+  $renderer = $renderer->min_compress_size(1024);
+
+Minimum output size in bytes required for compression to be used if enabled,
+defaults to C<860>. Note that this attribute is B<EXPERIMENTAL> and might change
+without warning!
+
 =head2 paths
 
   my $paths = $renderer->paths;
@@ -330,12 +362,9 @@ the following new ones.
   my $best = $renderer->accepts(Mojolicious::Controller->new, 'html', 'json');
 
 Select best possible representation for L<Mojolicious::Controller> object from
-C<Accept> request header, C<format> stash value or C<format> C<GET>/C<POST>
-parameter, defaults to returning the first extension if no preference could be
-detected. Since browsers often don't really know what they actually want,
-unspecific C<Accept> request headers with more than one MIME type will be
-ignored, unless the C<X-Requested-With> header is set to the value
-C<XMLHttpRequest>.
+C<format> C<GET>/C<POST> parameter, C<format> stash value, or C<Accept> request
+header, defaults to returning the first extension if no preference could be
+detected.
 
 =head2 add_handler
 
@@ -391,6 +420,16 @@ helpers can be called.
 Render output through one of the renderers. See
 L<Mojolicious::Controller/"render"> for a more user-friendly interface.
 
+=head2 respond
+
+  my $bool = $renderer->respond(Mojolicious::Controller->new, $output, $format);
+  my $bool = $renderer->respond(
+    Mojolicious::Controller->new, $output, $format, $status);
+
+Finalize dynamically generated response content and L</"compress"> it if
+possible. Note that this method is B<EXPERIMENTAL> and might change without
+warning!
+
 =head2 template_for
 
   my $name = $renderer->template_for(Mojolicious::Controller->new);
@@ -440,6 +479,6 @@ Prepare templates from L</"classes"> for future use.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

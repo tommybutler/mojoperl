@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious 3"
-.TH Mojolicious 3 "2017-08-02" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious 3 "2020-02-08" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -109,6 +109,36 @@ Take a look at our excellent documentation in Mojolicious::Guides!
 .SH "HOOKS"
 .IX Header "HOOKS"
 Mojolicious will emit the following hooks in the listed order.
+.SS "before_command"
+.IX Subsection "before_command"
+Emitted right before the application runs a command through the command line
+interface. Note that this hook is \fB\s-1EXPERIMENTAL\s0\fR and might change without
+warning!
+.PP
+.Vb 4
+\&  $app\->hook(before_command => sub {
+\&    my ($command, $args) = @_;
+\&    ...
+\&  });
+.Ve
+.PP
+Useful for reconfiguring the application before running a command or to modify
+the behavior of a command. (Passed the command object and the command arguments)
+.SS "before_server_start"
+.IX Subsection "before_server_start"
+Emitted right before the application server is started, for web servers that
+support it, which includes all the built-in ones (except for
+Mojo::Server::CGI).
+.PP
+.Vb 4
+\&  $app\->hook(before_server_start => sub {
+\&    my ($server, $app) = @_;
+\&    ...
+\&  });
+.Ve
+.PP
+Useful for reconfiguring application servers dynamically or collecting server
+diagnostics information. (Passed the server and application objects)
 .SS "after_build_tx"
 .IX Subsection "after_build_tx"
 Emitted right after the transaction is built and before the \s-1HTTP\s0 request gets
@@ -124,7 +154,7 @@ parsed.
 This is a very powerful hook and should not be used lightly, it makes some
 rather advanced features such as upload progress bars possible. Note that this
 hook will not work for embedded applications, because only the host application
-gets to build transactions. (Passed the transaction and application object)
+gets to build transactions. (Passed the transaction and application objects)
 .SS "around_dispatch"
 .IX Subsection "around_dispatch"
 Emitted right after a new request has been received and wraps around the whole
@@ -255,8 +285,7 @@ Useful for rewriting outgoing responses and other post-processing tasks.
 (Passed the current controller object)
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojolicious inherits all attributes from Mojo and implements the
-following new ones.
+Mojolicious implements the following attributes.
 .SS "commands"
 .IX Subsection "commands"
 .Vb 2
@@ -281,6 +310,20 @@ Mojolicious::Commands object.
 Class to be used for the default controller, defaults to
 Mojolicious::Controller. Note that this class needs to have already been
 loaded before the first request arrives.
+.SS "home"
+.IX Subsection "home"
+.Vb 2
+\&  my $home = $app\->home;
+\&  $app     = $app\->home(Mojo::Home\->new);
+.Ve
+.PP
+The home directory of your application, defaults to a Mojo::Home object
+which stringifies to the actual path.
+.PP
+.Vb 2
+\&  # Portably generate path relative to home directory
+\&  my $path = $app\->home\->child(\*(Aqdata\*(Aq, \*(Aqimportant.txt\*(Aq);
+.Ve
 .SS "log"
 .IX Subsection "log"
 .Vb 2
@@ -289,9 +332,10 @@ loaded before the first request arrives.
 .Ve
 .PP
 The logging layer of your application, defaults to a Mojo::Log object. The
-level will default to \f(CW\*(C`debug\*(C'\fR if the \*(L"mode\*(R" is \f(CW\*(C`development\*(C'\fR, or \f(CW\*(C`info\*(C'\fR
-otherwise. All messages will be written to \f(CW\*(C`STDERR\*(C'\fR, or a \f(CW\*(C`log/$mode.log\*(C'\fR file
-if a \f(CW\*(C`log\*(C'\fR directory exists.
+level will default to either the \f(CW\*(C`MOJO_LOG_LEVEL\*(C'\fR environment variable,
+\&\f(CW\*(C`debug\*(C'\fR if the \*(L"mode\*(R" is \f(CW\*(C`development\*(C'\fR, or \f(CW\*(C`info\*(C'\fR otherwise. All messages
+will be written to \f(CW\*(C`STDERR\*(C'\fR, or a \f(CW\*(C`log/$mode.log\*(C'\fR file if a \f(CW\*(C`log\*(C'\fR directory
+exists.
 .PP
 .Vb 2
 \&  # Log debug message
@@ -355,6 +399,9 @@ information about how to generate content see
 Mojolicious::Guides::Rendering.
 .PP
 .Vb 2
+\&  # Enable compression
+\&  $app\->renderer\->compress(1);
+\&
 \&  # Add another "templates" directory
 \&  push @{$app\->renderer\->paths}, \*(Aq/home/sri/templates\*(Aq;
 \&
@@ -418,6 +465,9 @@ session data.
 .Vb 2
 \&  # Change name of cookie used for all sessions
 \&  $app\->sessions\->cookie_name(\*(Aqmysession\*(Aq);
+\&
+\&  # Disable SameSite feature
+\&  $app\->sessions\->samesite(undef);
 .Ve
 .SS "static"
 .IX Subsection "static"
@@ -456,6 +506,20 @@ Mojolicious::Types object.
 \&  # Add custom MIME type
 \&  $app\->types\->type(twt => \*(Aqtext/tweet\*(Aq);
 .Ve
+.SS "ua"
+.IX Subsection "ua"
+.Vb 2
+\&  my $ua = $app\->ua;
+\&  $app   = $app\->ua(Mojo::UserAgent\->new);
+.Ve
+.PP
+A full featured \s-1HTTP\s0 user agent for use in your applications, defaults to a
+Mojo::UserAgent object.
+.PP
+.Vb 2
+\&  # Perform blocking request
+\&  say $app\->ua\->get(\*(Aqexample.com\*(Aq)\->result\->body;
+.Ve
 .SS "validator"
 .IX Subsection "validator"
 .Vb 2
@@ -468,20 +532,20 @@ Validate values, defaults to a Mojolicious::Validator object.
 .Vb 5
 \&  # Add validation check
 \&  $app\->validator\->add_check(foo => sub {
-\&    my ($validation, $name, $value) = @_;
+\&    my ($v, $name, $value) = @_;
 \&    return $value ne \*(Aqfoo\*(Aq;
 \&  });
 \&
 \&  # Add validation filter
 \&  $app\->validator\->add_filter(quotemeta => sub {
-\&    my ($validation, $name, $value) = @_;
+\&    my ($v, $name, $value) = @_;
 \&    return quotemeta $value;
 \&  });
 .Ve
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious inherits all methods from Mojo and implements the following
-new ones.
+Mojolicious inherits all methods from Mojo::Base and implements the
+following new ones.
 .SS "build_controller"
 .IX Subsection "build_controller"
 .Vb 3
@@ -503,6 +567,24 @@ Build default controller object with \*(L"controller_class\*(R".
 .Ve
 .PP
 Build Mojo::Transaction::HTTP object and emit \*(L"after_build_tx\*(R" hook.
+.SS "config"
+.IX Subsection "config"
+.Vb 4
+\&  my $hash = $app\->config;
+\&  my $foo  = $app\->config(\*(Aqfoo\*(Aq);
+\&  $app     = $app\->config({foo => \*(Aqbar\*(Aq, baz => 23});
+\&  $app     = $app\->config(foo => \*(Aqbar\*(Aq, baz => 23);
+.Ve
+.PP
+Application configuration.
+.PP
+.Vb 2
+\&  # Remove value
+\&  my $foo = delete $app\->config\->{foo};
+\&
+\&  # Assign multiple values at once
+\&  $app\->config(foo => \*(Aqtest\*(Aq, bar => 23);
+.Ve
 .SS "defaults"
 .IX Subsection "defaults"
 .Vb 4
@@ -612,6 +694,13 @@ default exception handling.
 .PP
 Load a plugin, for a full list of example plugins included in the
 Mojolicious distribution see \*(L"\s-1PLUGINS\*(R"\s0 in Mojolicious::Plugins.
+.SS "server"
+.IX Subsection "server"
+.Vb 1
+\&  $app\->server(Mojo::Server\->new);
+.Ve
+.PP
+Emits the \*(L"before_server_start\*(R" hook.
 .SS "start"
 .IX Subsection "start"
 .Vb 2
@@ -643,8 +732,8 @@ startup. Meant to be overloaded in a subclass.
 \&    ...
 \&  }
 .Ve
-.SH "AUTOLOAD"
-.IX Header "AUTOLOAD"
+.SH "HELPERS"
+.IX Header "HELPERS"
 In addition to the \*(L"\s-1ATTRIBUTES\*(R"\s0 and \*(L"\s-1METHODS\*(R"\s0 above you can also call
 helpers on Mojolicious objects. This includes all helpers from
 Mojolicious::Plugin::DefaultHelpers and Mojolicious::Plugin::TagHelpers.
@@ -666,7 +755,7 @@ that have been bundled for internal use.
 .SS "Mojolicious Artwork"
 .IX Subsection "Mojolicious Artwork"
 .Vb 1
-\&  Copyright (C) 2010\-2017, Sebastian Riedel.
+\&  Copyright (C) 2010\-2020, Sebastian Riedel.
 .Ve
 .PP
 Licensed under the CC-SA License, Version 4.0
@@ -691,6 +780,8 @@ Licensed under the Apache License, Version 2.0
 Every major release of Mojolicious has a code name, these are the ones that
 have been used in the past.
 .PP
+8.0, \f(CW\*(C`Supervillain\*(C'\fR (U+1F9B9)
+.PP
 7.0, \f(CW\*(C`Doughnut\*(C'\fR (U+1F369)
 .PP
 6.0, \f(CW\*(C`Clinking Beer Mugs\*(C'\fR (U+1F37B)
@@ -703,30 +794,34 @@ have been used in the past.
 .PP
 2.0, \f(CW\*(C`Leaf Fluttering In Wind\*(C'\fR (U+1F343)
 .PP
-1.4, \f(CW\*(C`Smiling Face With Sunglasses\*(C'\fR (U+1F60E)
-.PP
-1.3, \f(CW\*(C`Tropical Drink\*(C'\fR (U+1F379)
-.PP
-1.1, \f(CW\*(C`Smiling Cat Face With Heart\-Shaped Eyes\*(C'\fR (U+1F63B)
-.PP
 1.0, \f(CW\*(C`Snowflake\*(C'\fR (U+2744)
 .SH "SPONSORS"
 .IX Header "SPONSORS"
+.IP "\(bu" 2
+Stix <https://stix.no> sponsored the creation of the Mojolicious logo (designed
+by Nicolai Graesdal) and transferred its copyright to Sebastian Riedel.
+.IP "\(bu" 2
 Some of the work on this distribution has been sponsored by
-The Perl Foundation <http://www.perlfoundation.org>, thank you!
+The Perl Foundation <http://www.perlfoundation.org>.
 .SH "PROJECT FOUNDER"
 .IX Header "PROJECT FOUNDER"
-Sebastian Riedel, \f(CW\*(C`sri@cpan.org\*(C'\fR
+Sebastian Riedel, \f(CW\*(C`kraih@mojolicious.org\*(C'\fR
 .SH "CORE DEVELOPERS"
 .IX Header "CORE DEVELOPERS"
-Current members of the core team in alphabetical order:
+Current voting members of the core team in alphabetical order:
 .Sp
 .RS 2
-Jan Henning Thorsen, \f(CW\*(C`jhthorsen@cpan.org\*(C'\fR
+CandyAngel, \f(CW\*(C`candyangel@mojolicious.org\*(C'\fR
 .Sp
-Joel Berger, \f(CW\*(C`jberger@cpan.org\*(C'\fR
+Christopher Rasch-Olsen Raa, \f(CW\*(C`christopher@mojolicious.org\*(C'\fR
 .Sp
-Marcus Ramberg, \f(CW\*(C`mramberg@cpan.org\*(C'\fR
+Dan Book, \f(CW\*(C`grinnz@mojolicious.org\*(C'\fR
+.Sp
+Jan Henning Thorsen, \f(CW\*(C`batman@mojolicious.org\*(C'\fR
+.Sp
+Joel Berger, \f(CW\*(C`jberger@mojolicious.org\*(C'\fR
+.Sp
+Marcus Ramberg, \f(CW\*(C`marcus@mojolicious.org\*(C'\fR
 .RE
 .PP
 The following members of the core team are currently on hiatus:
@@ -751,6 +846,8 @@ Alex Efros
 .Sp
 Alex Salimon
 .Sp
+Alexander Karelas
+.Sp
 Alexey Likhatskiy
 .Sp
 Anatoly Sharifulin
@@ -758,6 +855,8 @@ Anatoly Sharifulin
 Andre Parker
 .Sp
 Andre Vieth
+.Sp
+Andreas Guldstrand
 .Sp
 Andreas Jaekel
 .Sp
@@ -803,17 +902,21 @@ Charlie Brady
 .Sp
 Chas. J. Owens \s-1IV\s0
 .Sp
+Chase Whitener
+.Sp
 Christian Hansen
 .Sp
 chromatic
 .Sp
 Curt Tilmes
 .Sp
-Dan Book
-.Sp
 Daniel Kimsey
 .Sp
+Daniel Mantovani
+.Sp
 Danijel Tasov
+.Sp
+Dagfinn Ilmari Mannsåker
 .Sp
 Danny Thomas
 .Sp
@@ -831,11 +934,17 @@ Dominik Jarmulowicz
 .Sp
 Dominique Dumont
 .Sp
+Dotan Dimet
+.Sp
 Douglas Christopher Wilson
+.Sp
+Ettore Di Giacinto
 .Sp
 Eugen Konkov
 .Sp
 Eugene Toropov
+.Sp
+Flavio Poletti
 .Sp
 Gisle Aas
 .Sp
@@ -852,6 +961,8 @@ Hiroki Toyokawa
 Ian Goodacre
 .Sp
 Ilya Chesnokov
+.Sp
+Ilya Rassadin
 .Sp
 James Duncan
 .Sp
@@ -870,6 +981,10 @@ John Kingsley
 Jonathan Yu
 .Sp
 Josh Leder
+.Sp
+Kamen Naydenov
+.Sp
+Karen Etheridge
 .Sp
 Kazuhiro Shibuya
 .Sp
@@ -911,6 +1026,8 @@ Michael Gregorowicz
 .Sp
 Michael Harris
 .Sp
+Michael Jemmeson
+.Sp
 Mike Magowan
 .Sp
 Mirko Westermeier
@@ -932,6 +1049,8 @@ Olivier Mengue
 Pascal Gaudette
 .Sp
 Paul Evans
+.Sp
+Paul Robins
 .Sp
 Paul Tomlin
 .Sp
@@ -967,6 +1086,8 @@ Ryan Jendoubi
 .Sp
 Salvador Fandino
 .Sp
+Santiago Zarate
+.Sp
 Sascha Kiefer
 .Sp
 Scott Wiersdorf
@@ -977,17 +1098,23 @@ Simon Bertrang
 .Sp
 Simone Tampieri
 .Sp
+Shoichi Kaji
+.Sp
 Shu Cho
 .Sp
 Skye Shaw
 .Sp
 Stanis Trendelenburg
 .Sp
+Stefan Adams
+.Sp
 Steffen Ullrich
 .Sp
 Stephan Kulow
 .Sp
 Stephane Este-Gracias
+.Sp
+Stevan Little
 .Sp
 Steve Atkins
 .Sp
@@ -1027,11 +1154,11 @@ Zoffix Znet
 .RE
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
-Copyright (C) 2008\-2017, Sebastian Riedel and others.
+Copyright (C) 2008\-2020, Sebastian Riedel and others.
 .PP
 This program is free software, you can redistribute it and/or modify it under
 the terms of the Artistic License version 2.0.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-<https://github.com/kraih/mojo>, Mojolicious::Guides,
-<http://mojolicious.org>.
+<https://github.com/mojolicious/mojo>, Mojolicious::Guides,
+<https://mojolicious.org>.

@@ -64,72 +64,10 @@
 .        nr F 2
 .    \}
 .\}
-.\"
-.\" Accent mark definitions (@(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2).
-.\" Fear.  Run.  Save yourself.  No user-serviceable parts.
-.    \" fudge factors for nroff and troff
-.if n \{\
-.    ds #H 0
-.    ds #V .8m
-.    ds #F .3m
-.    ds #[ \f1
-.    ds #] \fP
-.\}
-.if t \{\
-.    ds #H ((1u-(\\\\n(.fu%2u))*.13m)
-.    ds #V .6m
-.    ds #F 0
-.    ds #[ \&
-.    ds #] \&
-.\}
-.    \" simple accents for nroff and troff
-.if n \{\
-.    ds ' \&
-.    ds ` \&
-.    ds ^ \&
-.    ds , \&
-.    ds ~ ~
-.    ds /
-.\}
-.if t \{\
-.    ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
-.    ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
-.    ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
-.    ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
-.    ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
-.    ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
-.\}
-.    \" troff and (daisy-wheel) nroff accents
-.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
-.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
-.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
-.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
-.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
-.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
-.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
-.ds ae a\h'-(\w'a'u*4/10)'e
-.ds Ae A\h'-(\w'A'u*4/10)'E
-.    \" corrections for vroff
-.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
-.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
-.    \" for low resolution devices (crt and lpr)
-.if \n(.H>23 .if \n(.V>19 \
-\{\
-.    ds : e
-.    ds 8 ss
-.    ds o a
-.    ds d- d\h'-1'\(ga
-.    ds D- D\h'-1'\(hy
-.    ds th \o'bp'
-.    ds Th \o'LP'
-.    ds ae ae
-.    ds Ae AE
-.\}
-.rm #[ #] #H #V #F C
 .\" ========================================================================
 .\"
 .IX Title "Test2::API::Context 3"
-.TH Test2::API::Context 3 "2017-04-19" "perl v5.26.0" "Perl Programmers Reference Guide"
+.TH Test2::API::Context 3 "2020-01-17" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -154,7 +92,14 @@ should always use \f(CW\*(C`context()\*(C'\fR which is exported by the Test2::AP
 \&    sub my_ok {
 \&        my ($bool, $name) = @_;
 \&        my $ctx = context();
-\&        $ctx\->ok($bool, $name);
+\&
+\&        if ($bool) {
+\&            $ctx\->pass($name);
+\&        }
+\&        else {
+\&            $ctx\->fail($name);
+\&        }
+\&
 \&        $ctx\->release; # You MUST do this!
 \&        return $bool;
 \&    }
@@ -262,7 +207,7 @@ current one to which all events should be sent.
 .ie n .IP "$dbg = $ctx\->\fItrace()\fR" 4
 .el .IP "\f(CW$dbg\fR = \f(CW$ctx\fR\->\fItrace()\fR" 4
 .IX Item "$dbg = $ctx->trace()"
-This will return the Test2::Util::Trace instance used by the context.
+This will return the Test2::EventFacet::Trace instance used by the context.
 .ie n .IP "$ctx\->do_in_context(\e&code, @args);" 4
 .el .IP "\f(CW$ctx\fR\->do_in_context(\e&code, \f(CW@args\fR);" 4
 .IX Item "$ctx->do_in_context(&code, @args);"
@@ -305,6 +250,120 @@ The value of \f(CW$?\fR when the context was created.
 The value of \f(CW$@\fR when the context was created.
 .SS "\s-1EVENT PRODUCTION METHODS\s0"
 .IX Subsection "EVENT PRODUCTION METHODS"
+\&\fBWhich one do I use?\fR
+.PP
+The \f(CW\*(C`pass*\*(C'\fR and \f(CW\*(C`fail*\*(C'\fR are optimal if they meet your situation, using one of
+them will always be the most optimal. That said they are optimal by eliminating
+many features.
+.PP
+Method such as \f(CW\*(C`ok\*(C'\fR, and \f(CW\*(C`note\*(C'\fR are shortcuts for generating common 1\-task
+events based on the old \s-1API,\s0 however they are forward compatible, and easy to
+use. If these meet your needs then go ahead and use them, but please check back
+often for alternatives that may be added.
+.PP
+If you want to generate new style events, events that do many things at once,
+then you want the \f(CW\*(C`*ev2*\*(C'\fR methods. These let you directly specify which facets
+you wish to use.
+.ie n .IP "$event = $ctx\->\fIpass()\fR" 4
+.el .IP "\f(CW$event\fR = \f(CW$ctx\fR\->\fIpass()\fR" 4
+.IX Item "$event = $ctx->pass()"
+.PD 0
+.ie n .IP "$event = $ctx\->pass($name)" 4
+.el .IP "\f(CW$event\fR = \f(CW$ctx\fR\->pass($name)" 4
+.IX Item "$event = $ctx->pass($name)"
+.PD
+This will send and return an Test2::Event::Pass event. You may optionally
+provide a \f(CW$name\fR for the assertion.
+.Sp
+The Test2::Event::Pass is a specially crafted and optimized event, using
+this will help the performance of passing tests.
+.ie n .IP "$true = $ctx\->\fIpass_and_release()\fR" 4
+.el .IP "\f(CW$true\fR = \f(CW$ctx\fR\->\fIpass_and_release()\fR" 4
+.IX Item "$true = $ctx->pass_and_release()"
+.PD 0
+.ie n .IP "$true = $ctx\->pass_and_release($name)" 4
+.el .IP "\f(CW$true\fR = \f(CW$ctx\fR\->pass_and_release($name)" 4
+.IX Item "$true = $ctx->pass_and_release($name)"
+.PD
+This is a combination of \f(CW\*(C`pass()\*(C'\fR and \f(CW\*(C`release()\*(C'\fR. You can use this if you do
+not plan to do anything with the context after sending the event. This helps
+write more clear and compact code.
+.Sp
+.Vb 4
+\&    sub shorthand {
+\&        my ($bool, $name) = @_;
+\&        my $ctx = context();
+\&        return $ctx\->pass_and_release($name) if $bool;
+\&
+\&        ... Handle a failure ...
+\&    }
+\&
+\&    sub longform {
+\&        my ($bool, $name) = @_;
+\&        my $ctx = context();
+\&
+\&        if ($bool) {
+\&            $ctx\->pass($name);
+\&            $ctx\->release;
+\&            return 1;
+\&        }
+\&
+\&        ... Handle a failure ...
+\&    }
+.Ve
+.ie n .IP "my $event = $ctx\->\fIfail()\fR" 4
+.el .IP "my \f(CW$event\fR = \f(CW$ctx\fR\->\fIfail()\fR" 4
+.IX Item "my $event = $ctx->fail()"
+.PD 0
+.ie n .IP "my $event = $ctx\->fail($name)" 4
+.el .IP "my \f(CW$event\fR = \f(CW$ctx\fR\->fail($name)" 4
+.IX Item "my $event = $ctx->fail($name)"
+.ie n .IP "my $event = $ctx\->fail($name, @diagnostics)" 4
+.el .IP "my \f(CW$event\fR = \f(CW$ctx\fR\->fail($name, \f(CW@diagnostics\fR)" 4
+.IX Item "my $event = $ctx->fail($name, @diagnostics)"
+.PD
+This lets you send an Test2::Event::Fail event. You may optionally provide a
+\&\f(CW$name\fR and \f(CW@diagnostics\fR messages.
+.Sp
+Diagnostics messages can be simple strings, data structures, or instances of
+Test2::EventFacet::Info::Table (which are converted inline into the
+Test2::EventFacet::Info structure).
+.ie n .IP "my $false = $ctx\->\fIfail_and_release()\fR" 4
+.el .IP "my \f(CW$false\fR = \f(CW$ctx\fR\->\fIfail_and_release()\fR" 4
+.IX Item "my $false = $ctx->fail_and_release()"
+.PD 0
+.ie n .IP "my $false = $ctx\->fail_and_release($name)" 4
+.el .IP "my \f(CW$false\fR = \f(CW$ctx\fR\->fail_and_release($name)" 4
+.IX Item "my $false = $ctx->fail_and_release($name)"
+.ie n .IP "my $false = $ctx\->fail_and_release($name, @diagnostics)" 4
+.el .IP "my \f(CW$false\fR = \f(CW$ctx\fR\->fail_and_release($name, \f(CW@diagnostics\fR)" 4
+.IX Item "my $false = $ctx->fail_and_release($name, @diagnostics)"
+.PD
+This is a combination of \f(CW\*(C`fail()\*(C'\fR and \f(CW\*(C`release()\*(C'\fR. This can be used to write
+clearer and shorter code.
+.Sp
+.Vb 4
+\&    sub shorthand {
+\&        my ($bool, $name) = @_;
+\&        my $ctx = context();
+\&        return $ctx\->fail_and_release($name) unless $bool;
+\&
+\&        ... Handle a success ...
+\&    }
+\&
+\&    sub longform {
+\&        my ($bool, $name) = @_;
+\&        my $ctx = context();
+\&
+\&        unless ($bool) {
+\&            $ctx\->pass($name);
+\&            $ctx\->release;
+\&            return 1;
+\&        }
+\&
+\&        ... Handle a success ...
+\&    }
+.Ve
 .ie n .IP "$event = $ctx\->ok($bool, $name)" 4
 .el .IP "\f(CW$event\fR = \f(CW$ctx\fR\->ok($bool, \f(CW$name\fR)" 4
 .IX Item "$event = $ctx->ok($bool, $name)"
@@ -313,19 +372,18 @@ The value of \f(CW$@\fR when the context was created.
 .el .IP "\f(CW$event\fR = \f(CW$ctx\fR\->ok($bool, \f(CW$name\fR, \e@on_fail)" 4
 .IX Item "$event = $ctx->ok($bool, $name, @on_fail)"
 .PD
+\&\fB\s-1NOTE:\s0\fR Use of this method is discouraged in favor of \f(CW\*(C`pass()\*(C'\fR and \f(CW\*(C`fail()\*(C'\fR
+which produce Test2::Event::Pass and Test2::Event::Fail events. These
+newer event types are faster and less crufty.
+.Sp
 This will create an Test2::Event::Ok object for you. If \f(CW$bool\fR is false
 then an Test2::Event::Diag event will be sent as well with details about the
 failure. If you do not want automatic diagnostics you should use the
 \&\f(CW\*(C`send_event()\*(C'\fR method directly.
 .Sp
 The third argument \f(CW\*(C`\e@on_fail\*(C'\fR) is an optional set of diagnostics to be sent in
-the event of a test failure. Plain strings will be sent as
-Test2::Event::Diag events. References will be used to construct
-Test2::Event::Info events with \f(CW\*(C`diagnostics => 1\*(C'\fR.
-.ie n .IP "$event = $ctx\->info($renderer, diagnostics => $bool, %other_params)" 4
-.el .IP "\f(CW$event\fR = \f(CW$ctx\fR\->info($renderer, diagnostics => \f(CW$bool\fR, \f(CW%other_params\fR)" 4
-.IX Item "$event = $ctx->info($renderer, diagnostics => $bool, %other_params)"
-Send an Test2::Event::Info.
+the event of a test failure. Unlike with \f(CW\*(C`fail()\*(C'\fR these diagnostics must be
+plain strings, data structures are not supported.
 .ie n .IP "$event = $ctx\->note($message)" 4
 .el .IP "\f(CW$event\fR = \f(CW$ctx\fR\->note($message)" 4
 .IX Item "$event = $ctx->note($message)"
@@ -355,9 +413,50 @@ Send an Test2::Event::Skip event.
 .IX Item "$event = $ctx->bail($reason)"
 This sends an Test2::Event::Bail event. This event will completely
 terminate all testing.
+.ie n .IP "$event = $ctx\->send_ev2(%facets)" 4
+.el .IP "\f(CW$event\fR = \f(CW$ctx\fR\->send_ev2(%facets)" 4
+.IX Item "$event = $ctx->send_ev2(%facets)"
+This lets you build and send a V2 event directly from facets. The event is
+returned after it is sent.
+.Sp
+This example sends a single assertion, a note (comment for stdout in
+Test::Builder talk) and sets the plan to 1.
+.Sp
+.Vb 5
+\&    my $event = $ctx\->send_event(
+\&        plan   => {count => 1},
+\&        assert => {pass  => 1, details => "A passing assert"},
+\&        info => [{tag => \*(AqNOTE\*(Aq, details => "This is a note"}],
+\&    );
+.Ve
+.ie n .IP "$event = $ctx\->build_e2(%facets)" 4
+.el .IP "\f(CW$event\fR = \f(CW$ctx\fR\->build_e2(%facets)" 4
+.IX Item "$event = $ctx->build_e2(%facets)"
+This is the same as \f(CW\*(C`send_ev2()\*(C'\fR, except it builds and returns the event
+without sending it.
+.ie n .IP "$event = $ctx\->send_ev2_and_release($Type, %parameters)" 4
+.el .IP "\f(CW$event\fR = \f(CW$ctx\fR\->send_ev2_and_release($Type, \f(CW%parameters\fR)" 4
+.IX Item "$event = $ctx->send_ev2_and_release($Type, %parameters)"
+This is a combination of \f(CW\*(C`send_ev2()\*(C'\fR and \f(CW\*(C`release()\*(C'\fR.
+.Sp
+.Vb 4
+\&    sub shorthand {
+\&        my $ctx = context();
+\&        return $ctx\->send_ev2_and_release(assert => {pass => 1, details => \*(Aqfoo\*(Aq});
+\&    }
+\&
+\&    sub longform {
+\&        my $ctx = context();
+\&        my $event = $ctx\->send_ev2(assert => {pass => 1, details => \*(Aqfoo\*(Aq});
+\&        $ctx\->release;
+\&        return $event;
+\&    }
+.Ve
 .ie n .IP "$event = $ctx\->send_event($Type, %parameters)" 4
 .el .IP "\f(CW$event\fR = \f(CW$ctx\fR\->send_event($Type, \f(CW%parameters\fR)" 4
 .IX Item "$event = $ctx->send_event($Type, %parameters)"
+\&\fBIt is better to use \f(BIsend_ev2()\fB in new code.\fR
+.Sp
 This lets you build and send an event of any type. The \f(CW$Type\fR argument should
 be the event package name with \f(CW\*(C`Test2::Event::\*(C'\fR left off, or a fully
 qualified package name prefixed with a '+'. The event is returned after it is
@@ -375,8 +474,30 @@ or
 .ie n .IP "$event = $ctx\->build_event($Type, %parameters)" 4
 .el .IP "\f(CW$event\fR = \f(CW$ctx\fR\->build_event($Type, \f(CW%parameters\fR)" 4
 .IX Item "$event = $ctx->build_event($Type, %parameters)"
+\&\fBIt is better to use \f(BIbuild_ev2()\fB in new code.\fR
+.Sp
 This is the same as \f(CW\*(C`send_event()\*(C'\fR, except it builds and returns the event
 without sending it.
+.ie n .IP "$event = $ctx\->send_event_and_release($Type, %parameters)" 4
+.el .IP "\f(CW$event\fR = \f(CW$ctx\fR\->send_event_and_release($Type, \f(CW%parameters\fR)" 4
+.IX Item "$event = $ctx->send_event_and_release($Type, %parameters)"
+\&\fBIt is better to use \f(BIsend_ev2_and_release()\fB in new code.\fR
+.Sp
+This is a combination of \f(CW\*(C`send_event()\*(C'\fR and \f(CW\*(C`release()\*(C'\fR.
+.Sp
+.Vb 4
+\&    sub shorthand {
+\&        my $ctx = context();
+\&        return $ctx\->send_event_and_release(Pass => { name => \*(Aqfoo\*(Aq });
+\&    }
+\&
+\&    sub longform {
+\&        my $ctx = context();
+\&        my $event = $ctx\->send_event(Pass => { name => \*(Aqfoo\*(Aq });
+\&        $ctx\->release;
+\&        return $event;
+\&    }
+.Ve
 .SH "HOOKS"
 .IX Header "HOOKS"
 There are 2 types of hooks, init hooks, and release hooks. As the names
@@ -494,7 +615,7 @@ The source code repository for Test2 can be found at
 .PD
 .SH "COPYRIGHT"
 .IX Header "COPYRIGHT"
-Copyright 2016 Chad Granum <exodist@cpan.org>.
+Copyright 2019 Chad Granum <exodist@cpan.org>.
 .PP
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

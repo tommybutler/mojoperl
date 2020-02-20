@@ -22,6 +22,9 @@ sub parse {
 sub register {
   my ($self, $app, $conf) = @_;
 
+  # DEPRECATED!
+  $app->defaults(config => $app->config);
+
   # Override
   return $app->config if $app->config->{config_override};
 
@@ -49,7 +52,7 @@ sub register {
   # Merge everything
   $config = {%$config, %{$self->load($mode, $conf, $app)}} if $mode;
   $config = {%{$conf->{default}}, %$config} if $conf->{default};
-  return $app->defaults(config => $app->config)->config($config)->config;
+  return $app->config($config)->config;
 }
 
 1;
@@ -83,7 +86,7 @@ Mojolicious::Plugin::Config - Perl-ish configuration plugin
   say $config->{foo};
 
   # foo.html.ep
-  %= $config->{foo}
+  %= config->{foo}
 
   # The configuration is available application-wide
   my $config = app->config;
@@ -104,8 +107,8 @@ directory will be generated from the value of L<Mojolicious/"moniker">
 C<$moniker.conf> with C<mode> specific ones like C<$moniker.$mode.conf>, which
 will be detected automatically.
 
-If the configuration value C<config_override> has been set in L<Mojo/"config">
-when this plugin is loaded, it will not do anything.
+If the configuration value C<config_override> has been set in
+L<Mojolicious/"config"> when this plugin is loaded, it will not do anything.
 
 The code of this plugin is a good example for learning to build new plugins,
 you're welcome to fork it.
@@ -179,6 +182,6 @@ Register plugin in L<Mojolicious> application and merge configuration.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

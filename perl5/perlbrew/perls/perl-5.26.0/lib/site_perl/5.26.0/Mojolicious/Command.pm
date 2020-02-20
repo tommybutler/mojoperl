@@ -7,15 +7,19 @@ use Mojo::Loader 'data_section';
 use Mojo::Server;
 use Mojo::Template;
 
-has app => sub { Mojo::Server->new->build_app('Mojo::HelloWorld') };
+has
+  app =>
+  sub { $_[0]{app_ref} = Mojo::Server->new->build_app('Mojo::HelloWorld') },
+  weak => 1;
 has description => 'No description';
 has 'quiet';
-has usage => "Usage: APPLICATION\n";
+has template => sub { {vars => 1} };
+has usage    => "Usage: APPLICATION\n";
 
 sub chmod_file {
-  my ($self, $path, $mod) = @_;
-  chmod $mod, $path or croak qq{Can't chmod file "$path": $!};
-  return $self->_loud("  [chmod] $path " . sprintf('%lo', $mod));
+  my ($self, $path, $mode) = @_;
+  path($path)->chmod($mode);
+  return $self->_loud("  [chmod] $path " . sprintf('%lo', $mode));
 }
 
 sub chmod_rel_file { $_[0]->chmod_file($_[0]->rel_file($_[1]), $_[2]) }
@@ -37,8 +41,10 @@ sub rel_file { path->child(split('/', pop)) }
 
 sub render_data {
   my ($self, $name) = (shift, shift);
-  Mojo::Template->new->name("template $name from DATA section")
-    ->render(data_section(ref $self, $name), @_);
+  my $template = Mojo::Template->new($self->template)
+    ->name("template $name from DATA section");
+  my $output = $template->render(data_section(ref $self, $name), @_);
+  return ref $output ? die $output : $output;
 }
 
 sub render_to_file {
@@ -122,7 +128,8 @@ L<Mojolicious::Command> implements the following attributes.
   my $app  = $command->app;
   $command = $command->app(Mojolicious->new);
 
-Application for command, defaults to a L<Mojo::HelloWorld> object.
+Application for command, defaults to a L<Mojo::HelloWorld> object. Note that
+this attribute is weakened.
 
   # Introspect
   say "Template path: $_" for @{$command->app->renderer->paths};
@@ -140,6 +147,14 @@ Short description of command, used for the command list.
   $command = $command->quiet($bool);
 
 Limited command output.
+
+=head2 template
+
+  my $template = $command->template;
+  $command     = $command->template({vars => 1});
+
+Attribute values passed to L<Mojo::Template> objects used to render templates
+with L</"render_data">, defaults to activating C<vars>.
 
 =head2 usage
 
@@ -169,13 +184,14 @@ Portably change mode of a file relative to the current working directory.
 
   $command = $command->create_dir('/home/sri/foo/bar');
 
-Create a directory.
+Create a directory if it does not exist already.
 
 =head2 create_rel_dir
 
   $command = $command->create_rel_dir('foo/bar/baz');
 
-Portably create a directory relative to the current working directory.
+Portably create a directory relative to the current working directory if it does
+not exist already.
 
 =head2 extract_usage
 
@@ -200,26 +216,32 @@ Return a L<Mojo::File> object relative to the current working directory.
 
   my $data = $command->render_data('foo_bar');
   my $data = $command->render_data('foo_bar', @args);
+  my $data = $command->render_data('foo_bar', {foo => 'bar'});
 
 Render a template from the C<DATA> section of the command class with
-L<Mojo::Loader> and L<Mojo::Template>.
+L<Mojo::Loader> and L<Mojo::Template>. The template can be configured with
+L</"template">.
 
 =head2 render_to_file
 
   $command = $command->render_to_file('foo_bar', '/home/sri/foo.txt');
   $command = $command->render_to_file('foo_bar', '/home/sri/foo.txt', @args);
+  $command = $command->render_to_file(
+    'foo_bar', '/home/sri/foo.txt', {foo => 'bar'});
 
-Render a template from the C<DATA> section of the command class with
-L<Mojo::Template> to a file and create directory if necessary.
+Render a template with L</"render_data"> to a file if it does not exist already,
+and create the directory if necessary.
 
 =head2 render_to_rel_file
 
   $command = $command->render_to_rel_file('foo_bar', 'foo/bar.txt');
   $command = $command->render_to_rel_file('foo_bar', 'foo/bar.txt', @args);
+  $command = $command->render_to_rel_file(
+    'foo_bar', 'foo/bar.txt', {foo => 'bar'});
 
-Portably render a template from the C<DATA> section of the command class with
-L<Mojo::Template> to a file relative to the current working directory and
-create directory if necessary.
+Portably render a template with L</"render_data"> to a file relative to the
+current working directory if it does not exist already, and create the directory
+if necessary.
 
 =head2 run
 
@@ -232,17 +254,18 @@ Run command. Meant to be overloaded in a subclass.
 
   $command = $command->write_file('/home/sri/foo.txt', 'Hello World!');
 
-Write text to a file and create directory if necessary.
+Write text to a file if it does not exist already, and create the directory if
+necessary.
 
 =head2 write_rel_file
 
   $command = $command->write_rel_file('foo/bar.txt', 'Hello World!');
 
-Portably write text to a file relative to the current working directory and
-create directory if necessary.
+Portably write text to a file relative to the current working directory if it
+does not exist already, and create the directory if necessary.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

@@ -109,12 +109,12 @@ sub _parse {
   my ($self, $name) = (shift, shift);
 
   unless ($self->{parts}) {
-    my $path = url_unescape delete($self->{path}) // '';
+    my $path    = url_unescape delete($self->{path}) // '';
     my $charset = $self->charset;
     $path = decode($charset, $path) // $path if $charset;
     $self->{leading_slash}  = $path =~ s!^/!!;
     $self->{trailing_slash} = $path =~ s!/$!!;
-    $self->{parts}          = [split '/', $path, -1];
+    $self->{parts} = [split '/', $path, -1];
   }
 
   return $self->{$name} unless @_;
@@ -347,6 +347,6 @@ Alias for L</"to_string">.
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
+L<Mojolicious>, L<Mojolicious::Guides>, L<https://mojolicious.org>.
 
 =cut

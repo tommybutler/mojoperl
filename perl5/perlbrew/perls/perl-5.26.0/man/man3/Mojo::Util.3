@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Util 3"
-.TH Mojo::Util 3 "2017-07-29" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Util 3 "2020-02-11" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -97,7 +97,7 @@ individually.
 \&  my $bytes = b64_decode $b64;
 .Ve
 .PP
-Base64 decode bytes.
+Base64 decode bytes with MIME::Base64.
 .SS "b64_encode"
 .IX Subsection "b64_encode"
 .Vb 2
@@ -105,7 +105,7 @@ Base64 decode bytes.
 \&  my $b64 = b64_encode $bytes, "\en";
 .Ve
 .PP
-Base64 encode bytes, the line ending defaults to a newline.
+Base64 encode bytes with MIME::Base64, the line ending defaults to a newline.
 .SS "camelize"
 .IX Subsection "camelize"
 .Vb 1
@@ -184,7 +184,8 @@ Convert \f(CW\*(C`CamelCase\*(C'\fR string to \f(CW\*(C`snake_case\*(C'\fR and r
 \&  my $chars = decode \*(AqUTF\-8\*(Aq, $bytes;
 .Ve
 .PP
-Decode bytes to characters, or return \f(CW\*(C`undef\*(C'\fR if decoding failed.
+Decode bytes to characters with Encode, or return \f(CW\*(C`undef\*(C'\fR if decoding
+failed.
 .SS "deprecated"
 .IX Subsection "deprecated"
 .Vb 1
@@ -192,7 +193,8 @@ Decode bytes to characters, or return \f(CW\*(C`undef\*(C'\fR if decoding failed
 .Ve
 .PP
 Warn about deprecated feature from perspective of caller. You can also set the
-\&\f(CW\*(C`MOJO_FATAL_DEPRECATIONS\*(C'\fR environment variable to make them die instead.
+\&\f(CW\*(C`MOJO_FATAL_DEPRECATIONS\*(C'\fR environment variable to make them die instead with
+Carp.
 .SS "dumper"
 .IX Subsection "dumper"
 .Vb 1
@@ -206,7 +208,7 @@ Dump a Perl data structure with Data::Dumper.
 \&  my $bytes = encode \*(AqUTF\-8\*(Aq, $chars;
 .Ve
 .PP
-Encode characters to bytes.
+Encode characters to bytes with Encode.
 .SS "extract_usage"
 .IX Subsection "extract_usage"
 .Vb 2
@@ -253,13 +255,27 @@ options \f(CW\*(C`no_auto_abbrev\*(C'\fR and \f(CW\*(C`no_ignore_case\*(C'\fR ar
 \&  getopt [\*(Aq\-\-charset\*(Aq, \*(AqUTF\-8\*(Aq], \*(Aqcharset=s\*(Aq => \emy $charset;
 \&  say $charset;
 .Ve
+.SS "gunzip"
+.IX Subsection "gunzip"
+.Vb 1
+\&  my $uncompressed = gunzip $compressed;
+.Ve
+.PP
+Uncompress bytes with IO::Compress::Gunzip.
+.SS "gzip"
+.IX Subsection "gzip"
+.Vb 1
+\&  my $compressed = gzip $uncompressed;
+.Ve
+.PP
+Compress bytes with IO::Compress::Gzip.
 .SS "hmac_sha1_sum"
 .IX Subsection "hmac_sha1_sum"
 .Vb 1
 \&  my $checksum = hmac_sha1_sum $bytes, \*(Aqpassw0rd\*(Aq;
 .Ve
 .PP
-Generate \s-1HMAC\-SHA1\s0 checksum for bytes.
+Generate \s-1HMAC\-SHA1\s0 checksum for bytes with Digest::SHA.
 .PP
 .Vb 2
 \&  # "11cedfd5ec11adc0ec234466d8a0f2a83736aa68"
@@ -293,20 +309,42 @@ Unescape all \s-1HTML\s0 entities in string.
 \&  # "<div>"
 \&  html_unescape \*(Aq&lt;div&gt;\*(Aq;
 .Ve
+.SS "humanize_bytes"
+.IX Subsection "humanize_bytes"
+.Vb 1
+\&  my $str = humanize_bytes 1234;
+.Ve
+.PP
+Turn number of bytes into a simplified human readable format. Note that this
+function is \fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
+.PP
+.Vb 2
+\&  # "1B"
+\&  humanize_bytes 1;
+\&
+\&  # "7.5GiB"
+\&  humanize_bytes 8007188480;
+\&
+\&  # "13GiB"
+\&  humanize_bytes 13443399680;
+\&
+\&  # "\-685MiB"
+\&  humanize_bytes \-717946880;
+.Ve
 .SS "md5_bytes"
 .IX Subsection "md5_bytes"
 .Vb 1
 \&  my $checksum = md5_bytes $bytes;
 .Ve
 .PP
-Generate binary \s-1MD5\s0 checksum for bytes.
+Generate binary \s-1MD5\s0 checksum for bytes with Digest::MD5.
 .SS "md5_sum"
 .IX Subsection "md5_sum"
 .Vb 1
 \&  my $checksum = md5_sum $bytes;
 .Ve
 .PP
-Generate \s-1MD5\s0 checksum for bytes.
+Generate \s-1MD5\s0 checksum for bytes with Digest::MD5.
 .PP
 .Vb 2
 \&  # "acbd18db4cc2f85cedef654fccc4a4d8"
@@ -360,6 +398,23 @@ Punycode encode string as described in
 .Ve
 .PP
 Quote string.
+.SS "scope_guard"
+.IX Subsection "scope_guard"
+.Vb 1
+\&  my $guard = scope_guard sub {...};
+.Ve
+.PP
+Create anonymous scope guard object that will execute the passed callback when
+the object is destroyed. Note that this function is \fB\s-1EXPERIMENTAL\s0\fR and might
+change without warning!
+.PP
+.Vb 5
+\&  # Execute closure at end of scope
+\&  {
+\&    my $guard = scope_guard sub { say "Mojo!" };
+\&    say "Hello";
+\&  }
+.Ve
 .SS "secure_compare"
 .IX Subsection "secure_compare"
 .Vb 1
@@ -373,14 +428,14 @@ Constant time comparison algorithm to prevent timing attacks.
 \&  my $checksum = sha1_bytes $bytes;
 .Ve
 .PP
-Generate binary \s-1SHA1\s0 checksum for bytes.
+Generate binary \s-1SHA1\s0 checksum for bytes with Digest::SHA.
 .SS "sha1_sum"
 .IX Subsection "sha1_sum"
 .Vb 1
 \&  my $checksum = sha1_sum $bytes;
 .Ve
 .PP
-Generate \s-1SHA1\s0 checksum for bytes.
+Generate \s-1SHA1\s0 checksum for bytes with Digest::SHA.
 .PP
 .Vb 2
 \&  # "0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33"
@@ -561,4 +616,4 @@ do not escape Mojo::ByteStream objects.
 \&\s-1XOR\s0 encode string with variable length key.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Mojolicious, Mojolicious::Guides, <http://mojolicious.org>.
+Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.
