@@ -2770,3 +2770,25 @@ C<EXE_FILES: >
 
 =back
 
+=head2 Wed Feb 19 23:54:57 2020: C<Module> L<Data::UUID|Data::UUID>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.224>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
