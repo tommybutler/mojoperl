@@ -2792,3 +2792,91 @@ C<EXE_FILES: >
 
 =back
 
+=head2 Thu Jun 25 17:46:17 2020: C<Module> L<Data::Dump|Data::Dump>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.23>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Thu Jun 25 17:46:21 2020: C<Module> L<Devel::GlobalPhase|Devel::GlobalPhase>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.003003>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Thu Jun 25 17:46:24 2020: C<Module> L<Test::Spec|Test::Spec>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.54>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Thu Jun 25 17:46:25 2020: C<Module> L<PDF::WebKit|PDF::WebKit>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.2>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
