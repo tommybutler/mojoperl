@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Routes 3"
-.TH Mojolicious::Routes 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Routes 3 "2021-08-09" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -81,13 +81,13 @@ Mojolicious::Routes \- Always find your destination with routes
 \&
 \&  # Simple route
 \&  my $r = Mojolicious::Routes\->new;
-\&  $r\->route(\*(Aq/\*(Aq)\->to(controller => \*(Aqblog\*(Aq, action => \*(Aqwelcome\*(Aq);
+\&  $r\->any(\*(Aq/\*(Aq)\->to(controller => \*(Aqblog\*(Aq, action => \*(Aqwelcome\*(Aq);
 \&
 \&  # More advanced routes
 \&  my $blog = $r\->under(\*(Aq/blog\*(Aq);
 \&  $blog\->get(\*(Aq/list\*(Aq)\->to(\*(Aqblog#list\*(Aq);
 \&  $blog\->get(\*(Aq/:id\*(Aq => [id => qr/\ed+/])\->to(\*(Aqblog#show\*(Aq, id => 23);
-\&  $blog\->patch(sub { shift\->render(text => \*(AqGo away!\*(Aq, status => 405) });
+\&  $blog\->patch(sub ($c) { $c\->render(text => \*(AqGo away!\*(Aq, status => 405) });
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
@@ -103,12 +103,11 @@ These placeholder types are available by default.
 \&  $r\->get(\*(Aq/article/<id:num>\*(Aq);
 .Ve
 .PP
-Placeholder value needs to be a non-fractional number, similar to the regular
-expression \f(CW\*(C`([0\-9]+)\*(C'\fR.
+Placeholder value needs to be a non-fractional number, similar to the regular expression \f(CW\*(C`([0\-9]+)\*(C'\fR.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojolicious::Routes inherits all attributes from
-Mojolicious::Routes::Route and implements the following new ones.
+Mojolicious::Routes inherits all attributes from Mojolicious::Routes::Route and implements the following new
+ones.
 .SS "base_classes"
 .IX Subsection "base_classes"
 .Vb 2
@@ -116,8 +115,7 @@ Mojolicious::Routes::Route and implements the following new ones.
 \&  $r          = $r\->base_classes([\*(AqMyApp::Controller\*(Aq]);
 .Ve
 .PP
-Base classes used to identify controllers, defaults to
-Mojolicious::Controller and Mojolicious.
+Base classes used to identify controllers, defaults to Mojolicious::Controller and Mojolicious.
 .SS "cache"
 .IX Subsection "cache"
 .Vb 2
@@ -134,15 +132,6 @@ Routing cache, defaults to a Mojo::Cache object.
 .Ve
 .PP
 Contains all available conditions.
-.SS "hidden"
-.IX Subsection "hidden"
-.Vb 2
-\&  my $hidden = $r\->hidden;
-\&  $r         = $r\->hidden([\*(Aqattr\*(Aq, \*(Aqhas\*(Aq, \*(Aqnew\*(Aq]);
-.Ve
-.PP
-Controller attributes and methods that are hidden from router, defaults to
-\&\f(CW\*(C`attr\*(C'\fR, \f(CW\*(C`has\*(C'\fR, \f(CW\*(C`new\*(C'\fR and \f(CW\*(C`tap\*(C'\fR.
 .SS "namespaces"
 .IX Subsection "namespaces"
 .Vb 2
@@ -174,19 +163,17 @@ Contains all available shortcuts.
 Registered placeholder types, by default only \*(L"num\*(R" is already defined.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Routes inherits all methods from Mojolicious::Routes::Route
-and implements the following new ones.
+Mojolicious::Routes inherits all methods from Mojolicious::Routes::Route and implements the following new ones.
 .SS "add_condition"
 .IX Subsection "add_condition"
 .Vb 1
-\&  $r = $r\->add_condition(foo => sub {...});
+\&  $r = $r\->add_condition(foo => sub ($route, $c, $captures, $arg) {...});
 .Ve
 .PP
 Register a condition.
 .PP
-.Vb 5
-\&  $r\->add_condition(foo => sub {
-\&    my ($route, $c, $captures, $arg) = @_;
+.Vb 4
+\&  $r\->add_condition(foo => sub ($route, $c, $captures, $arg) {
 \&    ...
 \&    return 1;
 \&  });
@@ -194,16 +181,13 @@ Register a condition.
 .SS "add_shortcut"
 .IX Subsection "add_shortcut"
 .Vb 1
-\&  $r = $r\->add_shortcut(foo => sub {...});
+\&  $r = $r\->add_shortcut(foo => sub ($route, @args) {...});
 .Ve
 .PP
 Register a shortcut.
 .PP
-.Vb 4
-\&  $r\->add_shortcut(foo => sub {
-\&    my ($route, @args) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $r\->add_shortcut(foo => sub ($route, @args) {...});
 .Ve
 .SS "add_type"
 .IX Subsection "add_type"
@@ -223,8 +207,7 @@ Register a placeholder type.
 \&  $r\->continue(Mojolicious::Controller\->new);
 .Ve
 .PP
-Continue dispatch chain and emit the hook \*(L"around_action\*(R" in Mojolicious for
-every action.
+Continue dispatch chain and emit the hook \*(L"around_action\*(R" in Mojolicious for every action.
 .SS "dispatch"
 .IX Subsection "dispatch"
 .Vb 1
@@ -232,28 +215,13 @@ every action.
 .Ve
 .PP
 Match routes with \*(L"match\*(R" and dispatch with \*(L"continue\*(R".
-.SS "hide"
-.IX Subsection "hide"
-.Vb 1
-\&  $r = $r\->hide(\*(Aqfoo\*(Aq, \*(Aqbar\*(Aq);
-.Ve
-.PP
-Hide controller attributes and methods from router.
-.SS "is_hidden"
-.IX Subsection "is_hidden"
-.Vb 1
-\&  my $bool = $r\->is_hidden(\*(Aqfoo\*(Aq);
-.Ve
-.PP
-Check if controller attribute or method is hidden from router.
 .SS "lookup"
 .IX Subsection "lookup"
 .Vb 1
 \&  my $route = $r\->lookup(\*(Aqfoo\*(Aq);
 .Ve
 .PP
-Find route by name with \*(L"find\*(R" in Mojolicious::Routes::Route and cache all
-results for future lookups.
+Find route by name with \*(L"find\*(R" in Mojolicious::Routes::Route and cache all results for future lookups.
 .SS "match"
 .IX Subsection "match"
 .Vb 1

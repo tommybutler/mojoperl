@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 package Moose::Meta::Attribute;
-our $VERSION = '2.2006';
+our $VERSION = '2.2015';
 
 use B ();
 use Scalar::Util 'blessed';
@@ -550,8 +550,6 @@ sub _make_initializer_writer_callback {
 sub set_value {
     my ($self, $instance, @args) = @_;
     my $value = $args[0];
-
-    my $attr_name = quotemeta($self->name);
 
     my $class_name = blessed( $instance );
     if ($self->is_required and not @args) {
@@ -1337,8 +1335,8 @@ sub verify_against_type_constraint {
                           );
 }
 
-package Moose::Meta::Attribute::Custom::Moose;
-our $VERSION = '2.1403';
+package  # hide from PAUSE
+    Moose::Meta::Attribute::Custom::Moose;
 
 sub register_implementation { 'Moose::Meta::Attribute' }
 1;
@@ -1357,7 +1355,7 @@ Moose::Meta::Attribute - The Moose attribute metaclass
 
 =head1 VERSION
 
-version 2.2006
+version 2.2015
 
 =head1 DESCRIPTION
 
@@ -1762,7 +1760,7 @@ See L<Moose/BUGS> for details on reporting bugs.
 
 =item *
 
-Stevan Little <stevan.little@iinteractive.com>
+Stevan Little <stevan@cpan.org>
 
 =item *
 
@@ -1770,11 +1768,11 @@ Dave Rolsky <autarch@urth.org>
 
 =item *
 
-Jesse Luehrs <doy@tozt.net>
+Jesse Luehrs <doy@cpan.org>
 
 =item *
 
-Shawn M Moore <code@sartak.org>
+Shawn M Moore <sartak@cpan.org>
 
 =item *
 
@@ -1790,7 +1788,7 @@ Florian Ragwitz <rafl@debian.org>
 
 =item *
 
-Hans Dieter Pearcey <hdp@weftsoar.net>
+Hans Dieter Pearcey <hdp@cpan.org>
 
 =item *
 
@@ -1798,7 +1796,7 @@ Chris Prather <chris@prather.org>
 
 =item *
 
-Matt S Trout <mst@shadowcat.co.uk>
+Matt S Trout <mstrout@cpan.org>
 
 =back
 

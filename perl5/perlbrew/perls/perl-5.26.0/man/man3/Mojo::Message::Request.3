@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Message::Request 3"
-.TH Mojo::Message::Request 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Message::Request 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -97,18 +97,15 @@ Mojo::Message::Request \- HTTP request
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Message::Request is a container for \s-1HTTP\s0 requests, based on
-\&\s-1RFC 7230\s0 <http://tools.ietf.org/html/rfc7230>,
-\&\s-1RFC 7231\s0 <http://tools.ietf.org/html/rfc7231>,
-\&\s-1RFC 7235\s0 <http://tools.ietf.org/html/rfc7235> and
-\&\s-1RFC 2817\s0 <http://tools.ietf.org/html/rfc2817>.
+Mojo::Message::Request is a container for \s-1HTTP\s0 requests, based on \s-1RFC 7230\s0 <https://tools.ietf.org/html/rfc7230>,
+\&\s-1RFC 7231\s0 <https://tools.ietf.org/html/rfc7231>, \s-1RFC 7235\s0 <https://tools.ietf.org/html/rfc7235> and \s-1RFC
+2817\s0 <https://tools.ietf.org/html/rfc2817>.
 .SH "EVENTS"
 .IX Header "EVENTS"
 Mojo::Message::Request inherits all events from Mojo::Message.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojo::Message::Request inherits all attributes from Mojo::Message and
-implements the following new ones.
+Mojo::Message::Request inherits all attributes from Mojo::Message and implements the following new ones.
 .SS "env"
 .IX Subsection "env"
 .Vb 2
@@ -149,6 +146,14 @@ Proxy \s-1URL\s0 for request.
 .Ve
 .PP
 Request has been performed through a reverse proxy.
+.SS "trusted_proxies"
+.IX Subsection "trusted_proxies"
+.Vb 2
+\&  my $proxies = $req\->trusted_proxies;
+\&  $req        = $req\->trusted_proxies([\*(Aq10.0.0.0/8\*(Aq, \*(Aq127.0.0.1\*(Aq, \*(Aq172.16.0.0/12\*(Aq, \*(Aq192.168.0.0/16\*(Aq, \*(Aqfc00::/7\*(Aq]);
+.Ve
+.PP
+Trusted reverse proxies, addresses or networks in \s-1CIDR\s0 form.
 .SS "request_id"
 .IX Subsection "request_id"
 .Vb 2
@@ -182,16 +187,14 @@ Request \s-1ID,\s0 defaults to a reasonably unique value.
 Request can be performed through a proxy server.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Message::Request inherits all methods from Mojo::Message and
-implements the following new ones.
+Mojo::Message::Request inherits all methods from Mojo::Message and implements the following new ones.
 .SS "clone"
 .IX Subsection "clone"
 .Vb 1
 \&  my $clone = $req\->clone;
 .Ve
 .PP
-Return a new Mojo::Message::Request object cloned from this request if
-possible, otherwise return \f(CW\*(C`undef\*(C'\fR.
+Return a new Mojo::Message::Request object cloned from this request if possible, otherwise return \f(CW\*(C`undef\*(C'\fR.
 .SS "cookies"
 .IX Subsection "cookies"
 .Vb 3
@@ -212,8 +215,7 @@ Access request cookies, usually Mojo::Cookie::Request objects.
 \&  my $values = $req\->every_param(\*(Aqfoo\*(Aq);
 .Ve
 .PP
-Similar to \*(L"param\*(R", but returns all values sharing the same name as an
-array reference.
+Similar to \*(L"param\*(R", but returns all values sharing the same name as an array reference.
 .PP
 .Vb 2
 \&  # Get first value
@@ -239,8 +241,7 @@ Make sure request has all required headers.
 \&  my $bytes = $req\->get_start_line_chunk($offset);
 .Ve
 .PP
-Get a chunk of request-line data starting from a specific position. Note that
-this method finalizes the request.
+Get a chunk of request-line data starting from a specific position. Note that this method finalizes the request.
 .SS "is_handshake"
 .IX Subsection "is_handshake"
 .Vb 1
@@ -268,26 +269,22 @@ Check \f(CW\*(C`X\-Requested\-With\*(C'\fR header for \f(CW\*(C`XMLHttpRequest\*
 \&  my $value = $req\->param(\*(Aqfoo\*(Aq);
 .Ve
 .PP
-Access \f(CW\*(C`GET\*(C'\fR and \f(CW\*(C`POST\*(C'\fR parameters extracted from the query string and
-\&\f(CW\*(C`application/x\-www\-form\-urlencoded\*(C'\fR or \f(CW\*(C`multipart/form\-data\*(C'\fR message body. If
-there are multiple values sharing the same name, and you want to access more
-than just the last one, you can use \*(L"every_param\*(R". Note that this method
-caches all data, so it should not be called before the entire request body has
-been received. Parts of the request body need to be loaded into memory to parse
-\&\f(CW\*(C`POST\*(C'\fR parameters, so you have to make sure it is not excessively large.
-There's a 16MiB limit for requests by default.
+Access \f(CW\*(C`GET\*(C'\fR and \f(CW\*(C`POST\*(C'\fR parameters extracted from the query string and \f(CW\*(C`application/x\-www\-form\-urlencoded\*(C'\fR or
+\&\f(CW\*(C`multipart/form\-data\*(C'\fR message body. If there are multiple values sharing the same name, and you want to access more
+than just the last one, you can use \*(L"every_param\*(R". Note that this method caches all data, so it should not be
+called before the entire request body has been received. Parts of the request body need to be loaded into memory to
+parse \f(CW\*(C`POST\*(C'\fR parameters, so you have to make sure it is not excessively large. There's a 16MiB limit for requests by
+default.
 .SS "params"
 .IX Subsection "params"
 .Vb 1
 \&  my $params = $req\->params;
 .Ve
 .PP
-All \f(CW\*(C`GET\*(C'\fR and \f(CW\*(C`POST\*(C'\fR parameters extracted from the query string and
-\&\f(CW\*(C`application/x\-www\-form\-urlencoded\*(C'\fR or \f(CW\*(C`multipart/form\-data\*(C'\fR message body,
-usually a Mojo::Parameters object. Note that this method caches all data, so
-it should not be called before the entire request body has been received. Parts
-of the request body need to be loaded into memory to parse \f(CW\*(C`POST\*(C'\fR parameters,
-so you have to make sure it is not excessively large. There's a 16MiB limit for
+All \f(CW\*(C`GET\*(C'\fR and \f(CW\*(C`POST\*(C'\fR parameters extracted from the query string and \f(CW\*(C`application/x\-www\-form\-urlencoded\*(C'\fR or
+\&\f(CW\*(C`multipart/form\-data\*(C'\fR message body, usually a Mojo::Parameters object. Note that this method caches all data, so it
+should not be called before the entire request body has been received. Parts of the request body need to be loaded into
+memory to parse \f(CW\*(C`POST\*(C'\fR parameters, so you have to make sure it is not excessively large. There's a 16MiB limit for
 requests by default.
 .PP
 .Vb 2

@@ -1,16 +1,14 @@
 package Mojo::IOLoop::TLS;
 use Mojo::Base 'Mojo::EventEmitter';
 
-use Mojo::File 'curfile';
+use Mojo::File qw(curfile);
 use Mojo::IOLoop;
-use Scalar::Util 'weaken';
+use Scalar::Util qw(weaken);
 
 # TLS support requires IO::Socket::SSL
-use constant TLS => $ENV{MOJO_NO_TLS}
-  ? 0
-  : eval { require IO::Socket::SSL; IO::Socket::SSL->VERSION('2.009'); 1 };
-use constant READ  => TLS ? IO::Socket::SSL::SSL_WANT_READ()  : 0;
-use constant WRITE => TLS ? IO::Socket::SSL::SSL_WANT_WRITE() : 0;
+use constant TLS   => $ENV{MOJO_NO_TLS} ? 0 : eval { require IO::Socket::SSL; IO::Socket::SSL->VERSION('2.009'); 1 };
+use constant READ  => TLS               ? IO::Socket::SSL::SSL_WANT_READ()  : 0;
+use constant WRITE => TLS               ? IO::Socket::SSL::SSL_WANT_WRITE() : 0;
 
 has reactor => sub { Mojo::IOLoop->singleton->reactor }, weak => 1;
 
@@ -27,8 +25,7 @@ sub can_tls {TLS}
 sub negotiate {
   my ($self, $args) = (shift, ref $_[0] ? $_[0] : {@_});
 
-  return $self->emit(error => 'IO::Socket::SSL 2.009+ required for TLS support')
-    unless TLS;
+  return $self->emit(error => 'IO::Socket::SSL 2.009+ required for TLS support') unless TLS;
 
   my $handle = $self->{handle};
   return $self->emit(error => $IO::Socket::SSL::SSL_ERROR)
@@ -49,27 +46,19 @@ sub _expand {
   my ($self, $args) = @_;
 
   weaken $self;
-  my $tls = {
-    SSL_error_trap     => sub { $self->_cleanup->emit(error => $_[1]) },
-    SSL_startHandshake => 0
-  };
-  $tls->{SSL_alpn_protocols} = $args->{tls_protocols} if $args->{tls_protocols};
-  $tls->{SSL_ca_file}        = $args->{tls_ca}
-    if $args->{tls_ca} && -T $args->{tls_ca};
-  $tls->{SSL_cert_file}   = $args->{tls_cert}    if $args->{tls_cert};
-  $tls->{SSL_cipher_list} = $args->{tls_ciphers} if $args->{tls_ciphers};
-  $tls->{SSL_key_file}    = $args->{tls_key}     if $args->{tls_key};
-  $tls->{SSL_server}      = $args->{server}      if $args->{server};
-  $tls->{SSL_verify_mode} = $args->{tls_verify}  if defined $args->{tls_verify};
-  $tls->{SSL_version}     = $args->{tls_version} if $args->{tls_version};
+  my $tls = {SSL_error_trap => sub { $self->_cleanup->emit(error => $_[1]) }, SSL_startHandshake => 0};
+  $tls->{SSL_ca_file}   = $args->{tls_ca}   if $args->{tls_ca} && -T $args->{tls_ca};
+  $tls->{SSL_cert_file} = $args->{tls_cert} if $args->{tls_cert};
+  $tls->{SSL_key_file}  = $args->{tls_key}  if $args->{tls_key};
+  $tls->{SSL_server}    = $args->{server}   if $args->{server};
+  @{$tls}{keys %{$args->{tls_options}}} = values %{$args->{tls_options}} if $args->{tls_options};
 
   if ($args->{server}) {
     $tls->{SSL_cert_file} ||= $CERT;
     $tls->{SSL_key_file}  ||= $KEY;
   }
   else {
-    $tls->{SSL_hostname}
-      = IO::Socket::SSL->can_client_sni ? $args->{address} : '';
+    $tls->{SSL_hostname}      = IO::Socket::SSL->can_client_sni ? $args->{address} : '';
     $tls->{SSL_verifycn_name} = $args->{address};
   }
 
@@ -103,14 +92,8 @@ Mojo::IOLoop::TLS - Non-blocking TLS handshake
 
   # Negotiate TLS
   my $tls = Mojo::IOLoop::TLS->new($old_handle);
-  $tls->on(upgrade => sub {
-    my ($tls, $new_handle) = @_;
-    ...
-  });
-  $tls->on(error => sub {
-    my ($tls, $err) = @_;
-    ...
-  });
+  $tls->on(upgrade => sub ($tls, $new_handle) {...});
+  $tls->on(error => sub ($tls, $err) {...});
   $tls->negotiate(server => 1, tls_version => 'TLSv1_2');
 
   # Start reactor if necessary
@@ -122,24 +105,17 @@ L<Mojo::IOLoop::TLS> negotiates TLS for L<Mojo::IOLoop>.
 
 =head1 EVENTS
 
-L<Mojo::IOLoop::TLS> inherits all events from L<Mojo::EventEmitter> and can
-emit the following new ones.
+L<Mojo::IOLoop::TLS> inherits all events from L<Mojo::EventEmitter> and can emit the following new ones.
 
 =head2 upgrade
 
-  $tls->on(upgrade => sub {
-    my ($tls, $handle) = @_;
-    ...
-  });
+  $tls->on(upgrade => sub ($tls, $handle) {...});
 
 Emitted once TLS has been negotiated.
 
 =head2 error
 
-  $tls->on(error => sub {
-    my ($tls, $err) = @_;
-    ...
-  });
+  $tls->on(error => sub ($tls, $err) {...});
 
 Emitted if an error occurs during negotiation, fatal if unhandled.
 
@@ -152,13 +128,12 @@ L<Mojo::IOLoop::TLS> implements the following attributes.
   my $reactor = $tls->reactor;
   $tls        = $tls->reactor(Mojo::Reactor::Poll->new);
 
-Low-level event reactor, defaults to the C<reactor> attribute value of the
-global L<Mojo::IOLoop> singleton. Note that this attribute is weakened.
+Low-level event reactor, defaults to the C<reactor> attribute value of the global L<Mojo::IOLoop> singleton. Note that
+this attribute is weakened.
 
 =head1 METHODS
 
-L<Mojo::IOLoop::TLS> inherits all methods from L<Mojo::EventEmitter> and
-implements the following new ones.
+L<Mojo::IOLoop::TLS> inherits all methods from L<Mojo::EventEmitter> and implements the following new ones.
 
 =head2 can_tls
 
@@ -194,15 +169,7 @@ Path to TLS certificate authority file.
   tls_cert => '/etc/tls/server.crt'
   tls_cert => {'mojolicious.org' => '/etc/tls/mojo.crt'}
 
-Path to the TLS cert file, defaults to a built-in test certificate on the
-server-side.
-
-=item tls_ciphers
-
-  tls_ciphers => 'AES128-GCM-SHA256:RC4:HIGH:!MD5:!aNULL:!EDH'
-
-TLS cipher specification string. For more information about the format see
-L<https://www.openssl.org/docs/manmaster/apps/ciphers.html#CIPHER-STRINGS>.
+Path to the TLS cert file, defaults to a built-in test certificate on the server-side.
 
 =item tls_key
 
@@ -211,23 +178,11 @@ L<https://www.openssl.org/docs/manmaster/apps/ciphers.html#CIPHER-STRINGS>.
 
 Path to the TLS key file, defaults to a built-in test key on the server-side.
 
-=item tls_protocols
+=item tls_options
 
-  tls_protocols => ['foo', 'bar']
+  tls_options => {SSL_alpn_protocols => ['foo', 'bar'], SSL_verify_mode => 0x00, SSL_version => 'TLSv1_2'}
 
-ALPN protocols to negotiate.
-
-=item tls_verify
-
-  tls_verify => 0x00
-
-TLS verification mode.
-
-=item tls_version
-
-  tls_version => 'TLSv1_2'
-
-TLS protocol version.
+Additional options for L<IO::Socket::SSL>.
 
 =back
 

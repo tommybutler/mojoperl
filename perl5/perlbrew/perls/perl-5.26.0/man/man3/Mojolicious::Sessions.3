@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Sessions 3"
-.TH Mojolicious::Sessions 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Sessions 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -85,10 +85,9 @@ Mojolicious::Sessions \- Session manager based on signed cookies
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojolicious::Sessions manages sessions based on signed cookies for
-Mojolicious. All data gets serialized with Mojo::JSON and stored Base64
-encoded on the client-side, but is protected from unwanted changes with a
-\&\s-1HMAC\-SHA1\s0 signature.
+Mojolicious::Sessions manages sessions based on signed cookies for Mojolicious. All data gets serialized with
+Mojo::JSON and stored Base64 encoded on the client-side, but is protected from unwanted changes with a \s-1HMAC\-SHA256\s0
+signature.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojolicious::Sessions implements the following attributes.
@@ -123,11 +122,9 @@ Path for session cookies, defaults to \f(CW\*(C`/\*(C'\fR.
 \&  $sessions = $sessions\->default_expiration(3600);
 .Ve
 .PP
-Default time for sessions to expire in seconds from now, defaults to \f(CW3600\fR.
-The expiration timeout gets refreshed for every request. Setting the value to
-\&\f(CW0\fR will allow sessions to persist until the browser window is closed, this
-can have security implications though. For more control you can also use the
-\&\f(CW\*(C`expiration\*(C'\fR and \f(CW\*(C`expires\*(C'\fR session values.
+Default time for sessions to expire in seconds from now, defaults to \f(CW3600\fR. The expiration timeout gets refreshed for
+every request. Setting the value to \f(CW0\fR will allow sessions to persist until the browser window is closed, this can
+have security implications though. For more control you can also use the \f(CW\*(C`expiration\*(C'\fR and \f(CW\*(C`expires\*(C'\fR session values.
 .PP
 .Vb 2
 \&  # Expiration date in seconds from now (persists between requests)
@@ -143,16 +140,13 @@ can have security implications though. For more control you can also use the
 .IX Subsection "deserialize"
 .Vb 2
 \&  my $cb    = $sessions\->deserialize;
-\&  $sessions = $sessions\->deserialize(sub {...});
+\&  $sessions = $sessions\->deserialize(sub ($bytes) {...});
 .Ve
 .PP
 A callback used to deserialize sessions, defaults to \*(L"j\*(R" in Mojo::JSON.
 .PP
-.Vb 4
-\&  $sessions\->deserialize(sub {
-\&    my $bytes = shift;
-\&    return {};
-\&  });
+.Vb 1
+\&  $sessions\->deserialize(sub ($bytes) { return {} });
 .Ve
 .SS "samesite"
 .IX Subsection "samesite"
@@ -161,10 +155,9 @@ A callback used to deserialize sessions, defaults to \*(L"j\*(R" in Mojo::JSON.
 \&  $sessions    = $sessions\->samesite(\*(AqStrict\*(Aq);
 .Ve
 .PP
-Set the SameSite value on all session cookies, defaults to \f(CW\*(C`Lax\*(C'\fR. Note that
-this attribute is \fB\s-1EXPERIMENTAL\s0\fR because even though most commonly used
-browsers support the feature, there is no specification yet besides
-this draft <https://tools.ietf.org/html/draft-west-first-party-cookies-07>.
+Set the SameSite value on all session cookies, defaults to \f(CW\*(C`Lax\*(C'\fR. Note that this attribute is \fB\s-1EXPERIMENTAL\s0\fR because
+even though most commonly used browsers support the feature, there is no specification yet besides this
+draft <https://tools.ietf.org/html/draft-west-first-party-cookies-07>.
 .PP
 .Vb 2
 \&  # Disable SameSite feature
@@ -177,27 +170,22 @@ this draft <https://tools.ietf.org/html/draft-west-first-party-cookies-07>.
 \&  $sessions = $sessions\->secure($bool);
 .Ve
 .PP
-Set the secure flag on all session cookies, so that browsers send them only
-over \s-1HTTPS\s0 connections.
+Set the secure flag on all session cookies, so that browsers send them only over \s-1HTTPS\s0 connections.
 .SS "serialize"
 .IX Subsection "serialize"
 .Vb 2
 \&  my $cb    = $sessions\->serialize;
-\&  $sessions = $sessions\->serialize(sub {...});
+\&  $sessions = $sessions\->serialize(sub ($hash) {...});
 .Ve
 .PP
 A callback used to serialize sessions, defaults to \*(L"encode_json\*(R" in Mojo::JSON.
 .PP
-.Vb 4
-\&  $sessions\->serialize(sub {
-\&    my $hash = shift;
-\&    return \*(Aq\*(Aq;
-\&  });
+.Vb 1
+\&  $sessions\->serialize(sub ($hash) { return \*(Aq\*(Aq });
 .Ve
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Sessions inherits all methods from Mojo::Base and implements
-the following new ones.
+Mojolicious::Sessions inherits all methods from Mojo::Base and implements the following new ones.
 .SS "load"
 .IX Subsection "load"
 .Vb 1

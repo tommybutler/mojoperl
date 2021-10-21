@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Plugin::DefaultHelpers 3"
-.TH Mojolicious::Plugin::DefaultHelpers 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Plugin::DefaultHelpers 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -85,14 +85,12 @@ Mojolicious::Plugin::DefaultHelpers \- Default helpers plugin
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojolicious::Plugin::DefaultHelpers is a collection of helpers for
-Mojolicious.
+Mojolicious::Plugin::DefaultHelpers is a collection of helpers for Mojolicious.
 .PP
-This is a core plugin, that means it is always enabled and its code a good
-example for learning to build new plugins, you're welcome to fork it.
+This is a core plugin, that means it is always enabled and its code a good example for learning to build new plugins,
+you're welcome to fork it.
 .PP
-See \*(L"\s-1PLUGINS\*(R"\s0 in Mojolicious::Plugins for a list of plugins that are available
-by default.
+See \*(L"\s-1PLUGINS\*(R"\s0 in Mojolicious::Plugins for a list of plugins that are available by default.
 .SH "HELPERS"
 .IX Header "HELPERS"
 Mojolicious::Plugin::DefaultHelpers implements the following helpers.
@@ -103,10 +101,9 @@ Mojolicious::Plugin::DefaultHelpers implements the following helpers.
 \&  my $format  = $c\->accepts(\*(Aqhtml\*(Aq, \*(Aqjson\*(Aq, \*(Aqtxt\*(Aq);
 .Ve
 .PP
-Select best possible representation for resource from \f(CW\*(C`format\*(C'\fR \f(CW\*(C`GET\*(C'\fR/\f(CW\*(C`POST\*(C'\fR
-parameter, \f(CW\*(C`format\*(C'\fR stash value or \f(CW\*(C`Accept\*(C'\fR request header with
-\&\*(L"accepts\*(R" in Mojolicious::Renderer, defaults to returning the first extension if
-no preference could be detected.
+Select best possible representation for resource from \f(CW\*(C`format\*(C'\fR \f(CW\*(C`GET\*(C'\fR/\f(CW\*(C`POST\*(C'\fR parameter, \f(CW\*(C`format\*(C'\fR stash value or
+\&\f(CW\*(C`Accept\*(C'\fR request header with \*(L"accepts\*(R" in Mojolicious::Renderer, defaults to returning the first extension if no
+preference could be detected.
 .PP
 .Vb 2
 \&  # Check if JSON is acceptable
@@ -162,10 +159,9 @@ Alias for \*(L"config\*(R" in Mojolicious.
 \&  %= content
 .Ve
 .PP
-Store partial rendered content in a named buffer and retrieve it later,
-defaults to retrieving the named buffer \f(CW\*(C`content\*(C'\fR, which is used by the
-renderer for the \f(CW\*(C`layout\*(C'\fR and \f(CW\*(C`extends\*(C'\fR features. New content will be ignored
-if the named buffer is already in use.
+Store partial rendered content in a named buffer and retrieve it later, defaults to retrieving the named buffer
+\&\f(CW\*(C`content\*(C'\fR, which is used by the renderer for the \f(CW\*(C`layout\*(C'\fR and \f(CW\*(C`extends\*(C'\fR features. New content will be ignored if the
+named buffer is already in use.
 .SS "content_for"
 .IX Subsection "content_for"
 .Vb 4
@@ -175,8 +171,7 @@ if the named buffer is already in use.
 \&  %= content_for \*(Aqfoo\*(Aq
 .Ve
 .PP
-Same as \*(L"content\*(R", but appends content to named buffers if they are already
-in use.
+Same as \*(L"content\*(R", but appends content to named buffers if they are already in use.
 .PP
 .Vb 7
 \&  % content_for message => begin
@@ -196,8 +191,7 @@ in use.
 \&  %= content_with \*(Aqfoo\*(Aq
 .Ve
 .PP
-Same as \*(L"content\*(R", but replaces content of named buffers if they are
-already in use.
+Same as \*(L"content\*(R", but replaces content of named buffers if they are already in use.
 .PP
 .Vb 7
 \&  % content message => begin
@@ -208,14 +202,6 @@ already in use.
 \&  % end
 \&  %= content \*(Aqmessage\*(Aq
 .Ve
-.SS "continue"
-.IX Subsection "continue"
-.Vb 1
-\&  $c\->continue;
-.Ve
-.PP
-Continue dispatch chain from an intermediate destination with
-\&\*(L"continue\*(R" in Mojolicious::Routes.
 .SS "csrf_token"
 .IX Subsection "csrf_token"
 .Vb 1
@@ -239,8 +225,7 @@ Check or get name of current route.
 \&  %= dumper {some => \*(Aqdata\*(Aq}
 .Ve
 .PP
-Dump a Perl data structure with \*(L"dumper\*(R" in Mojo::Util, very useful for
-debugging.
+Dump a Perl data structure with \*(L"dumper\*(R" in Mojo::Util, very useful for debugging.
 .SS "extends"
 .IX Subsection "extends"
 .Vb 2
@@ -248,8 +233,7 @@ debugging.
 \&  % extends \*(Aqblue\*(Aq, title => \*(AqBlue!\*(Aq;
 .Ve
 .PP
-Set \f(CW\*(C`extends\*(C'\fR stash value, all additional key/value pairs get merged into the
-\&\*(L"stash\*(R".
+Set \f(CW\*(C`extends\*(C'\fR stash value, all additional key/value pairs get merged into the \*(L"stash\*(R".
 .SS "flash"
 .IX Subsection "flash"
 .Vb 4
@@ -272,8 +256,7 @@ Data storage persistent only for the next request, stored in the \*(L"session\*(
 \&  $c = $c\->inactivity_timeout(3600);
 .Ve
 .PP
-Use \*(L"stream\*(R" in Mojo::IOLoop to find the current connection and increase
-timeout if possible.
+Use \*(L"stream\*(R" in Mojo::IOLoop to find the current connection and increase timeout if possible.
 .PP
 .Vb 2
 \&  # Longer version
@@ -296,9 +279,8 @@ Alias for \*(L"render_to_string\*(R" in Mojolicious::Controller.
 \&  my $bool = $c\->is_fresh(last_modified => $epoch);
 .Ve
 .PP
-Check freshness of request by comparing the \f(CW\*(C`If\-None\-Match\*(C'\fR and
-\&\f(CW\*(C`If\-Modified\-Since\*(C'\fR request headers to the \f(CW\*(C`ETag\*(C'\fR and \f(CW\*(C`Last\-Modified\*(C'\fR
-response headers with \*(L"is_fresh\*(R" in Mojolicious::Static.
+Check freshness of request by comparing the \f(CW\*(C`If\-None\-Match\*(C'\fR and \f(CW\*(C`If\-Modified\-Since\*(C'\fR request headers to the \f(CW\*(C`ETag\*(C'\fR
+and \f(CW\*(C`Last\-Modified\*(C'\fR response headers with \*(L"is_fresh\*(R" in Mojolicious::Static.
 .PP
 .Vb 4
 \&  # Add ETag/Last\-Modified headers and check freshness before rendering
@@ -313,16 +295,14 @@ response headers with \*(L"is_fresh\*(R" in Mojolicious::Static.
 \&  % layout \*(Aqgreen\*(Aq, title => \*(AqGreen!\*(Aq;
 .Ve
 .PP
-Set \f(CW\*(C`layout\*(C'\fR stash value, all additional key/value pairs get merged into the
-\&\*(L"stash\*(R".
+Set \f(CW\*(C`layout\*(C'\fR stash value, all additional key/value pairs get merged into the \*(L"stash\*(R".
 .SS "log"
 .IX Subsection "log"
 .Vb 1
 \&  my $log = $c\->log;
 .Ve
 .PP
-Alternative to \*(L"log\*(R" in Mojolicious that includes
-\&\*(L"request_id\*(R" in Mojo::Message::Request with every log message.
+Alternative to \*(L"log\*(R" in Mojolicious that includes \*(L"request_id\*(R" in Mojo::Message::Request with every log message.
 .PP
 .Vb 2
 \&  # Log message with context
@@ -345,15 +325,12 @@ Alias for \*(L"param\*(R" in Mojolicious::Controller.
 \&  my $promise = $c\->proxy\->get_p(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq});
 .Ve
 .PP
-Perform non-blocking \f(CW\*(C`GET\*(C'\fR request and forward response as efficiently as
-possible, takes the same arguments as \*(L"get\*(R" in Mojo::UserAgent and returns a
-Mojo::Promise object. Note that this helper is \fB\s-1EXPERIMENTAL\s0\fR and might
-change without warning!
+Perform non-blocking \f(CW\*(C`GET\*(C'\fR request and forward response as efficiently as possible, takes the same arguments as
+\&\*(L"get\*(R" in Mojo::UserAgent and returns a Mojo::Promise object.
 .PP
-.Vb 6
+.Vb 5
 \&  # Forward with exception handling
-\&  $c\->proxy\->get_p(\*(Aqhttp://mojolicious.org\*(Aq)\->catch(sub {
-\&    my $err = shift;
+\&  $c\->proxy\->get_p(\*(Aqhttp://mojolicious.org\*(Aq)\->catch(sub ($err) {
 \&    $c\->log\->debug("Proxy error: $err");
 \&    $c\->render(text => \*(AqSomething went wrong!\*(Aq, status => 400);
 \&  });
@@ -364,15 +341,12 @@ change without warning!
 \&  my $promise = $c\->proxy\->post_p(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq});
 .Ve
 .PP
-Perform non-blocking \f(CW\*(C`POST\*(C'\fR request and forward response as efficiently as
-possible, takes the same arguments as \*(L"post\*(R" in Mojo::UserAgent and returns a
-Mojo::Promise object. Note that this helper is \fB\s-1EXPERIMENTAL\s0\fR and might
-change without warning!
+Perform non-blocking \f(CW\*(C`POST\*(C'\fR request and forward response as efficiently as possible, takes the same arguments as
+\&\*(L"post\*(R" in Mojo::UserAgent and returns a Mojo::Promise object.
 .PP
-.Vb 6
+.Vb 5
 \&  # Forward with exception handling
-\&  $c\->proxy\->post_p(\*(Aqexample.com\*(Aq => form => {test => \*(Aqpass\*(Aq})\->catch(sub {
-\&    my $err = shift;
+\&  $c\->proxy\->post_p(\*(Aqexample.com\*(Aq => form => {test => \*(Aqpass\*(Aq})\->catch(sub ($err) {
 \&    $c\->log\->debug("Proxy error: $err");
 \&    $c\->render(text => \*(AqSomething went wrong!\*(Aq, status => 400);
 \&  });
@@ -383,15 +357,13 @@ change without warning!
 \&  my $promise = $c\->proxy\->start_p(Mojo::Transaction::HTTP\->new);
 .Ve
 .PP
-Perform non-blocking request for a custom Mojo::Transaction::HTTP object and
-forward response as efficiently as possible, returns a Mojo::Promise object.
-Note that this helper is \fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
+Perform non-blocking request for a custom Mojo::Transaction::HTTP object and forward response as efficiently as
+possible, returns a Mojo::Promise object.
 .PP
-.Vb 7
+.Vb 6
 \&  # Forward with exception handling
 \&  my $tx = $c\->ua\->build_tx(GET => \*(Aqhttp://mojolicious.org\*(Aq);
-\&  $c\->proxy\->start_p($tx)\->catch(sub {
-\&    my $err = shift;
+\&  $c\->proxy\->start_p($tx)\->catch(sub ($err) {
 \&    $c\->log\->debug("Proxy error: $err");
 \&    $c\->render(text => \*(AqSomething went wrong!\*(Aq, status => 400);
 \&  });
@@ -401,9 +373,7 @@ Note that this helper is \fB\s-1EXPERIMENTAL\s0\fR and might change without warn
 \&  $headers\->header(\*(AqX\-Proxy\*(Aq => \*(AqMojo\*(Aq);
 \&  my $tx = $c\->ua\->build_tx(GET => \*(Aqhttp://example.com\*(Aq => $headers\->to_hash);
 \&  $c\->proxy\->start_p($tx);
-\&  $tx\->res\->content\->once(body => sub {
-\&    $c\->res\->headers\->header(\*(AqX\-Proxy\*(Aq => \*(AqMojo\*(Aq);
-\&  });
+\&  $tx\->res\->content\->once(body => sub ($content) { $c\->res\->headers\->header(\*(AqX\-Proxy\*(Aq => \*(AqMojo\*(Aq) });
 .Ve
 .SS "redirect_to"
 .IX Subsection "redirect_to"
@@ -414,8 +384,8 @@ Note that this helper is \fB\s-1EXPERIMENTAL\s0\fR and might change without warn
 \&  $c = $c\->redirect_to(\*(Aqhttp://example.com/index.html\*(Aq);
 .Ve
 .PP
-Prepare a \f(CW302\fR (if the status code is not already \f(CW\*(C`3xx\*(C'\fR) redirect response
-with \f(CW\*(C`Location\*(C'\fR header, takes the same arguments as \*(L"url_for\*(R".
+Prepare a \f(CW302\fR (if the status code is not already \f(CW\*(C`3xx\*(C'\fR) redirect response with \f(CW\*(C`Location\*(C'\fR header, takes the same
+arguments as \*(L"url_for\*(R".
 .PP
 .Vb 3
 \&  # Moved Permanently
@@ -432,9 +402,8 @@ with \f(CW\*(C`Location\*(C'\fR header, takes the same arguments as \*(L"url_for
 \&  $c\->reply\->asset(Mojo::Asset::File\->new);
 .Ve
 .PP
-Reply with a Mojo::Asset::File or Mojo::Asset::Memory object using
-\&\*(L"serve_asset\*(R" in Mojolicious::Static, and perform content negotiation with
-\&\f(CW\*(C`Range\*(C'\fR, \f(CW\*(C`If\-Modified\-Since\*(C'\fR and \f(CW\*(C`If\-None\-Match\*(C'\fR headers.
+Reply with a Mojo::Asset::File or Mojo::Asset::Memory object using \*(L"serve_asset\*(R" in Mojolicious::Static, and
+perform content negotiation with \f(CW\*(C`Range\*(C'\fR, \f(CW\*(C`If\-Modified\-Since\*(C'\fR and \f(CW\*(C`If\-None\-Match\*(C'\fR headers.
 .PP
 .Vb 5
 \&  # Serve asset with custom modification time
@@ -456,18 +425,16 @@ Reply with a Mojo::Asset::File or Mojo::Asset::Memory object using
 \&  $c = $c\->reply\->exception(Mojo::Exception\->new);
 .Ve
 .PP
-Render the exception template \f(CW\*(C`exception.$mode.$format.*\*(C'\fR or
-\&\f(CW\*(C`exception.$format.*\*(C'\fR and set the response status code to \f(CW500\fR. Also sets
-the stash values \f(CW\*(C`exception\*(C'\fR to a Mojo::Exception object and \f(CW\*(C`snapshot\*(C'\fR to
-a copy of the \*(L"stash\*(R" for use in the templates.
+Render the exception template \f(CW\*(C`exception.$mode.$format.*\*(C'\fR or \f(CW\*(C`exception.$format.*\*(C'\fR and set the response status code
+to \f(CW500\fR. Also sets the stash values \f(CW\*(C`exception\*(C'\fR to a Mojo::Exception object and \f(CW\*(C`snapshot\*(C'\fR to a copy of the
+\&\*(L"stash\*(R" for use in the templates.
 .SS "reply\->file"
 .IX Subsection "reply->file"
 .Vb 1
 \&  $c\->reply\->file(\*(Aq/etc/passwd\*(Aq);
 .Ve
 .PP
-Reply with a static file from an absolute path anywhere on the file system using
-\&\*(L"static\*(R" in Mojolicious.
+Reply with a static file from an absolute path anywhere on the file system using \*(L"static\*(R" in Mojolicious.
 .PP
 .Vb 2
 \&  # Longer version
@@ -486,20 +453,17 @@ Reply with a static file from an absolute path anywhere on the file system using
 \&  $c = $c\->reply\->not_found;
 .Ve
 .PP
-Render the not found template \f(CW\*(C`not_found.$mode.$format.*\*(C'\fR or
-\&\f(CW\*(C`not_found.$format.*\*(C'\fR and set the response status code to \f(CW404\fR. Also sets
-the stash value \f(CW\*(C`snapshot\*(C'\fR to a copy of the \*(L"stash\*(R" for use in the
-templates.
+Render the not found template \f(CW\*(C`not_found.$mode.$format.*\*(C'\fR or \f(CW\*(C`not_found.$format.*\*(C'\fR and set the response status code
+to \f(CW404\fR. Also sets the stash value \f(CW\*(C`snapshot\*(C'\fR to a copy of the \*(L"stash\*(R" for use in the templates.
 .SS "reply\->static"
 .IX Subsection "reply->static"
 .Vb 2
-\&  my $bool = $c\->reply\->static(\*(Aqimages/logo.png\*(Aq);
-\&  my $bool = $c\->reply\->static(\*(Aq../lib/MyApp.pm\*(Aq);
+\&  $c\->reply\->static(\*(Aqimages/logo.png\*(Aq);
+\&  $c\->reply\->static(\*(Aq../lib/MyApp.pm\*(Aq);
 .Ve
 .PP
-Reply with a static file using \*(L"static\*(R" in Mojolicious, usually from the
-\&\f(CW\*(C`public\*(C'\fR directories or \f(CW\*(C`DATA\*(C'\fR sections of your application. Note that this
-helper uses a relative path, but does not protect from traversing to parent
+Reply with a static file using \*(L"static\*(R" in Mojolicious, usually from the \f(CW\*(C`public\*(C'\fR directories or \f(CW\*(C`DATA\*(C'\fR sections of
+your application. Note that this helper uses a relative path, but does not protect from traversing to parent
 directories.
 .PP
 .Vb 3
@@ -517,11 +481,9 @@ directories.
 \&  );
 .Ve
 .PP
-Automatically select best possible representation for resource from \f(CW\*(C`format\*(C'\fR
-\&\f(CW\*(C`GET\*(C'\fR/\f(CW\*(C`POST\*(C'\fR parameter, \f(CW\*(C`format\*(C'\fR stash value or \f(CW\*(C`Accept\*(C'\fR request header,
-defaults to \*(L"default_format\*(R" in Mojolicious::Renderer or rendering an empty
-\&\f(CW204\fR response. Each representation can be handled with a callback or a hash
-reference containing arguments to be passed to
+Automatically select best possible representation for resource from \f(CW\*(C`format\*(C'\fR \f(CW\*(C`GET\*(C'\fR/\f(CW\*(C`POST\*(C'\fR parameter, \f(CW\*(C`format\*(C'\fR stash
+value or \f(CW\*(C`Accept\*(C'\fR request header, defaults to \*(L"default_format\*(R" in Mojolicious::Renderer or rendering an empty \f(CW204\fR
+response. Each representation can be handled with a callback or a hash reference containing arguments to be passed to
 \&\*(L"render\*(R" in Mojolicious::Controller.
 .PP
 .Vb 6
@@ -566,8 +528,8 @@ Create named timestamp for \*(L"timing\->elapsed\*(R".
 \&  my $elapsed = $c\->timing\->elapsed(\*(Aqfoo\*(Aq);
 .Ve
 .PP
-Return fractional amount of time in seconds since named timstamp has been
-created with \*(L"timing\->begin\*(R" or \f(CW\*(C`undef\*(C'\fR if no such timestamp exists.
+Return fractional amount of time in seconds since named timstamp has been created with \*(L"timing\->begin\*(R" or
+\&\f(CW\*(C`undef\*(C'\fR if no such timestamp exists.
 .PP
 .Vb 5
 \&  # Log timing information
@@ -582,9 +544,8 @@ created with \*(L"timing\->begin\*(R" or \f(CW\*(C`undef\*(C'\fR if no such time
 \&  my $rps = $c\->timing\->rps(\*(Aq0.001\*(Aq);
 .Ve
 .PP
-Return fractional number of requests that could be performed in one second if
-every singe one took the given amount of time in seconds or \f(CW\*(C`undef\*(C'\fR if the
-number is too low.
+Return fractional number of requests that could be performed in one second if every singe one took the given amount of
+time in seconds or \f(CW\*(C`undef\*(C'\fR if the number is too low.
 .PP
 .Vb 6
 \&  # Log more timing information
@@ -629,8 +590,7 @@ Create \f(CW\*(C`Server\-Timing\*(C'\fR header with optional description and dur
 \&  % title \*(AqWelcome!\*(Aq, foo => \*(Aqbar\*(Aq;
 .Ve
 .PP
-Get or set \f(CW\*(C`title\*(C'\fR stash value, all additional key/value pairs get merged into
-the \*(L"stash\*(R".
+Get or set \f(CW\*(C`title\*(C'\fR stash value, all additional key/value pairs get merged into the \*(L"stash\*(R".
 .SS "ua"
 .IX Subsection "ua"
 .Vb 1
@@ -641,7 +601,7 @@ Alias for \*(L"ua\*(R" in Mojolicious.
 .SS "url_for"
 .IX Subsection "url_for"
 .Vb 1
-\&  %= url_for \*(Aqnamed\*(Aq, controller => \*(Aqbar\*(Aq, action => \*(Aqbaz\*(Aq
+\&  %= url_for \*(Aqnamed\*(Aq, foo => \*(Aqbar\*(Aq, baz => \*(Aqyada\*(Aq
 .Ve
 .PP
 Alias for \*(L"url_for\*(R" in Mojolicious::Controller.
@@ -652,11 +612,10 @@ Alias for \*(L"url_for\*(R" in Mojolicious::Controller.
 .SS "url_with"
 .IX Subsection "url_with"
 .Vb 1
-\&  %= url_with \*(Aqnamed\*(Aq, controller => \*(Aqbar\*(Aq, action => \*(Aqbaz\*(Aq
+\&  %= url_with \*(Aqnamed\*(Aq, foo => \*(Aqbar\*(Aq, baz => \*(Aqyada\*(Aq
 .Ve
 .PP
-Does the same as \*(L"url_for\*(R", but inherits query parameters from the current
-request.
+Does the same as \*(L"url_for\*(R", but inherits query parameters from the current request.
 .PP
 .Vb 1
 \&  %= url_with\->query({page => 2})
@@ -667,12 +626,10 @@ request.
 \&  my $v = $c\->validation;
 .Ve
 .PP
-Get Mojolicious::Validator::Validation object for current request to
-validate file uploads as well as \f(CW\*(C`GET\*(C'\fR and \f(CW\*(C`POST\*(C'\fR parameters extracted from
-the query string and \f(CW\*(C`application/x\-www\-form\-urlencoded\*(C'\fR or
-\&\f(CW\*(C`multipart/form\-data\*(C'\fR message body. Parts of the request body need to be loaded
-into memory to parse \f(CW\*(C`POST\*(C'\fR parameters, so you have to make sure it is not
-excessively large. There's a 16MiB limit for requests by default.
+Get Mojolicious::Validator::Validation object for current request to validate file uploads as well as \f(CW\*(C`GET\*(C'\fR and
+\&\f(CW\*(C`POST\*(C'\fR parameters extracted from the query string and \f(CW\*(C`application/x\-www\-form\-urlencoded\*(C'\fR or \f(CW\*(C`multipart/form\-data\*(C'\fR
+message body. Parts of the request body need to be loaded into memory to parse \f(CW\*(C`POST\*(C'\fR parameters, so you have to make
+sure it is not excessively large. There's a 16MiB limit for requests by default.
 .PP
 .Vb 4
 \&  # Validate GET/POST parameter
@@ -687,8 +644,8 @@ excessively large. There's a 16MiB limit for requests by default.
 .Ve
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Plugin::DefaultHelpers inherits all methods from
-Mojolicious::Plugin and implements the following new ones.
+Mojolicious::Plugin::DefaultHelpers inherits all methods from Mojolicious::Plugin and implements the following
+new ones.
 .SS "register"
 .IX Subsection "register"
 .Vb 1

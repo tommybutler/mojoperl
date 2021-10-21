@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Moose::Manual::Construction 3"
-.TH Moose::Manual::Construction 3 "2017-07-12" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Moose::Manual::Construction 3 "2021-03-31" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -76,7 +76,7 @@
 Moose::Manual::Construction \- Object construction (and destruction) with Moose
 .SH "VERSION"
 .IX Header "VERSION"
-version 2.2006
+version 2.2015
 .SH "WHERE'S THE CONSTRUCTOR?"
 .IX Header "WHERE'S THE CONSTRUCTOR?"
 \&\fBDo not define a \f(CB\*(C`new()\*(C'\fB method for your classes!\fR
@@ -189,7 +189,10 @@ do something with parameters that do not represent object attributes.
 .PP
 The interaction between multiple \f(CW\*(C`BUILD\*(C'\fR methods in an inheritance hierarchy
 is different from normal Perl methods. \fBYou should never call \f(CB\*(C`$self\->SUPER::BUILD\*(C'\fB\fR, nor should you ever apply a method modifier to
-\&\f(CW\*(C`BUILD\*(C'\fR.
+\&\f(CW\*(C`BUILD\*(C'\fR. Roles are an exception to this rule, though: it's completely
+acceptable to apply a method modifier to \f(CW\*(C`BUILD\*(C'\fR in a role; you can
+even provide an empty \f(CW\*(C`BUILD\*(C'\fR subroutine in a role so the role is applicable
+even to classes without their own \f(CW\*(C`BUILD\*(C'\fR.
 .PP
 Moose arranges to have all of the \f(CW\*(C`BUILD\*(C'\fR methods in a hierarchy
 called when an object is constructed, \fIfrom parents to
@@ -233,13 +236,13 @@ creating an error stack.
 .SH "AUTHORS"
 .IX Header "AUTHORS"
 .IP "\(bu" 4
-Stevan Little <stevan.little@iinteractive.com>
+Stevan Little <stevan@cpan.org>
 .IP "\(bu" 4
 Dave Rolsky <autarch@urth.org>
 .IP "\(bu" 4
-Jesse Luehrs <doy@tozt.net>
+Jesse Luehrs <doy@cpan.org>
 .IP "\(bu" 4
-Shawn M Moore <code@sartak.org>
+Shawn M Moore <sartak@cpan.org>
 .IP "\(bu" 4
 יובל קוג'מן (Yuval Kogman) <nothingmuch@woobling.org>
 .IP "\(bu" 4
@@ -247,11 +250,11 @@ Karen Etheridge <ether@cpan.org>
 .IP "\(bu" 4
 Florian Ragwitz <rafl@debian.org>
 .IP "\(bu" 4
-Hans Dieter Pearcey <hdp@weftsoar.net>
+Hans Dieter Pearcey <hdp@cpan.org>
 .IP "\(bu" 4
 Chris Prather <chris@prather.org>
 .IP "\(bu" 4
-Matt S Trout <mst@shadowcat.co.uk>
+Matt S Trout <mstrout@cpan.org>
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
 This software is copyright (c) 2006 by Infinity Interactive, Inc.

@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Template 3"
-.TH Mojo::Template 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Template 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -110,17 +110,14 @@ Mojo::Template \- Perl\-ish templates
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Template is a minimalistic, fast, and very Perl-ish template engine,
-designed specifically for all those small tasks that come up during big
-projects. Like preprocessing a configuration file, generating text from heredocs
-and stuff like that.
+Mojo::Template is a minimalistic, fast, and very Perl-ish template engine, designed specifically for all those small
+tasks that come up during big projects. Like preprocessing a configuration file, generating text from heredocs and
+stuff like that.
 .PP
-See Mojolicious::Guides::Rendering for information on how to generate
-content with the Mojolicious renderer.
+See Mojolicious::Guides::Rendering for information on how to generate content with the Mojolicious renderer.
 .SH "SYNTAX"
 .IX Header "SYNTAX"
-For all templates strict, warnings, utf8 and Perl 5.10
-features are automatically enabled.
+For all templates strict, warnings, utf8 and Perl 5.16 features are automatically enabled.
 .PP
 .Vb 10
 \&  <% Perl code %>
@@ -135,8 +132,8 @@ features are automatically enabled.
 \&  %% Replaced with "%", useful for generating templates
 .Ve
 .PP
-Escaping behavior can be reversed with the \*(L"auto_escape\*(R" attribute, this is
-the default in Mojolicious \f(CW\*(C`.ep\*(C'\fR templates, for example.
+Escaping behavior can be reversed with the \*(L"auto_escape\*(R" attribute, this is the default in Mojolicious \f(CW\*(C`.ep\*(C'\fR
+templates, for example.
 .PP
 .Vb 2
 \&  <%= Perl expression, replaced with XML escaped result %>
@@ -146,12 +143,11 @@ the default in Mojolicious \f(CW\*(C`.ep\*(C'\fR templates, for example.
 Mojo::ByteStream objects are always excluded from automatic escaping.
 .PP
 .Vb 2
-\&  % use Mojo::ByteStream \*(Aqb\*(Aq;
+\&  % use Mojo::ByteStream qw(b);
 \&  <%= b(\*(Aq<div>excluded!</div>\*(Aq) %>
 .Ve
 .PP
-Whitespace characters around tags can be trimmed by adding an additional equal
-sign to the end of a tag.
+Whitespace characters around tags can be trimmed by adding an additional equal sign to the end of a tag.
 .PP
 .Vb 3
 \&  <% for (1 .. 3) { %>
@@ -166,8 +162,7 @@ Newline characters can be escaped with a backslash.
 \&  single line
 .Ve
 .PP
-And a backslash in front of a newline character can be escaped with another
-backslash.
+And a backslash in front of a newline character can be escaped with another backslash.
 .PP
 .Vb 3
 \&  This will <%= 1 + 1 %> result\e\e
@@ -175,18 +170,16 @@ backslash.
 \&  lines
 .Ve
 .PP
-A newline character gets appended automatically to every template, unless the
-last character is a backslash. And empty lines at the end of a template are
-ignored.
+A newline character gets appended automatically to every template, unless the last character is a backslash. And empty
+lines at the end of a template are ignored.
 .PP
 .Vb 1
 \&  There is <%= 1 + 1 %> no newline at the end here\e
 .Ve
 .PP
-You can capture whole template blocks for reuse later with the \f(CW\*(C`begin\*(C'\fR and
-\&\f(CW\*(C`end\*(C'\fR keywords. Just be aware that both keywords are part of the surrounding
-tag and not actual Perl code, so there can only be whitespace after \f(CW\*(C`begin\*(C'\fR
-and before \f(CW\*(C`end\*(C'\fR.
+You can capture whole template blocks for reuse later with the \f(CW\*(C`begin\*(C'\fR and \f(CW\*(C`end\*(C'\fR keywords. Just be aware that both
+keywords are part of the surrounding tag and not actual Perl code, so there can only be whitespace after \f(CW\*(C`begin\*(C'\fR and
+before \f(CW\*(C`end\*(C'\fR.
 .PP
 .Vb 6
 \&  <% my $block = begin %>
@@ -208,8 +201,7 @@ Perl lines can also be indented freely.
 \&  %= $block\->(\*(AqWolfgang\*(Aq)
 .Ve
 .PP
-Mojo::Template templates get compiled to a Perl subroutine, that means you
-can access arguments simply via \f(CW@_\fR.
+Mojo::Template templates get compiled to a Perl subroutine, that means you can access arguments simply via \f(CW@_\fR.
 .PP
 .Vb 3
 \&  % my ($foo, $bar) = @_;
@@ -217,9 +209,8 @@ can access arguments simply via \f(CW@_\fR.
 \&  test 123 <%= $foo %>
 .Ve
 .PP
-The compilation of templates to Perl code can make debugging a bit tricky, but
-Mojo::Template will return Mojo::Exception objects that stringify to
-error messages with context.
+The compilation of templates to Perl code can make debugging a bit tricky, but Mojo::Template will return
+Mojo::Exception objects that stringify to error messages with context.
 .PP
 .Vb 11
 \&  Bareword "xx" not allowed while "strict subs" in use at template line 4.
@@ -257,8 +248,8 @@ Activate automatic escaping.
 \&  $mt      = $mt\->append(\*(Aqwarn "Processed template"\*(Aq);
 .Ve
 .PP
-Append Perl code to compiled template. Note that this code should not contain
-newline characters, or line numbers in error messages might end up being wrong.
+Append Perl code to compiled template. Note that this code should not contain newline characters, or line numbers in
+error messages might end up being wrong.
 .SS "capture_end"
 .IX Subsection "capture_end"
 .Vb 2
@@ -330,14 +321,10 @@ Encoding used for template files, defaults to \f(CW\*(C`UTF\-8\*(C'\fR.
 \&  $mt    = $mt\->escape(sub {...});
 .Ve
 .PP
-A callback used to escape the results of escaped expressions, defaults to
-\&\*(L"xml_escape\*(R" in Mojo::Util.
+A callback used to escape the results of escaped expressions, defaults to \*(L"xml_escape\*(R" in Mojo::Util.
 .PP
-.Vb 4
-\&  $mt\->escape(sub {
-\&    my $str = shift;
-\&    return reverse $str;
-\&  });
+.Vb 1
+\&  $mt\->escape(sub ($str) { return reverse $str });
 .Ve
 .SS "escape_mark"
 .IX Subsection "escape_mark"
@@ -382,9 +369,8 @@ Character indicating the start of a code line, defaults to \f(CW\*(C`%\*(C'\fR.
 \&  $mt      = $mt\->name(\*(Aqfoo.mt\*(Aq);
 .Ve
 .PP
-Name of template currently being processed, defaults to \f(CW\*(C`template\*(C'\fR. Note that
-this value should not contain quotes or newline characters, or error messages
-might end up being wrong.
+Name of template currently being processed, defaults to \f(CW\*(C`template\*(C'\fR. Note that this value should not contain quotes or
+newline characters, or error messages might end up being wrong.
 .SS "namespace"
 .IX Subsection "namespace"
 .Vb 2
@@ -392,9 +378,8 @@ might end up being wrong.
 \&  $mt           = $mt\->namespace(\*(Aqmain\*(Aq);
 .Ve
 .PP
-Namespace used to compile templates, defaults to \f(CW\*(C`Mojo::Template::SandBox\*(C'\fR.
-Note that namespaces should only be shared very carefully between templates,
-since functions and global variables will not be cleared automatically.
+Namespace used to compile templates, defaults to \f(CW\*(C`Mojo::Template::Sandbox\*(C'\fR. Note that namespaces should only be shared
+very carefully between templates, since functions and global variables will not be cleared automatically.
 .SS "prepend"
 .IX Subsection "prepend"
 .Vb 2
@@ -402,8 +387,8 @@ since functions and global variables will not be cleared automatically.
 \&  $mt      = $mt\->prepend(\*(Aqmy $self = shift;\*(Aq);
 .Ve
 .PP
-Prepend Perl code to compiled template. Note that this code should not contain
-newline characters, or line numbers in error messages might end up being wrong.
+Prepend Perl code to compiled template. Note that this code should not contain newline characters, or line numbers in
+error messages might end up being wrong.
 .SS "replace_mark"
 .IX Subsection "replace_mark"
 .Vb 2
@@ -447,8 +432,8 @@ Characters indicating the end of a tag, defaults to \f(CW\*(C`%>\*(C'\fR.
 \&  $mt      = $mt\->tree([[\*(Aqtext\*(Aq, \*(Aqfoo\*(Aq], [\*(Aqline\*(Aq]]);
 .Ve
 .PP
-Template in parsed form if available. Note that this structure should only be
-used very carefully since it is very dynamic.
+Template in parsed form if available. Note that this structure should only be used very carefully since it is very
+dynamic.
 .SS "trim_mark"
 .IX Subsection "trim_mark"
 .Vb 2
@@ -476,8 +461,7 @@ Raw unparsed template if available.
 \&  $mt      = $mt\->vars($bool);
 .Ve
 .PP
-Instead of a list of values, use a hash reference with named variables to pass
-data to templates.
+Instead of a list of values, use a hash reference with named variables to pass data to templates.
 .PP
 .Vb 2
 \&  # "works!"
@@ -485,8 +469,7 @@ data to templates.
 .Ve
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Template inherits all methods from Mojo::Base and implements the
-following new ones.
+Mojo::Template inherits all methods from Mojo::Base and implements the following new ones.
 .SS "parse"
 .IX Subsection "parse"
 .Vb 1
@@ -502,8 +485,7 @@ Parse template into \*(L"tree\*(R".
 \&  my $output = $mt\->process({foo => \*(Aqbar\*(Aq});
 .Ve
 .PP
-Process previously parsed template and return the result, or a
-Mojo::Exception object if rendering failed.
+Process previously parsed template and return the result, or a Mojo::Exception object if rendering failed.
 .PP
 .Vb 2
 \&  # Parse and process
@@ -523,8 +505,7 @@ Mojo::Exception object if rendering failed.
 \&  my $output = $mt\->render(\*(Aq<%= $foo %>\*(Aq, {foo => \*(Aqbar\*(Aq});
 .Ve
 .PP
-Render template and return the result, or a Mojo::Exception object if
-rendering failed.
+Render template and return the result, or a Mojo::Exception object if rendering failed.
 .PP
 .Vb 2
 \&  # Longer version
@@ -547,8 +528,8 @@ rendering failed.
 Same as \*(L"render\*(R", but renders a template file.
 .SH "DEBUGGING"
 .IX Header "DEBUGGING"
-You can set the \f(CW\*(C`MOJO_TEMPLATE_DEBUG\*(C'\fR environment variable to get some
-advanced diagnostics information printed to \f(CW\*(C`STDERR\*(C'\fR.
+You can set the \f(CW\*(C`MOJO_TEMPLATE_DEBUG\*(C'\fR environment variable to get some advanced diagnostics information printed to
+\&\f(CW\*(C`STDERR\*(C'\fR.
 .PP
 .Vb 1
 \&  MOJO_TEMPLATE_DEBUG=1

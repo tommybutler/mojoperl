@@ -13,7 +13,7 @@ Moose::Manual::Construction - Object construction (and destruction) with Moose
 
 =head1 VERSION
 
-version 2.2006
+version 2.2015
 
 =head1 WHERE'S THE CONSTRUCTOR?
 
@@ -124,7 +124,10 @@ do something with parameters that do not represent object attributes.
 The interaction between multiple C<BUILD> methods in an inheritance hierarchy
 is different from normal Perl methods. B<You should never call C<<
 $self->SUPER::BUILD >>>, nor should you ever apply a method modifier to
-C<BUILD>.
+C<BUILD>. Roles are an exception to this rule, though: it's completely
+acceptable to apply a method modifier to C<BUILD> in a role; you can
+even provide an empty C<BUILD> subroutine in a role so the role is applicable
+even to classes without their own C<BUILD>.
 
 Moose arranges to have all of the C<BUILD> methods in a hierarchy
 called when an object is constructed, I<from parents to
@@ -175,7 +178,7 @@ creating an error stack.
 
 =item *
 
-Stevan Little <stevan.little@iinteractive.com>
+Stevan Little <stevan@cpan.org>
 
 =item *
 
@@ -183,11 +186,11 @@ Dave Rolsky <autarch@urth.org>
 
 =item *
 
-Jesse Luehrs <doy@tozt.net>
+Jesse Luehrs <doy@cpan.org>
 
 =item *
 
-Shawn M Moore <code@sartak.org>
+Shawn M Moore <sartak@cpan.org>
 
 =item *
 
@@ -203,7 +206,7 @@ Florian Ragwitz <rafl@debian.org>
 
 =item *
 
-Hans Dieter Pearcey <hdp@weftsoar.net>
+Hans Dieter Pearcey <hdp@cpan.org>
 
 =item *
 
@@ -211,7 +214,7 @@ Chris Prather <chris@prather.org>
 
 =item *
 
-Matt S Trout <mst@shadowcat.co.uk>
+Matt S Trout <mstrout@cpan.org>
 
 =back
 

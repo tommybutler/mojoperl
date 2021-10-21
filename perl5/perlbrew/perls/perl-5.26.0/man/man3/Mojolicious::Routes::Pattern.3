@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Routes::Pattern 3"
-.TH Mojolicious::Routes::Pattern 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Routes::Pattern 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -163,8 +163,7 @@ Character indicating a relaxed placeholder, defaults to \f(CW\*(C`#\*(C'\fR.
 \&  $pattern = $pattern\->tree([[\*(Aqtext\*(Aq, \*(Aq/foo\*(Aq]]);
 .Ve
 .PP
-Pattern in parsed form. Note that this structure should only be used very
-carefully since it is very dynamic.
+Pattern in parsed form. Note that this structure should only be used very carefully since it is very dynamic.
 .SS "type_start"
 .IX Subsection "type_start"
 .Vb 2
@@ -199,8 +198,7 @@ Raw unparsed pattern.
 Character indicating the start of a wildcard placeholder, defaults to \f(CW\*(C`*\*(C'\fR.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Routes::Pattern inherits all methods from Mojo::Base and
-implements the following new ones.
+Mojolicious::Routes::Pattern inherits all methods from Mojo::Base and implements the following new ones.
 .SS "match"
 .IX Subsection "match"
 .Vb 2
@@ -216,38 +214,34 @@ Match pattern against entire path, format detection is disabled by default.
 \&  my $captures = $pattern\->match_partial(\e$path, 1);
 .Ve
 .PP
-Match pattern against path and remove matching parts, format detection is
-disabled by default.
+Match pattern against path and remove matching parts, format detection is disabled by default.
 .SS "new"
 .IX Subsection "new"
-.Vb 5
+.Vb 4
 \&  my $pattern = Mojolicious::Routes::Pattern\->new;
-\&  my $pattern = Mojolicious::Routes::Pattern\->new(\*(Aq/:action\*(Aq);
-\&  my $pattern
-\&    = Mojolicious::Routes::Pattern\->new(\*(Aq/:action\*(Aq, action => qr/\ew+/);
-\&  my $pattern = Mojolicious::Routes::Pattern\->new(format => 0);
+\&  my $pattern = Mojolicious::Routes::Pattern\->new(\*(Aq/users/:id\*(Aq);
+\&  my $pattern = Mojolicious::Routes::Pattern\->new(\*(Aq/user/:id\*(Aq, id => qr/\ed+/);
+\&  my $pattern = Mojolicious::Routes::Pattern\->new(format => [\*(Aqjson\*(Aq, \*(Aqyaml\*(Aq]);
 .Ve
 .PP
-Construct a new Mojolicious::Routes::Pattern object and \*(L"parse\*(R" pattern
-if necessary.
+Construct a new Mojolicious::Routes::Pattern object and \*(L"parse\*(R" pattern if necessary.
 .SS "parse"
 .IX Subsection "parse"
 .Vb 3
-\&  $pattern = $pattern\->parse(\*(Aq/:action\*(Aq);
-\&  $pattern = $pattern\->parse(\*(Aq/:action\*(Aq, action => qr/\ew+/);
-\&  $pattern = $pattern\->parse(format => 0);
+\&  $pattern = $pattern\->parse(\*(Aq/user/:id\*(Aq);
+\&  $pattern = $pattern\->parse(\*(Aq/user/:id\*(Aq, id=> qr/\ed+/);
+\&  $pattern = $pattern\->parse(format => [\*(Aqjson\*(Aq, \*(Aqyaml\*(Aq]);
 .Ve
 .PP
 Parse pattern.
 .SS "render"
 .IX Subsection "render"
 .Vb 2
-\&  my $path = $pattern\->render({action => \*(Aqfoo\*(Aq});
-\&  my $path = $pattern\->render({action => \*(Aqfoo\*(Aq}, 1);
+\&  my $path = $pattern\->render({id => 24});
+\&  my $path = $pattern\->render({id => 24}, 1);
 .Ve
 .PP
-Render pattern into a path with parameters, format rendering is disabled by
-default.
+Render pattern into a path with parameters, format rendering is disabled by default.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

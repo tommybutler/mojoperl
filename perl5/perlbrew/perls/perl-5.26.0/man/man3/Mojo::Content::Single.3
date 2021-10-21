@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Content::Single 3"
-.TH Mojo::Content::Single 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Content::Single 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -85,35 +85,28 @@ Mojo::Content::Single \- HTTP content
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Content::Single is a container for \s-1HTTP\s0 content, based on
-\&\s-1RFC 7230\s0 <http://tools.ietf.org/html/rfc7230> and
-\&\s-1RFC 7231\s0 <http://tools.ietf.org/html/rfc7231>.
+Mojo::Content::Single is a container for \s-1HTTP\s0 content, based on \s-1RFC 7230\s0 <https://tools.ietf.org/html/rfc7230> and
+\&\s-1RFC 7231\s0 <https://tools.ietf.org/html/rfc7231>.
 .SH "EVENTS"
 .IX Header "EVENTS"
-Mojo::Content::Single inherits all events from Mojo::Content and can emit
-the following new ones.
+Mojo::Content::Single inherits all events from Mojo::Content and can emit the following new ones.
 .SS "upgrade"
 .IX Subsection "upgrade"
-.Vb 4
-\&  $single\->on(upgrade => sub {
-\&    my ($single, $multi) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $single\->on(upgrade => sub ($single, $multi) {...});
 .Ve
 .PP
 Emitted when content gets upgraded to a Mojo::Content::MultiPart object.
 .PP
-.Vb 5
-\&  $single\->on(upgrade => sub {
-\&    my ($single, $multi) = @_;
+.Vb 4
+\&  $single\->on(upgrade => sub ($single, $multi) {
 \&    return unless $multi\->headers\->content_type =~ /multipart\e/([^;]+)/i;
 \&    say "Multipart: $1";
 \&  });
 .Ve
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojo::Content::Single inherits all attributes from Mojo::Content and
-implements the following new ones.
+Mojo::Content::Single inherits all attributes from Mojo::Content and implements the following new ones.
 .SS "asset"
 .IX Subsection "asset"
 .Vb 2
@@ -121,8 +114,7 @@ implements the following new ones.
 \&  $single   = $single\->asset(Mojo::Asset::Memory\->new);
 .Ve
 .PP
-The actual content, defaults to a Mojo::Asset::Memory object with
-\&\*(L"auto_upgrade\*(R" in Mojo::Asset::Memory enabled.
+The actual content, defaults to a Mojo::Asset::Memory object with \*(L"auto_upgrade\*(R" in Mojo::Asset::Memory enabled.
 .SS "auto_upgrade"
 .IX Subsection "auto_upgrade"
 .Vb 2
@@ -130,12 +122,11 @@ The actual content, defaults to a Mojo::Asset::Memory object with
 \&  $single  = $single\->auto_upgrade($bool);
 .Ve
 .PP
-Try to detect multipart content and automatically upgrade to a
-Mojo::Content::MultiPart object, defaults to a true value.
+Try to detect multipart content and automatically upgrade to a Mojo::Content::MultiPart object, defaults to a true
+value.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Content::Single inherits all methods from Mojo::Content and
-implements the following new ones.
+Mojo::Content::Single inherits all methods from Mojo::Content and implements the following new ones.
 .SS "body_contains"
 .IX Subsection "body_contains"
 .Vb 1
@@ -156,17 +147,15 @@ Content size in bytes.
 \&  my $clone = $single\->clone;
 .Ve
 .PP
-Return a new Mojo::Content::Single object cloned from this content if
-possible, otherwise return \f(CW\*(C`undef\*(C'\fR.
+Return a new Mojo::Content::Single object cloned from this content if possible, otherwise return \f(CW\*(C`undef\*(C'\fR.
 .SS "get_body_chunk"
 .IX Subsection "get_body_chunk"
 .Vb 1
 \&  my $bytes = $single\->get_body_chunk(0);
 .Ve
 .PP
-Get a chunk of content starting from a specific position. Note that it might
-not be possible to get the same chunk twice if content was generated
-dynamically.
+Get a chunk of content starting from a specific position. Note that it might not be possible to get the same chunk
+twice if content was generated dynamically.
 .SS "new"
 .IX Subsection "new"
 .Vb 3
@@ -175,18 +164,16 @@ dynamically.
 \&  my $single = Mojo::Content::Single\->new({asset => Mojo::Asset::File\->new});
 .Ve
 .PP
-Construct a new Mojo::Content::Single object and subscribe to event
-\&\*(L"read\*(R" in Mojo::Content with default content parser.
+Construct a new Mojo::Content::Single object and subscribe to event \*(L"read\*(R" in Mojo::Content with default content
+parser.
 .SS "parse"
 .IX Subsection "parse"
-.Vb 3
+.Vb 2
 \&  $single = $single\->parse("Content\-Length: 12\ex0d\ex0a\ex0d\ex0aHello World!");
-\&  my $multi
-\&    = $single\->parse("Content\-Type: multipart/form\-data\ex0d\ex0a\ex0d\ex0a");
+\&  my $multi = $single\->parse("Content\-Type: multipart/form\-data\ex0d\ex0a\ex0d\ex0a");
 .Ve
 .PP
-Parse content chunk and upgrade to Mojo::Content::MultiPart object if
-necessary.
+Parse content chunk and upgrade to Mojo::Content::MultiPart object if necessary.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

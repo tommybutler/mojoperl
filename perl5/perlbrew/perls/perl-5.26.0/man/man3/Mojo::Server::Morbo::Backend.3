@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Server::Morbo::Backend 3"
-.TH Mojo::Server::Morbo::Backend 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Server::Morbo::Backend 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -84,8 +84,8 @@ Mojo::Server::Morbo::Backend \- Morbo backend base class
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Server::Morbo::Backend is an abstract base class for Morbo backends,
-like Mojo::Server::Morbo::Backend::Poll.
+Mojo::Server::Morbo::Backend is an abstract base class for Morbo backends, like
+Mojo::Server::Morbo::Backend::Poll.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojo::Server::Morbo::Backend implements the following attributes.
@@ -96,9 +96,8 @@ Mojo::Server::Morbo::Backend implements the following attributes.
 \&  $backend  = $backend\->watch([\*(Aq/home/sri/my_app\*(Aq]);
 .Ve
 .PP
-Files and directories to watch for changes, defaults to the application script
-as well as the \f(CW\*(C`lib\*(C'\fR and \f(CW\*(C`templates\*(C'\fR directories in the current working
-directory.
+Files and directories to watch for changes, defaults to the application script as well as the \f(CW\*(C`lib\*(C'\fR and \f(CW\*(C`templates\*(C'\fR
+directories in the current working directory.
 .SS "watch_timeout"
 .IX Subsection "watch_timeout"
 .Vb 2
@@ -106,22 +105,19 @@ directory.
 \&  $backend    = $backend\->watch_timeout(10);
 .Ve
 .PP
-Maximum amount of time in seconds a backend may block when waiting for files to
-change, defaults to the value of the \f(CW\*(C`MOJO_MORBO_TIMEOUT\*(C'\fR environment variable
-or \f(CW1\fR.
+Maximum amount of time in seconds a backend may block when waiting for files to change, defaults to the value of the
+\&\f(CW\*(C`MOJO_MORBO_TIMEOUT\*(C'\fR environment variable or \f(CW1\fR.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Server::Morbo::Backend inherits all methods from Mojo::Base and
-implements the following new ones.
+Mojo::Server::Morbo::Backend inherits all methods from Mojo::Base and implements the following new ones.
 .SS "modified_files"
 .IX Subsection "modified_files"
 .Vb 1
 \&  my $files = $backend\->modified_files;
 .Ve
 .PP
-Check if files from \*(L"watch\*(R" have been modified since the last check and
-return an array reference with the results. Meant to be overloaded in a
-subclass.
+Check if files from \*(L"watch\*(R" have been modified since the last check and return an array reference with the results.
+Meant to be overloaded in a subclass.
 .PP
 .Vb 2
 \&  # All files that have been modified

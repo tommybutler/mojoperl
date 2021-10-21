@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Moose::Manual::Types 3"
-.TH Moose::Manual::Types 3 "2017-07-12" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Moose::Manual::Types 3 "2021-03-31" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -76,7 +76,7 @@
 Moose::Manual::Types \- Moose's type system
 .SH "VERSION"
 .IX Header "VERSION"
-version 2.2006
+version 2.2015
 .SH "TYPES IN PERL?"
 .IX Header "TYPES IN PERL?"
 Moose provides its own type system for attributes. You can also use
@@ -473,29 +473,39 @@ Moose does not provide any means of validating method
 parameters. However, there are several MooseX extensions on \s-1CPAN\s0 which
 let you do this.
 .PP
-The simplest and least sugary is MooseX::Params::Validate. This
+The simplest and least sugary is Params::ValidationCompiler. This
 lets you validate a set of named parameters using Moose types:
 .PP
 .Vb 2
-\&  use Moose;
-\&  use MooseX::Params::Validate;
+\&  use Moose::Util::TypeConstraints qw( find_type_constraint );
+\&  use Params::ValidationCompiler qw( validation_for );
 \&
-\&  sub foo {
-\&      my $self   = shift;
-\&      my %params = validated_hash(
-\&          \e@_,
-\&          bar => { isa => \*(AqStr\*(Aq, default => \*(AqMoose\*(Aq },
+\&  {
+\&      my $validator = validation_for(
+\&          params => {
+\&              foo => { type => find_type_constraint(\*(AqInt\*(Aq) },
+\&              bar => {
+\&                  type     => find_type_constraint(\*(AqStr\*(Aq),
+\&                  optional => 1,
+\&              },
+\&              baz => {
+\&                  type    => find_type_constraint(\*(AqInt\*(Aq),
+\&                  default => 42,
+\&              },
+\&          },
 \&      );
-\&      ...
-\&  }
+\&
+\&      sub foo {
+\&          my %args = $validator\->(@_);
+\&      }
+\&}
 .Ve
 .PP
-MooseX::Params::Validate also supports coercions.
+Params::ValidationCompiler also supports coercions.
 .PP
-There are several more powerful extensions that support method
-parameter validation using Moose types, including
-MooseX::Method::Signatures, which gives you a full-blown \f(CW\*(C`method\*(C'\fR
-keyword.
+There are several more powerful extensions that support method parameter
+validation using Moose types, including Moops, which gives you a full-blown
+\&\f(CW\*(C`method\*(C'\fR keyword.
 .PP
 .Vb 3
 \&  method morning ( Str $name ) {
@@ -514,13 +524,13 @@ all of your other modules.
 .SH "AUTHORS"
 .IX Header "AUTHORS"
 .IP "\(bu" 4
-Stevan Little <stevan.little@iinteractive.com>
+Stevan Little <stevan@cpan.org>
 .IP "\(bu" 4
 Dave Rolsky <autarch@urth.org>
 .IP "\(bu" 4
-Jesse Luehrs <doy@tozt.net>
+Jesse Luehrs <doy@cpan.org>
 .IP "\(bu" 4
-Shawn M Moore <code@sartak.org>
+Shawn M Moore <sartak@cpan.org>
 .IP "\(bu" 4
 יובל קוג'מן (Yuval Kogman) <nothingmuch@woobling.org>
 .IP "\(bu" 4
@@ -528,11 +538,11 @@ Karen Etheridge <ether@cpan.org>
 .IP "\(bu" 4
 Florian Ragwitz <rafl@debian.org>
 .IP "\(bu" 4
-Hans Dieter Pearcey <hdp@weftsoar.net>
+Hans Dieter Pearcey <hdp@cpan.org>
 .IP "\(bu" 4
 Chris Prather <chris@prather.org>
 .IP "\(bu" 4
-Matt S Trout <mst@shadowcat.co.uk>
+Matt S Trout <mstrout@cpan.org>
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
 This software is copyright (c) 2006 by Infinity Interactive, Inc.

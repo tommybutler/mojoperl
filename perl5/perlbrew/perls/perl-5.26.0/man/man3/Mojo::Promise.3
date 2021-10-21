@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Promise 3"
-.TH Mojo::Promise 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Promise 3 "2021-08-13" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -84,8 +84,7 @@ Mojo::Promise \- Promises/A+
 \&  my $ua = Mojo::UserAgent\->new;
 \&  sub get_p {
 \&    my $promise = Mojo::Promise\->new;
-\&    $ua\->get(@_ => sub {
-\&      my ($ua, $tx) = @_;
+\&    $ua\->get(@_ => sub ($ua, $tx) {
 \&      my $err = $tx\->error;
 \&      if   (!$err || $err\->{code}) { $promise\->resolve($tx) }
 \&      else                         { $promise\->reject($err\->{message}) }
@@ -94,53 +93,43 @@ Mojo::Promise \- Promises/A+
 \&  }
 \&
 \&  # Perform non\-blocking operations sequentially
-\&  get_p(\*(Aqhttps://mojolicious.org\*(Aq)\->then(sub {
-\&    my $mojo = shift;
+\&  get_p(\*(Aqhttps://mojolicious.org\*(Aq)\->then(sub ($mojo) {
 \&    say $mojo\->res\->code;
-\&    return get(\*(Aqhttps://metacpan.org\*(Aq);
-\&  })\->then(sub {
-\&    my $cpan = shift;
+\&    return get_p(\*(Aqhttps://metacpan.org\*(Aq);
+\&  })\->then(sub ($cpan) {
 \&    say $cpan\->res\->code;
-\&  })\->catch(sub {
-\&    my $err = shift;
+\&  })\->catch(sub ($err) {
 \&    warn "Something went wrong: $err";
 \&  })\->wait;
 \&
 \&  # Synchronize non\-blocking operations (all)
 \&  my $mojo = get_p(\*(Aqhttps://mojolicious.org\*(Aq);
 \&  my $cpan = get_p(\*(Aqhttps://metacpan.org\*(Aq);
-\&  Mojo::Promise\->all($mojo, $cpan)\->then(sub {
-\&    my ($mojo, $cpan) = @_;
+\&  Mojo::Promise\->all($mojo, $cpan)\->then(sub ($mojo, $cpan) {
 \&    say $mojo\->[0]\->res\->code;
 \&    say $cpan\->[0]\->res\->code;
-\&  })\->catch(sub {
-\&    my $err = shift;
+\&  })\->catch(sub ($err) {
 \&    warn "Something went wrong: $err";
 \&  })\->wait;
 \&
 \&  # Synchronize non\-blocking operations (race)
 \&  my $mojo = get_p(\*(Aqhttps://mojolicious.org\*(Aq);
 \&  my $cpan = get_p(\*(Aqhttps://metacpan.org\*(Aq);
-\&  Mojo::Promise\->race($mojo, $cpan)\->then(sub {
-\&    my $tx = shift;
+\&  Mojo::Promise\->race($mojo, $cpan)\->then(sub ($tx) {
 \&    say $tx\->req\->url, \*(Aq won!\*(Aq;
-\&  })\->catch(sub {
-\&    my $err = shift;
+\&  })\->catch(sub ($err) {
 \&    warn "Something went wrong: $err";
 \&  })\->wait;
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Promise is a Perl-ish implementation of
-Promises/A+ <https://promisesaplus.com> and a superset of
-\&\s-1ES6\s0 Promises <https://duckduckgo.com/?q=\mdn%20Promise>.
+Mojo::Promise is a Perl-ish implementation of Promises/A+ <https://promisesaplus.com> and a superset of \s-1ES6\s0
+Promises <https://duckduckgo.com/?q=\mdn%20Promise>.
 .SH "STATES"
 .IX Header "STATES"
-A promise is an object representing the eventual completion or failure of a
-non-blocking operation. It allows non-blocking functions to return values, like
-blocking functions. But instead of immediately returning the final value, the
-non-blocking function returns a promise to supply the value at some point in the
-future.
+A promise is an object representing the eventual completion or failure of a non-blocking operation. It allows
+non-blocking functions to return values, like blocking functions. But instead of immediately returning the final value,
+the non-blocking function returns a promise to supply the value at some point in the future.
 .PP
 A promise can be in one of three states:
 .IP "pending" 2
@@ -153,9 +142,8 @@ Meaning that the operation completed successfully.
 .IX Item "rejected"
 Meaning that the operation failed.
 .PP
-A pending promise can either be fulfilled with a value or rejected with a
-reason. When either happens, the associated handlers queued up by a promise's
-\&\*(L"then\*(R" method are called.
+A pending promise can either be fulfilled with a value or rejected with a reason. When either happens, the associated
+handlers queued up by a promise's \*(L"then\*(R" method are called.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojo::Promise implements the following attributes.
@@ -166,70 +154,56 @@ Mojo::Promise implements the following attributes.
 \&  $promise = $promise\->ioloop(Mojo::IOLoop\->new);
 .Ve
 .PP
-Event loop object to control, defaults to the global Mojo::IOLoop singleton.
-Note that this attribute is weakened.
+Event loop object to control, defaults to the global Mojo::IOLoop singleton. Note that this attribute is weakened.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Promise inherits all methods from Mojo::Base and implements
-the following new ones.
+Mojo::Promise inherits all methods from Mojo::Base and implements the following new ones.
 .SS "all"
 .IX Subsection "all"
 .Vb 1
 \&  my $new = Mojo::Promise\->all(@promises);
 .Ve
 .PP
-Returns a new Mojo::Promise object that either fulfills when all of the
-passed Mojo::Promise objects have fulfilled or rejects as soon as one of them
-rejects. If the returned promise fulfills, it is fulfilled with the values from
-the fulfilled promises in the same order as the passed promises.
+Returns a new Mojo::Promise object that either fulfills when all of the passed Mojo::Promise objects have
+fulfilled or rejects as soon as one of them rejects. If the returned promise fulfills, it is fulfilled with the values
+from the fulfilled promises in the same order as the passed promises.
 .SS "all_settled"
 .IX Subsection "all_settled"
 .Vb 1
 \&  my $new = Mojo::Promise\->all_settled(@promises);
 .Ve
 .PP
-Returns a new Mojo::Promise object that fulfills when all of the passed
-Mojo::Promise objects have fulfilled or rejected, with hash references that
-describe the outcome of each promise. Note that this method is \fB\s-1EXPERIMENTAL\s0\fR
-and might change without warning!
+Returns a new Mojo::Promise object that fulfills when all of the passed Mojo::Promise objects have fulfilled or
+rejected, with hash references that describe the outcome of each promise.
 .SS "any"
 .IX Subsection "any"
 .Vb 1
 \&  my $new = Mojo::Promise\->any(@promises);
 .Ve
 .PP
-Returns a new Mojo::Promise object that fulfills as soon as one of
-the passed Mojo::Promise objects fulfills, with the value from that promise.
-If no promises fulfill, it is rejected with the reasons from the rejected
-promises in the same order as the passed promises. Note that this method is
-\&\fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
+Returns a new Mojo::Promise object that fulfills as soon as one of the passed Mojo::Promise objects fulfills,
+with the value from that promise.
 .SS "catch"
 .IX Subsection "catch"
 .Vb 1
 \&  my $new = $promise\->catch(sub {...});
 .Ve
 .PP
-Appends a rejection handler callback to the promise, and returns a new
-Mojo::Promise object resolving to the return value of the callback if it is
-called, or to its original fulfillment value if the promise is instead
-fulfilled.
+Appends a rejection handler callback to the promise, and returns a new Mojo::Promise object resolving to the return
+value of the callback if it is called, or to its original fulfillment value if the promise is instead fulfilled.
 .PP
 .Vb 2
 \&  # Longer version
 \&  my $new = $promise\->then(undef, sub {...});
 \&
 \&  # Pass along the rejection reason
-\&  $promise\->catch(sub {
-\&    my @reason = @_;
+\&  $promise\->catch(sub (@reason) {
 \&    warn "Something went wrong: $reason[0]";
 \&    return @reason;
 \&  });
 \&
 \&  # Change the rejection reason
-\&  $promise\->catch(sub {
-\&    my @reason = @_;
-\&    return "This is bad: $reason[0]";
-\&  });
+\&  $promise\->catch(sub (@reason) { "This is bad: $reason[0]" });
 .Ve
 .SS "clone"
 .IX Subsection "clone"
@@ -237,23 +211,19 @@ fulfilled.
 \&  my $new = $promise\->clone;
 .Ve
 .PP
-Return a new Mojo::Promise object cloned from this promise that is still
-pending.
+Return a new Mojo::Promise object cloned from this promise that is still pending.
 .SS "finally"
 .IX Subsection "finally"
 .Vb 1
 \&  my $new = $promise\->finally(sub {...});
 .Ve
 .PP
-Appends a fulfillment and rejection handler to the promise, and returns a new
-Mojo::Promise object resolving to the original fulfillment value or rejection
-reason.
+Appends a fulfillment and rejection handler to the promise, and returns a new Mojo::Promise object resolving to the
+original fulfillment value or rejection reason.
 .PP
-.Vb 4
+.Vb 2
 \&  # Do something on fulfillment and rejection
-\&  $promise\->finally(sub {
-\&    say "We are done!";
-\&  });
+\&  $promise\->finally(sub { say "We are done!" });
 .Ve
 .SS "map"
 .IX Subsection "map"
@@ -262,11 +232,9 @@ reason.
 \&  my $new = Mojo::Promise\->map({concurrency => 3}, sub {...}, @items);
 .Ve
 .PP
-Apply a function that returns a Mojo::Promise to each item in a list of
-items while optionally limiting concurrency. Returns a Mojo::Promise that
-collects the results in the same manner as \*(L"all\*(R". If any item's promise is
-rejected, any remaining items which have not yet been mapped will not be. Note
-that this method is \fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
+Apply a function that returns a Mojo::Promise to each item in a list of items while optionally limiting concurrency.
+Returns a Mojo::Promise that collects the results in the same manner as \*(L"all\*(R". If any item's promise is rejected,
+any remaining items which have not yet been mapped will not be.
 .PP
 .Vb 3
 \&  # Perform 3 requests at a time concurrently
@@ -291,10 +259,9 @@ The maximum number of items that are in progress at the same time.
 .PP
 Construct a new Mojo::Promise object.
 .PP
-.Vb 8
+.Vb 7
 \&  # Wrap a continuation\-passing style API
-\&  my $promise = Mojo::Promise\->new(sub {
-\&    my ($resolve, $reject) = @_;
+\&  my $promise = Mojo::Promise\->new(sub ($resolve, $reject) {
 \&    Mojo::IOLoop\->timer(5 => sub {
 \&      if (int rand 2) { $resolve\->(\*(AqLucky!\*(Aq) }
 \&      else            { $reject\->(\*(AqUnlucky!\*(Aq) }
@@ -307,9 +274,8 @@ Construct a new Mojo::Promise object.
 \&  my $new = Mojo::Promise\->race(@promises);
 .Ve
 .PP
-Returns a new Mojo::Promise object that fulfills or rejects as soon as one of
-the passed Mojo::Promise objects fulfills or rejects, with the value or
-reason from that promise.
+Returns a new Mojo::Promise object that fulfills or rejects as soon as one of the passed Mojo::Promise objects
+fulfills or rejects, with the value or reason from that promise.
 .SS "reject"
 .IX Subsection "reject"
 .Vb 2
@@ -317,8 +283,7 @@ reason from that promise.
 \&  $promise = $promise\->reject(@reason);
 .Ve
 .PP
-Build rejected Mojo::Promise object or reject the promise with one or more
-rejection reasons.
+Build rejected Mojo::Promise object or reject the promise with one or more rejection reasons.
 .PP
 .Vb 2
 \&  # Longer version
@@ -331,8 +296,7 @@ rejection reasons.
 \&  $promise = $promise\->resolve(@value);
 .Ve
 .PP
-Build resolved Mojo::Promise object or resolve the promise with one or more
-fulfillment values.
+Build resolved Mojo::Promise object or resolve the promise with one or more fulfillment values.
 .PP
 .Vb 2
 \&  # Longer version
@@ -346,19 +310,17 @@ fulfillment values.
 \&  my $new = $promise\->then(undef, sub {...});
 .Ve
 .PP
-Appends fulfillment and rejection handlers to the promise, and returns a new
-Mojo::Promise object resolving to the return value of the called handler.
+Appends fulfillment and rejection handlers to the promise, and returns a new Mojo::Promise object resolving to the
+return value of the called handler.
 .PP
-.Vb 10
+.Vb 11
 \&  # Pass along the fulfillment value or rejection reason
 \&  $promise\->then(
-\&    sub {
-\&      my @value = @_;
+\&    sub (@value) {
 \&      say "The result is $value[0]";
 \&      return @value;
 \&    },
-\&    sub {
-\&      my @reason = @_;
+\&    sub (@reason) {
 \&      warn "Something went wrong: $reason[0]";
 \&      return @reason;
 \&    }
@@ -366,14 +328,8 @@ Mojo::Promise object resolving to the return value of the called handler.
 \&
 \&  # Change the fulfillment value or rejection reason
 \&  $promise\->then(
-\&    sub {
-\&      my @value = @_;
-\&      return "This is good: $value[0]";
-\&    },
-\&    sub {
-\&      my @reason = @_;
-\&      return "This is bad: $reason[0]";
-\&    }
+\&    sub (@value)  { return "This is good: $value[0]" },
+\&    sub (@reason) { return "This is bad: $reason[0]" }
 \&  );
 .Ve
 .SS "timer"
@@ -384,10 +340,8 @@ Mojo::Promise object resolving to the return value of the called handler.
 \&  $promise = $promise\->timer(5);
 .Ve
 .PP
-Create a new Mojo::Promise object with a timer or attach a timer to an
-existing promise. The promise will be resolved after the given amount of time in
-seconds with or without a value. Note that this method is \fB\s-1EXPERIMENTAL\s0\fR and
-might change without warning!
+Create a new Mojo::Promise object with a timer or attach a timer to an existing promise. The promise will be
+resolved after the given amount of time in seconds with or without a value.
 .SS "timeout"
 .IX Subsection "timeout"
 .Vb 3
@@ -396,18 +350,24 @@ might change without warning!
 \&  $promise = $promise\->timeout(5);
 .Ve
 .PP
-Create a new Mojo::Promise object with a timeout or attach a timeout to an
-existing promise. The promise will be rejected after the given amount of time in
-seconds with a reason, which defaults to \f(CW\*(C`Promise timeout\*(C'\fR. Note that this
-method is \fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
+Create a new Mojo::Promise object with a timeout or attach a timeout to an existing promise. The promise will be
+rejected after the given amount of time in seconds with a reason, which defaults to \f(CW\*(C`Promise timeout\*(C'\fR.
 .SS "wait"
 .IX Subsection "wait"
 .Vb 1
 \&  $promise\->wait;
 .Ve
 .PP
-Start \*(L"ioloop\*(R" and stop it again once the promise has been fulfilled or
-rejected, does nothing when \*(L"ioloop\*(R" is already running.
+Start \*(L"ioloop\*(R" and stop it again once the promise has been fulfilled or rejected, does nothing when \*(L"ioloop\*(R" is
+already running.
+.SH "DEBUGGING"
+.IX Header "DEBUGGING"
+You can set the \f(CW\*(C`MOJO_PROMISE_DEBUG\*(C'\fR environment variable to get some advanced diagnostics information printed to
+\&\f(CW\*(C`STDERR\*(C'\fR.
+.PP
+.Vb 1
+\&  MOJO_PROMISE_DEBUG=1
+.Ve
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

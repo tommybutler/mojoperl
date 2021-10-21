@@ -1,5 +1,5 @@
 package Moose::Util::TypeConstraints;
-our $VERSION = '2.2006';
+our $VERSION = '2.2015';
 
 use Carp ();
 use Scalar::Util qw( blessed );
@@ -407,12 +407,12 @@ sub coerce {
 #
 # If as() returns all its extra arguments, this just works, and
 # preserves backwards compatibility.
-sub as { { as => shift }, @_ }
-sub where (&)       { { where       => $_[0] } }
-sub message (&)     { { message     => $_[0] } }
-sub inline_as (&)   { { inline_as   => $_[0] } }
+sub as { +{ as => shift }, @_ }
+sub where (&)       { +{ where       => $_[0] } }
+sub message (&)     { +{ message     => $_[0] } }
+sub inline_as (&)   { +{ inline_as   => $_[0] } }
 
-sub from    {@_}
+sub from    { @_ }
 sub via (&) { $_[0] }
 
 sub enum {
@@ -770,7 +770,7 @@ Moose::Util::TypeConstraints - Type constraint system for Moose
 
 =head1 VERSION
 
-version 2.2006
+version 2.2015
 
 =head1 SYNOPSIS
 
@@ -1393,7 +1393,7 @@ See L<Moose/BUGS> for details on reporting bugs.
 
 =item *
 
-Stevan Little <stevan.little@iinteractive.com>
+Stevan Little <stevan@cpan.org>
 
 =item *
 
@@ -1401,11 +1401,11 @@ Dave Rolsky <autarch@urth.org>
 
 =item *
 
-Jesse Luehrs <doy@tozt.net>
+Jesse Luehrs <doy@cpan.org>
 
 =item *
 
-Shawn M Moore <code@sartak.org>
+Shawn M Moore <sartak@cpan.org>
 
 =item *
 
@@ -1421,7 +1421,7 @@ Florian Ragwitz <rafl@debian.org>
 
 =item *
 
-Hans Dieter Pearcey <hdp@weftsoar.net>
+Hans Dieter Pearcey <hdp@cpan.org>
 
 =item *
 
@@ -1429,7 +1429,7 @@ Chris Prather <chris@prather.org>
 
 =item *
 
-Matt S Trout <mst@shadowcat.co.uk>
+Matt S Trout <mstrout@cpan.org>
 
 =back
 

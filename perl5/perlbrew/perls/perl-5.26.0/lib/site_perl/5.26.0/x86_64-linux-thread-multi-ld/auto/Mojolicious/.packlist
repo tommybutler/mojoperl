@@ -76,6 +76,7 @@
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Command/Author/cpanify.pm
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Command/Author/generate.pm
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Command/Author/generate/app.pm
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Command/Author/generate/dockerfile.pm
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Command/Author/generate/lite_app.pm
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Command/Author/generate/makefile.pm
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Command/Author/generate/plugin.pm
@@ -116,6 +117,7 @@
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Plugin/HeaderCondition.pm
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Plugin/JSONConfig.pm
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Plugin/Mount.pm
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Plugin/NotYAMLConfig.pm
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Plugin/PODRenderer.pm
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Plugin/TagHelpers.pm
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Plugins.pm
@@ -130,13 +132,19 @@
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Validator.pm
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/Validator/Validation.pm
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/favicon.ico
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/bootstrap/bootstrap.css
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/bootstrap/bootstrap.js
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/failraptor.png
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/highlight.js/highlight-mojo-dark.css
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/highlight.js/highlight.min.js
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/highlight.js/mojolicious.min.js
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/jquery/jquery.js
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/logo-black-2x.png
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/logo-black.png
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/logo-white-2x.png
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/logo-white.png
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/logo.png
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/mojo.css
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/noraptor.png
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/notfound.png
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0/Mojolicious/resources/public/mojo/pinstripe-dark.png
@@ -227,6 +235,7 @@
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Command::Author::cpanify.3
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Command::Author::generate.3
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Command::Author::generate::app.3
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Command::Author::generate::dockerfile.3
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Command::Author::generate::lite_app.3
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Command::Author::generate::makefile.3
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Command::Author::generate::plugin.3
@@ -267,6 +276,7 @@
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Plugin::HeaderCondition.3
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Plugin::JSONConfig.3
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Plugin::Mount.3
+/home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Plugin::NotYAMLConfig.3
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Plugin::PODRenderer.3
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Plugin::TagHelpers.3
 /home/tommy/perl5/perlbrew/perls/perl-5.26.0/man/man3/Mojolicious::Plugins.3

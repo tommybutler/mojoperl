@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Validator 3"
-.TH Mojolicious::Validator 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Validator 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -122,16 +122,16 @@ String value needs to match the regular expression.
 \&  $v = $v\->num(undef, 5);
 .Ve
 .PP
-String value needs to be a non-fractional number (positive or negative) and if
-provided in the given range.
+String value needs to be a non-fractional number (positive or negative) and if provided in the given range.
 .SS "size"
 .IX Subsection "size"
-.Vb 1
+.Vb 3
 \&  $v = $v\->size(2, 5);
+\&  $v = $v\->size(2, undef);
+\&  $v = $v\->size(undef, 5);
 .Ve
 .PP
-String value length or size of Mojo::Upload object in bytes needs to be
-between these two values.
+String value length or size of Mojo::Upload object in bytes needs to be between these two values.
 .SS "upload"
 .IX Subsection "upload"
 .Vb 1
@@ -142,14 +142,27 @@ Value needs to be a Mojo::Upload object, representing a file upload.
 .SH "FILTERS"
 .IX Header "FILTERS"
 These filters are available by default.
+.SS "comma_separated"
+.IX Subsection "comma_separated"
+.Vb 1
+\&  $v = $v\->optional(\*(Aqfoo\*(Aq, \*(Aqcomma_separated\*(Aq);
+.Ve
+.PP
+Split string of comma separated values into separate values.
+.SS "not_empty"
+.IX Subsection "not_empty"
+.Vb 1
+\&  $v = $v\->optional(\*(Aqfoo\*(Aq, \*(Aqnot_empty\*(Aq);
+.Ve
+.PP
+Remove empty string values and treat them as if they had not been submitted.
 .SS "trim"
 .IX Subsection "trim"
 .Vb 1
 \&  $v = $v\->optional(\*(Aqfoo\*(Aq, \*(Aqtrim\*(Aq);
 .Ve
 .PP
-Trim whitespace characters from both ends of string value with
-\&\*(L"trim\*(R" in Mojo::Util.
+Trim whitespace characters from both ends of string value with \*(L"trim\*(R" in Mojo::Util.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojolicious::Validator implements the following attributes.
@@ -157,26 +170,32 @@ Mojolicious::Validator implements the following attributes.
 .IX Subsection "checks"
 .Vb 2
 \&  my $checks = $validator\->checks;
-\&  $validator = $validator\->checks({size => sub {...}});
+\&  $validator = $validator\->checks({size => sub ($v, $name, $value, @args) {...}});
 .Ve
 .PP
-Registered validation checks, by default only \*(L"equal_to\*(R", \*(L"in\*(R",
-\&\*(L"like\*(R", \*(L"num\*(R", \*(L"size\*(R" and \*(L"upload\*(R" are already defined.
+Registered validation checks, by default only \*(L"equal_to\*(R", \*(L"in\*(R", \*(L"like\*(R", \*(L"num\*(R", \*(L"size\*(R" and
+\&\*(L"upload\*(R" are already defined.
+.SS "filters"
+.IX Subsection "filters"
+.Vb 2
+\&  my $filters = $validator\->filters;
+\&  $validator  = $validator\->filters({trim => sub {...}});
+.Ve
+.PP
+Registered filters, by default only \*(L"comma_separated\*(R", \*(L"not_empty\*(R" and \*(L"trim\*(R" are already defined.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Validator inherits all methods from Mojo::Base and
-implements the following new ones.
+Mojolicious::Validator inherits all methods from Mojo::Base and implements the following new ones.
 .SS "add_check"
 .IX Subsection "add_check"
 .Vb 1
-\&  $validator = $validator\->add_check(size => sub {...});
+\&  $validator = $validator\->add_check(size => sub ($v, $name, $value, @args) {...});
 .Ve
 .PP
 Register a validation check.
 .PP
-.Vb 5
-\&  $validator\->add_check(foo => sub {
-\&    my ($v, $name, $value, @args) = @_;
+.Vb 4
+\&  $validator\->add_check(foo => sub ($v, $name, $value, @args) {
 \&    ...
 \&    return undef;
 \&  });
@@ -184,14 +203,13 @@ Register a validation check.
 .SS "add_filter"
 .IX Subsection "add_filter"
 .Vb 1
-\&  $validator = $validator\->add_filter(trim => sub {...});
+\&  $validator = $validator\->add_filter(trim => sub ($v, $name, $value) {...});
 .Ve
 .PP
 Register a new filter.
 .PP
-.Vb 5
-\&  $validator\->add_filter(foo => sub {
-\&    my ($v, $name, $value) = @_;
+.Vb 4
+\&  $validator\->add_filter(foo => sub ($v, $name, $value) {
 \&    ...
 \&    return $value;
 \&  });

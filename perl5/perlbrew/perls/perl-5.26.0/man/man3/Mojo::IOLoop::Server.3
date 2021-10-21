@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::IOLoop::Server 3"
-.TH Mojo::IOLoop::Server 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::IOLoop::Server 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -81,10 +81,7 @@ Mojo::IOLoop::Server \- Non\-blocking TCP and UNIX domain socket server
 \&
 \&  # Create listen socket
 \&  my $server = Mojo::IOLoop::Server\->new;
-\&  $server\->on(accept => sub {
-\&    my ($server, $handle) = @_;
-\&    ...
-\&  });
+\&  $server\->on(accept => sub ($server, $handle) {...});
 \&  $server\->listen(port => 3000);
 \&
 \&  # Start and stop accepting connections
@@ -96,19 +93,14 @@ Mojo::IOLoop::Server \- Non\-blocking TCP and UNIX domain socket server
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::IOLoop::Server accepts \s-1TCP/IP\s0 and \s-1UNIX\s0 domain socket connections for
-Mojo::IOLoop.
+Mojo::IOLoop::Server accepts \s-1TCP/IP\s0 and \s-1UNIX\s0 domain socket connections for Mojo::IOLoop.
 .SH "EVENTS"
 .IX Header "EVENTS"
-Mojo::IOLoop::Server inherits all events from Mojo::EventEmitter and can
-emit the following new ones.
+Mojo::IOLoop::Server inherits all events from Mojo::EventEmitter and can emit the following new ones.
 .SS "accept"
 .IX Subsection "accept"
-.Vb 4
-\&  $server\->on(accept => sub {
-\&    my ($server, $handle) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $server\->on(accept => sub ($server, $handle) {...});
 .Ve
 .PP
 Emitted for each accepted connection.
@@ -122,12 +114,11 @@ Mojo::IOLoop::Server implements the following attributes.
 \&  $server     = $server\->reactor(Mojo::Reactor::Poll\->new);
 .Ve
 .PP
-Low-level event reactor, defaults to the \f(CW\*(C`reactor\*(C'\fR attribute value of the
-global Mojo::IOLoop singleton. Note that this attribute is weakened.
+Low-level event reactor, defaults to the \f(CW\*(C`reactor\*(C'\fR attribute value of the global Mojo::IOLoop singleton. Note that
+this attribute is weakened.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::IOLoop::Server inherits all methods from Mojo::EventEmitter and
-implements the following new ones.
+Mojo::IOLoop::Server inherits all methods from Mojo::EventEmitter and implements the following new ones.
 .SS "generate_port"
 .IX Subsection "generate_port"
 .Vb 1
@@ -156,8 +147,7 @@ Check if connections are currently being accepted.
 \&  $server\->listen({port => 3000});
 .Ve
 .PP
-Create a new listen socket. Note that \s-1TLS\s0 support depends on IO::Socket::SSL
-(2.009+).
+Create a new listen socket. Note that \s-1TLS\s0 support depends on IO::Socket::SSL (2.009+).
 .PP
 These options are currently available:
 .IP "address" 2
@@ -201,8 +191,7 @@ Port to listen on, defaults to a random port.
 \&  reuse => 1
 .Ve
 .Sp
-Allow multiple servers to use the same port with the \f(CW\*(C`SO_REUSEPORT\*(C'\fR socket
-option.
+Allow multiple servers to use the same port with the \f(CW\*(C`SO_REUSEPORT\*(C'\fR socket option.
 .IP "single_accept" 2
 .IX Item "single_accept"
 .Vb 1
@@ -232,14 +221,6 @@ Path to \s-1TLS\s0 certificate authority file.
 .Ve
 .Sp
 Path to the \s-1TLS\s0 cert file, defaults to a built-in test certificate.
-.IP "tls_ciphers" 2
-.IX Item "tls_ciphers"
-.Vb 1
-\&  tls_ciphers => \*(AqAES128\-GCM\-SHA256:RC4:HIGH:!MD5:!aNULL:!EDH\*(Aq
-.Ve
-.Sp
-\&\s-1TLS\s0 cipher specification string. For more information about the format see
-<https://www.openssl.org/docs/manmaster/apps/ciphers.html#CIPHER\-STRINGS>.
 .IP "tls_key" 2
 .IX Item "tls_key"
 .Vb 2
@@ -248,27 +229,13 @@ Path to the \s-1TLS\s0 cert file, defaults to a built-in test certificate.
 .Ve
 .Sp
 Path to the \s-1TLS\s0 key file, defaults to a built-in test key.
-.IP "tls_protocols" 2
-.IX Item "tls_protocols"
+.IP "tls_options" 2
+.IX Item "tls_options"
 .Vb 1
-\&  tls_protocols => [\*(Aqfoo\*(Aq, \*(Aqbar\*(Aq]
+\&  tls_options => {SSL_alpn_protocols => [\*(Aqfoo\*(Aq, \*(Aqbar\*(Aq], SSL_verify_mode => 0x00}
 .Ve
 .Sp
-\&\s-1ALPN\s0 protocols to negotiate.
-.IP "tls_verify" 2
-.IX Item "tls_verify"
-.Vb 1
-\&  tls_verify => 0x00
-.Ve
-.Sp
-\&\s-1TLS\s0 verification mode.
-.IP "tls_version" 2
-.IX Item "tls_version"
-.Vb 1
-\&  tls_version => \*(AqTLSv1_2\*(Aq
-.Ve
-.Sp
-\&\s-1TLS\s0 protocol version.
+Additional options for IO::Socket::SSL.
 .SS "port"
 .IX Subsection "port"
 .Vb 1

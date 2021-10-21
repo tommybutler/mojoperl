@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Server::Hypnotoad 3"
-.TH Mojo::Server::Hypnotoad 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Server::Hypnotoad 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -84,16 +84,13 @@ Mojo::Server::Hypnotoad \- A production web serv...ALL GLORY TO THE HYPNOTOAD!
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Server::Hypnotoad is a full featured, \s-1UNIX\s0 optimized, pre-forking
-non-blocking I/O \s-1HTTP\s0 and WebSocket server, built around the very well tested
-and reliable Mojo::Server::Prefork, with IPv6, \s-1TLS, SNI, UNIX\s0 domain socket,
-Comet (long polling), keep-alive, multiple event loop and hot deployment support
-that just works. Note that the server uses signals for process management, so
-you should avoid modifying signal handlers in your applications.
+Mojo::Server::Hypnotoad is a full featured, \s-1UNIX\s0 optimized, pre-forking non-blocking I/O \s-1HTTP\s0 and WebSocket server,
+built around the very well tested and reliable Mojo::Server::Prefork, with IPv6, \s-1TLS, SNI, UNIX\s0 domain socket, Comet
+(long polling), keep-alive, multiple event loop and hot deployment support that just works. Note that the server uses
+signals for process management, so you should avoid modifying signal handlers in your applications.
 .PP
-To start applications with it you can use the hypnotoad script, which
-listens on port \f(CW8080\fR, automatically daemonizes the server process and
-defaults to \f(CW\*(C`production\*(C'\fR mode for Mojolicious and Mojolicious::Lite
+To start applications with it you can use the hypnotoad script, which listens on port \f(CW8080\fR, automatically
+daemonizes the server process and defaults to \f(CW\*(C`production\*(C'\fR mode for Mojolicious and Mojolicious::Lite
 applications.
 .PP
 .Vb 1
@@ -107,21 +104,18 @@ You can run the same command again for automatic hot deployment.
 \&  Starting hot deployment for Hypnotoad server 31841.
 .Ve
 .PP
-This second invocation will load the application again, detect the process id
-file with it, and send a \*(L"\s-1USR2\*(R"\s0 signal to the already running server.
+This second invocation will load the application again, detect the process id file with it, and send a \*(L"\s-1USR2\*(R"\s0
+signal to the already running server.
 .PP
-For better scalability (epoll, kqueue) and to provide non-blocking name
-resolution, \s-1SOCKS5\s0 as well as \s-1TLS\s0 support, the optional modules \s-1EV\s0 (4.0+),
-Net::DNS::Native (0.15+), IO::Socket::Socks (0.64+) and
-IO::Socket::SSL (2.009+) will be used automatically if possible. Individual
-features can also be disabled with the \f(CW\*(C`MOJO_NO_NNR\*(C'\fR, \f(CW\*(C`MOJO_NO_SOCKS\*(C'\fR and
-\&\f(CW\*(C`MOJO_NO_TLS\*(C'\fR environment variables.
+For better scalability (epoll, kqueue) and to provide non-blocking name resolution, \s-1SOCKS5\s0 as well as \s-1TLS\s0 support, the
+optional modules \s-1EV\s0 (4.32+), Net::DNS::Native (0.15+), IO::Socket::Socks (0.64+) and IO::Socket::SSL
+(2.009+) will be used automatically if possible. Individual features can also be disabled with the \f(CW\*(C`MOJO_NO_NNR\*(C'\fR,
+\&\f(CW\*(C`MOJO_NO_SOCKS\*(C'\fR and \f(CW\*(C`MOJO_NO_TLS\*(C'\fR environment variables.
 .PP
 See \*(L"\s-1DEPLOYMENT\*(R"\s0 in Mojolicious::Guides::Cookbook for more.
 .SH "MANAGER SIGNALS"
 .IX Header "MANAGER SIGNALS"
-The Mojo::Server::Hypnotoad manager process can be controlled at runtime
-with the following signals.
+The Mojo::Server::Hypnotoad manager process can be controlled at runtime with the following signals.
 .SS "\s-1INT, TERM\s0"
 .IX Subsection "INT, TERM"
 Shut down server immediately.
@@ -136,8 +130,7 @@ Increase worker pool by one.
 Decrease worker pool by one.
 .SS "\s-1USR2\s0"
 .IX Subsection "USR2"
-Attempt zero downtime software upgrade (hot deployment) without losing any
-incoming connections.
+Attempt zero downtime software upgrade (hot deployment) without losing any incoming connections.
 .PP
 .Vb 10
 \&  Manager (old)
@@ -152,12 +145,11 @@ incoming connections.
 \&     +\- Worker [4]
 .Ve
 .PP
-The new manager will automatically send a \*(L"\s-1QUIT\*(R"\s0 signal to the old manager
-and take over serving requests after starting up successfully.
+The new manager will automatically send a \*(L"\s-1QUIT\*(R"\s0 signal to the old manager and take over serving requests after
+starting up successfully.
 .SH "WORKER SIGNALS"
 .IX Header "WORKER SIGNALS"
-Mojo::Server::Hypnotoad worker processes can be controlled at runtime with
-the following signals.
+Mojo::Server::Hypnotoad worker processes can be controlled at runtime with the following signals.
 .SS "\s-1QUIT\s0"
 .IX Subsection "QUIT"
 Stop worker gracefully.
@@ -171,136 +163,135 @@ Mojo::Server::Hypnotoad can be configured with the following settings, see
 \&  accepts => 100
 .Ve
 .PP
-Maximum number of connections a worker is allowed to accept, before stopping
-gracefully and then getting replaced with a newly started worker, defaults to
-the value of \*(L"accepts\*(R" in Mojo::Server::Prefork. Setting the value to \f(CW0\fR will
-allow workers to accept new connections indefinitely. Note that up to half of
-this value can be subtracted randomly to improve load balancing, and to make
-sure that not all workers restart at the same time.
+Maximum number of connections a worker is allowed to accept, before stopping gracefully and then getting replaced with
+a newly started worker, defaults to the value of \*(L"accepts\*(R" in Mojo::Server::Prefork. Setting the value to \f(CW0\fR will
+allow workers to accept new connections indefinitely. Note that up to half of this value can be subtracted randomly to
+improve load balancing, and to make sure that not all workers restart at the same time.
 .SS "backlog"
 .IX Subsection "backlog"
 .Vb 1
 \&  backlog => 128
 .Ve
 .PP
-Listen backlog size, defaults to the value of
-\&\*(L"backlog\*(R" in Mojo::Server::Daemon.
+Listen backlog size, defaults to the value of \*(L"backlog\*(R" in Mojo::Server::Daemon.
 .SS "clients"
 .IX Subsection "clients"
 .Vb 1
 \&  clients => 100
 .Ve
 .PP
-Maximum number of accepted connections each worker process is allowed to handle
-concurrently, before stopping to accept new incoming connections, defaults to
-the value of \*(L"max_connections\*(R" in Mojo::IOLoop. Note that high concurrency works
-best with applications that perform mostly non-blocking operations, to optimize
-for blocking operations you can decrease this value and increase \*(L"workers\*(R"
-instead for better performance.
+Maximum number of accepted connections each worker process is allowed to handle concurrently, before stopping to accept
+new incoming connections, defaults to the value of \*(L"max_connections\*(R" in Mojo::IOLoop. Note that high concurrency works
+best with applications that perform mostly non-blocking operations, to optimize for blocking operations you can
+decrease this value and increase \*(L"workers\*(R" instead for better performance.
 .SS "graceful_timeout"
 .IX Subsection "graceful_timeout"
 .Vb 1
 \&  graceful_timeout => 15
 .Ve
 .PP
-Maximum amount of time in seconds stopping a worker gracefully may take before
-being forced, defaults to the value of
-\&\*(L"graceful_timeout\*(R" in Mojo::Server::Prefork. Note that this value should usually
-be a little larger than the maximum amount of time you expect any one request to
-take.
+Maximum amount of time in seconds stopping a worker gracefully may take before being forced, defaults to the value of
+\&\*(L"graceful_timeout\*(R" in Mojo::Server::Prefork. Note that this value should usually be a little larger than the maximum
+amount of time you expect any one request to take.
 .SS "heartbeat_interval"
 .IX Subsection "heartbeat_interval"
 .Vb 1
 \&  heartbeat_interval => 3
 .Ve
 .PP
-Heartbeat interval in seconds, defaults to the value of
-\&\*(L"heartbeat_interval\*(R" in Mojo::Server::Prefork.
+Heartbeat interval in seconds, defaults to the value of \*(L"heartbeat_interval\*(R" in Mojo::Server::Prefork.
 .SS "heartbeat_timeout"
 .IX Subsection "heartbeat_timeout"
 .Vb 1
 \&  heartbeat_timeout => 2
 .Ve
 .PP
-Maximum amount of time in seconds before a worker without a heartbeat will be
-stopped gracefully, defaults to the value of
-\&\*(L"heartbeat_timeout\*(R" in Mojo::Server::Prefork. Note that this value should
-usually be a little larger than the maximum amount of time you expect any one
-operation to block the event loop.
+Maximum amount of time in seconds before a worker without a heartbeat will be stopped gracefully, defaults to the value
+of \*(L"heartbeat_timeout\*(R" in Mojo::Server::Prefork. Note that this value should usually be a little larger than the
+maximum amount of time you expect any one operation to block the event loop.
 .SS "inactivity_timeout"
 .IX Subsection "inactivity_timeout"
 .Vb 1
 \&  inactivity_timeout => 10
 .Ve
 .PP
-Maximum amount of time in seconds a connection can be inactive before getting
-closed, defaults to the value of \*(L"inactivity_timeout\*(R" in Mojo::Server::Daemon.
-Setting the value to \f(CW0\fR will allow connections to be inactive indefinitely.
+Maximum amount of time in seconds a connection with an active request can be inactive before getting closed, defaults
+to the value of \*(L"inactivity_timeout\*(R" in Mojo::Server::Daemon. Setting the value to \f(CW0\fR will allow connections to be
+inactive indefinitely.
+.SS "keep_alive_timeout"
+.IX Subsection "keep_alive_timeout"
+.Vb 1
+\&  keep_alive_timeout => 10
+.Ve
+.PP
+Maximum amount of time in seconds a connection without an active request can be inactive before getting closed,
+defaults to the value of \*(L"keep_alive_timeout\*(R" in Mojo::Server::Daemon. Setting the value to \f(CW0\fR will allow connections
+to be inactive indefinitely.
 .SS "listen"
 .IX Subsection "listen"
 .Vb 1
 \&  listen => [\*(Aqhttp://*:80\*(Aq]
 .Ve
 .PP
-Array reference with one or more locations to listen on, defaults to
-\&\f(CW\*(C`http://*:8080\*(C'\fR. See also \*(L"listen\*(R" in Mojo::Server::Daemon for more examples.
+Array reference with one or more locations to listen on, defaults to \f(CW\*(C`http://*:8080\*(C'\fR. See also
+\&\*(L"listen\*(R" in Mojo::Server::Daemon for more examples.
 .SS "pid_file"
 .IX Subsection "pid_file"
 .Vb 1
 \&  pid_file => \*(Aq/var/run/hypnotoad.pid\*(Aq
 .Ve
 .PP
-Full path to process id file, defaults to \f(CW\*(C`hypnotoad.pid\*(C'\fR in the same
-directory as the application. Note that this value can only be changed after
-the server has been stopped.
+Full path to process id file, defaults to \f(CW\*(C`hypnotoad.pid\*(C'\fR in the same directory as the application. Note that this
+value can only be changed after the server has been stopped.
 .SS "proxy"
 .IX Subsection "proxy"
 .Vb 1
 \&  proxy => 1
 .Ve
 .PP
-Activate reverse proxy support, which allows for the \f(CW\*(C`X\-Forwarded\-For\*(C'\fR and
-\&\f(CW\*(C`X\-Forwarded\-Proto\*(C'\fR headers to be picked up automatically, defaults to the
-value of \*(L"reverse_proxy\*(R" in Mojo::Server.
+Activate reverse proxy support, which allows for the \f(CW\*(C`X\-Forwarded\-For\*(C'\fR and \f(CW\*(C`X\-Forwarded\-Proto\*(C'\fR headers to be picked
+up automatically, defaults to the value of \*(L"reverse_proxy\*(R" in Mojo::Server.
 .SS "requests"
 .IX Subsection "requests"
 .Vb 1
 \&  requests => 50
 .Ve
 .PP
-Number of keep-alive requests per connection, defaults to the value of
-\&\*(L"max_requests\*(R" in Mojo::Server::Daemon.
+Number of keep-alive requests per connection, defaults to the value of \*(L"max_requests\*(R" in Mojo::Server::Daemon.
 .SS "spare"
 .IX Subsection "spare"
 .Vb 1
 \&  spare => 4
 .Ve
 .PP
-Temporarily spawn up to this number of additional workers if there is a need,
-defaults to the value of \*(L"spare\*(R" in Mojo::Server::Prefork. This allows for new
-workers to be started while old ones are still shutting down gracefully,
-drastically reducing the performance cost of worker restarts.
+Temporarily spawn up to this number of additional workers if there is a need, defaults to the value of
+\&\*(L"spare\*(R" in Mojo::Server::Prefork. This allows for new workers to be started while old ones are still shutting down
+gracefully, drastically reducing the performance cost of worker restarts.
+.SS "trusted_proxies"
+.IX Subsection "trusted_proxies"
+.Vb 1
+\&  trusted_proxies => [\*(Aq10.0.0.0/8\*(Aq, \*(Aq127.0.0.1\*(Aq, \*(Aq172.16.0.0/12\*(Aq, \*(Aq192.168.0.0/16\*(Aq, \*(Aqfc00::/7\*(Aq]
+.Ve
+.PP
+Trusted reverse proxies, addresses or networks in \s-1CIDR\s0 form.
 .SS "upgrade_timeout"
 .IX Subsection "upgrade_timeout"
 .Vb 1
 \&  upgrade_timeout => 45
 .Ve
 .PP
-Maximum amount of time in seconds a zero downtime software upgrade may take
-before getting canceled, defaults to \f(CW180\fR.
+Maximum amount of time in seconds a zero downtime software upgrade may take before getting canceled, defaults to
+\&\f(CW180\fR.
 .SS "workers"
 .IX Subsection "workers"
 .Vb 1
 \&  workers => 10
 .Ve
 .PP
-Number of worker processes, defaults to the value of
-\&\*(L"workers\*(R" in Mojo::Server::Prefork. A good rule of thumb is two worker
-processes per \s-1CPU\s0 core for applications that perform mostly non-blocking
-operations, blocking operations often require more and benefit from decreasing
-concurrency with \*(L"clients\*(R" (often as low as \f(CW1\fR). Note that during zero
-downtime software upgrades there will be twice as many workers active for a
-short amount of time.
+Number of worker processes, defaults to the value of \*(L"workers\*(R" in Mojo::Server::Prefork. A good rule of thumb is two
+worker processes per \s-1CPU\s0 core for applications that perform mostly non-blocking operations, blocking operations often
+require more and benefit from decreasing concurrency with \*(L"clients\*(R" (often as low as \f(CW1\fR). Note that during zero
+downtime software upgrades there will be twice as many workers active for a short amount of time.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojo::Server::Hypnotoad implements the following attributes.
@@ -319,12 +310,11 @@ Mojo::Server::Prefork object this server manages.
 \&  $hypnotoad  = $hypnotoad\->upgrade_timeout(15);
 .Ve
 .PP
-Maximum amount of time in seconds a zero downtime software upgrade may take
-before getting canceled, defaults to \f(CW180\fR.
+Maximum amount of time in seconds a zero downtime software upgrade may take before getting canceled, defaults to
+\&\f(CW180\fR.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Server::Hypnotoad inherits all methods from Mojo::Base and
-implements the following new ones.
+Mojo::Server::Hypnotoad inherits all methods from Mojo::Base and implements the following new ones.
 .SS "configure"
 .IX Subsection "configure"
 .Vb 1

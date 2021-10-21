@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Command::daemon 3"
-.TH Mojolicious::Command::daemon 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Command::daemon 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -80,10 +80,11 @@ Mojolicious::Command::daemon \- Daemon command
 \&  Usage: APPLICATION daemon [OPTIONS]
 \&
 \&    ./myapp.pl daemon
-\&    ./myapp.pl daemon \-m production \-l http://*:8080
+\&    ./myapp.pl daemon \-m production \-p \-l http://*:8080
 \&    ./myapp.pl daemon \-l http://127.0.0.1:8080 \-l https://[::]:8081
 \&    ./myapp.pl daemon \-l \*(Aqhttps://*:443?cert=./server.crt&key=./server.key\*(Aq
 \&    ./myapp.pl daemon \-l http+unix://%2Ftmp%2Fmyapp.sock
+\&    ./myapp.pl daemon \-l http://127.0.0.1:8080 \-p 127.0.0.0/8 \-p fc00::/7
 \&
 \&  Options:
 \&    \-b, \-\-backlog <size>                 Listen backlog size, defaults to
@@ -95,33 +96,35 @@ Mojolicious::Command::daemon \- Daemon command
 \&                                         application, defaults to the value of
 \&                                         MOJO_HOME or auto\-detection
 \&    \-i, \-\-inactivity\-timeout <seconds>   Inactivity timeout, defaults to the
-\&                                         value of MOJO_INACTIVITY_TIMEOUT or 15
+\&                                         value of MOJO_INACTIVITY_TIMEOUT or 30
+\&    \-k, \-\-keep\-alive\-timeout <seconds>   Keep\-alive timeout, defaults to the
+\&                                         value of MOJO_KEEP_ALIVE_TIMEOUT or 5
 \&    \-l, \-\-listen <location>              One or more locations you want to
 \&                                         listen on, defaults to the value of
 \&                                         MOJO_LISTEN or "http://*:3000"
 \&    \-m, \-\-mode <name>                    Operating mode for your application,
 \&                                         defaults to the value of
 \&                                         MOJO_MODE/PLACK_ENV or "development"
-\&    \-p, \-\-proxy                          Activate reverse proxy support,
+\&    \-p, \-\-proxy [<network>]              Activate reverse proxy support,
 \&                                         defaults to the value of
-\&                                         MOJO_REVERSE_PROXY
+\&                                         MOJO_REVERSE_PROXY, optionally takes
+\&                                         one or more trusted proxy addresses or
+\&                                         networks
 \&    \-r, \-\-requests <number>              Maximum number of requests per
 \&                                         keep\-alive connection, defaults to 100
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojolicious::Command::daemon starts applications with the
-Mojo::Server::Daemon backend.
+Mojolicious::Command::daemon starts applications with the Mojo::Server::Daemon backend.
 .PP
-This is a core command, that means it is always enabled and its code a good
-example for learning to build new commands, you're welcome to fork it.
+This is a core command, that means it is always enabled and its code a good example for learning to build new commands,
+you're welcome to fork it.
 .PP
-See \*(L"\s-1COMMANDS\*(R"\s0 in Mojolicious::Commands for a list of commands that are
-available by default.
+See \*(L"\s-1COMMANDS\*(R"\s0 in Mojolicious::Commands for a list of commands that are available by default.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojolicious::Command::daemon inherits all attributes from
-Mojolicious::Command and implements the following new ones.
+Mojolicious::Command::daemon inherits all attributes from Mojolicious::Command and implements the following new
+ones.
 .SS "description"
 .IX Subsection "description"
 .Vb 2
@@ -140,8 +143,15 @@ Short description of this command, used for the command list.
 Usage information for this command, used for the help screen.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Command::daemon inherits all methods from
-Mojolicious::Command and implements the following new ones.
+Mojolicious::Command::daemon inherits all methods from Mojolicious::Command and implements the following new
+ones.
+.SS "build_server"
+.IX Subsection "build_server"
+.Vb 1
+\&  my $server = $daemon\->build_server(@ARGV);
+.Ve
+.PP
+Build Mojo::Server::Daemon instance from command line arguments.
 .SS "run"
 .IX Subsection "run"
 .Vb 1

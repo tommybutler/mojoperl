@@ -1,14 +1,20 @@
 package Method::Generate::Accessor;
+use strict;
+use warnings;
 
-use Moo::_strictures;
-use Moo::_Utils qw(_load_module _maybe_load_module _install_coderef);
+use Moo::_Utils qw(_maybe_load_module _install_coderef _module_name_rx);
 use Moo::Object ();
 BEGIN { our @ISA = qw(Moo::Object) }
 use Sub::Quote qw(quote_sub quoted_from_sub quotify sanitize_identifier);
 use Scalar::Util 'blessed';
 use Carp qw(croak);
-BEGIN { our @CARP_NOT = qw(Moo::_Utils) }
-use overload ();
+BEGIN {
+  our @CARP_NOT = qw(
+    Moo::_Utils
+    Moo::Object
+    Moo::Role
+  );
+}
 BEGIN {
   *_CAN_WEAKEN_READONLY = (
     "$]" < 5.008_003 or $ENV{MOO_TEST_PRE_583}
@@ -31,10 +37,7 @@ BEGIN {
   $Carp::Internal{+__PACKAGE__} = 1;
 }
 
-my $module_name_only = qr/\A$Module::Runtime::module_name_rx\z/;
-
-sub _die_overwrite
-{
+sub _die_overwrite {
   my ($pkg, $method, $type) = @_;
   croak "You cannot overwrite a locally defined method ($method) with "
     . ( $type || 'an accessor' );
@@ -73,7 +76,7 @@ sub generate_method {
     }
     $spec->{builder} = '_build_'.$name if ($spec->{builder}||0) eq 1;
     croak "Invalid builder for $into->$name - not a valid method name"
-      if $spec->{builder} !~ $module_name_only;
+      if $spec->{builder} !~ _module_name_rx;
   }
   if (($spec->{predicate}||0) eq 1) {
     $spec->{predicate} = $name =~ /^_/ ? "_has${name}" : "has_${name}";
@@ -218,7 +221,6 @@ sub generate_method {
           keys %$hspec;
       } elsif (!ref($hspec)) {
         require Moo::Role;
-        _load_module $hspec;
         map [ $_ => $_ ], Moo::Role->methods_provided_by($hspec)
       } else {
         croak "You gave me a handles of ${hspec} and I have no idea why";
@@ -264,6 +266,10 @@ sub merge_specs {
           grep defined,
           ($old_spec->{$key}, $spec->{$key})
         ];
+      }
+      elsif ($key eq 'builder' || $key eq 'default') {
+        $spec->{$key} = $old_spec->{$key}
+          if !(exists $spec->{builder} || exists $spec->{default});
       }
       elsif (!exists $spec->{$key}) {
         $spec->{$key} = $old_spec->{$key};
@@ -671,19 +677,27 @@ sub default_construction_string { '{}' }
 
 sub _validate_codulatable {
   my ($self, $setting, $value, $into, $appended) = @_;
-  my $invalid = "Invalid $setting '" . overload::StrVal($value)
-    . "' for $into not a coderef";
-  $invalid .= " $appended" if $appended;
 
-  unless (ref $value and (ref $value eq 'CODE' or blessed($value))) {
-    croak "$invalid or code-convertible object";
+  my $error;
+
+  if (blessed $value) {
+    local $@;
+    no warnings 'void';
+    eval { \&$value; 1 }
+      and return 1;
+    $error = "could not be converted to a coderef: $@";
+  }
+  elsif (ref $value eq 'CODE') {
+    return 1;
+  }
+  else {
+    $error = 'is not a coderef or code-convertible object';
   }
 
-  unless (eval { \&$value }) {
-    croak "$invalid and could not be converted to a coderef: $@";
-  }
-
-  1;
+  croak "Invalid $setting '"
+    . ($INC{'overload.pm'} ? overload::StrVal($value) : $value)
+    . "' for $into " . $error
+    . ($appended ? " $appended" : '');
 }
 
 1;

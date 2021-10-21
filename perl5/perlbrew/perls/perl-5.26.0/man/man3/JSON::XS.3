@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "XS 3"
-.TH XS 3 "2016-11-16" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH XS 3 "2020-10-27" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -107,20 +107,6 @@ JSON::XS \- 正しくて高速な JSON シリアライザ/デシリアライザ
 This module converts Perl data structures to \s-1JSON\s0 and vice versa. Its
 primary goal is to be \fIcorrect\fR and its secondary goal is to be
 \&\fIfast\fR. To reach the latter goal it was written in C.
-.PP
-Beginning with version 2.0 of the \s-1JSON\s0 module, when both \s-1JSON\s0 and
-\&\s-1JSON::XS\s0 are installed, then \s-1JSON\s0 will fall back on \s-1JSON::XS\s0 (this can be
-overridden) with no overhead due to emulation (by inheriting constructor
-and methods). If \s-1JSON::XS\s0 is not available, it will fall back to the
-compatible \s-1JSON::PP\s0 module as backend, so using \s-1JSON\s0 instead of \s-1JSON::XS\s0
-gives you a portable \s-1JSON API\s0 that can be fast when you need and doesn't
-require a C compiler when that is a problem.
-.PP
-As this is the n\-th-something \s-1JSON\s0 module on \s-1CPAN,\s0 what was the reason
-to write yet another \s-1JSON\s0 module? While it seems there are many \s-1JSON\s0
-modules, none of them correctly handle all corner cases, and in most cases
-their maintainers are unresponsive, gone missing, or not listening to bug
-reports for other reasons.
 .PP
 See \s-1MAPPING,\s0 below, on how \s-1JSON::XS\s0 maps perl values to \s-1JSON\s0 values and
 vice versa.
@@ -183,8 +169,8 @@ Except being faster.
 .ie n .IP "$perl_scalar = decode_json $json_text" 4
 .el .IP "\f(CW$perl_scalar\fR = decode_json \f(CW$json_text\fR" 4
 .IX Item "$perl_scalar = decode_json $json_text"
-The opposite of \f(CW\*(C`encode_json\*(C'\fR: expects an \s-1UTF\-8\s0 (binary) string and tries
-to parse that as an \s-1UTF\-8\s0 encoded \s-1JSON\s0 text, returning the resulting
+The opposite of \f(CW\*(C`encode_json\*(C'\fR: expects a \s-1UTF\-8\s0 (binary) string and tries
+to parse that as a \s-1UTF\-8\s0 encoded \s-1JSON\s0 text, returning the resulting
 reference. Croaks on error.
 .Sp
 This function call is functionally identical to:
@@ -239,7 +225,9 @@ decoding style, within the limits of supported formats.
 .el .IP "\f(CW$json\fR = new \s-1JSON::XS\s0" 4
 .IX Item "$json = new JSON::XS"
 Creates a new \s-1JSON::XS\s0 object that can be used to de/encode \s-1JSON\s0
-strings. All boolean flags described below are by default \fIdisabled\fR.
+strings. All boolean flags described below are by default \fIdisabled\fR
+(with the exception of \f(CW\*(C`allow_nonref\*(C'\fR, which defaults to \fIenabled\fR since
+version \f(CW4.0\fR).
 .Sp
 The mutators for flags all return the \s-1JSON\s0 object again and thus calls can
 be chained:
@@ -322,7 +310,7 @@ in files or databases, not when talking to other \s-1JSON\s0 encoders/decoders.
 .PD
 If \f(CW$enable\fR is true (or missing), then the \f(CW\*(C`encode\*(C'\fR method will encode
 the \s-1JSON\s0 result into \s-1UTF\-8,\s0 as required by many protocols, while the
-\&\f(CW\*(C`decode\*(C'\fR method expects to be handled an UTF\-8\-encoded string.  Please
+\&\f(CW\*(C`decode\*(C'\fR method expects to be handed a UTF\-8\-encoded string.  Please
 note that UTF\-8\-encoded strings do not contain any characters outside the
 range \f(CW0..255\fR, they are thus useful for bytewise/binary I/O. In future
 versions, enabling this option might enable autodetection of the \s-1UTF\-16\s0
@@ -439,7 +427,7 @@ Example, space_before and indent disabled, space_after enabled:
 .PD
 If \f(CW$enable\fR is true (or missing), then \f(CW\*(C`decode\*(C'\fR will accept some
 extensions to normal \s-1JSON\s0 syntax (see below). \f(CW\*(C`encode\*(C'\fR will not be
-affected in anyway. \fIBe aware that this option makes you accept invalid
+affected in any way. \fIBe aware that this option makes you accept invalid
 \&\s-1JSON\s0 texts as if they were valid!\fR. I suggest only to use this option to
 parse application-specific files written by humans (configuration files,
 resource files etc.)
@@ -527,6 +515,9 @@ This setting has currently no effect on tied hashes.
 .el .IP "\f(CW$enabled\fR = \f(CW$json\fR\->get_allow_nonref" 4
 .IX Item "$enabled = $json->get_allow_nonref"
 .PD
+Unlike other boolean options, this opotion is enabled by default beginning
+with version \f(CW4.0\fR. See \*(L"\s-1SECURITY CONSIDERATIONS\*(R"\s0 for the gory details.
+.Sp
 If \f(CW$enable\fR is true (or missing), then the \f(CW\*(C`encode\*(C'\fR method can convert a
 non-reference into its corresponding string, number or null \s-1JSON\s0 value,
 which is an extension to \s-1RFC4627.\s0 Likewise, \f(CW\*(C`decode\*(C'\fR will accept those \s-1JSON\s0
@@ -537,12 +528,12 @@ passed an arrayref or hashref, as \s-1JSON\s0 texts must either be an object
 or array. Likewise, \f(CW\*(C`decode\*(C'\fR will croak if given something that is not a
 \&\s-1JSON\s0 object or array.
 .Sp
-Example, encode a Perl scalar as \s-1JSON\s0 value with enabled \f(CW\*(C`allow_nonref\*(C'\fR,
-resulting in an invalid \s-1JSON\s0 text:
+Example, encode a Perl scalar as \s-1JSON\s0 value without enabled \f(CW\*(C`allow_nonref\*(C'\fR,
+resulting in an error:
 .Sp
 .Vb 2
-\&   JSON::XS\->new\->allow_nonref\->encode ("Hello, World!")
-\&   => "Hello, World!"
+\&   JSON::XS\->new\->allow_nonref (0)\->encode ("Hello, World!")
+\&   => hash\- or arrayref expected...
 .Ve
 .ie n .IP "$json = $json\->allow_unknown ([$enable])" 4
 .el .IP "\f(CW$json\fR = \f(CW$json\fR\->allow_unknown ([$enable])" 4
@@ -613,9 +604,9 @@ This setting has no effect on \f(CW\*(C`decode\*(C'\fR.
 .el .IP "\f(CW$json\fR = \f(CW$json\fR\->allow_tags ([$enable])" 4
 .IX Item "$json = $json->allow_tags ([$enable])"
 .PD 0
-.ie n .IP "$enabled = $json\->allow_tags" 4
-.el .IP "\f(CW$enabled\fR = \f(CW$json\fR\->allow_tags" 4
-.IX Item "$enabled = $json->allow_tags"
+.ie n .IP "$enabled = $json\->get_allow_tags" 4
+.el .IP "\f(CW$enabled\fR = \f(CW$json\fR\->get_allow_tags" 4
+.IX Item "$enabled = $json->get_allow_tags"
 .PD
 See \*(L"\s-1OBJECT SERIALISATION\*(R"\s0 for details.
 .Sp
@@ -630,17 +621,38 @@ them via a call to the \f(CW\*(C`THAW\*(C'\fR method.
 If \f(CW$enable\fR is false (the default), then \f(CW\*(C`encode\*(C'\fR will not consider
 this type of conversion, and tagged \s-1JSON\s0 values will cause a parse error
 in \f(CW\*(C`decode\*(C'\fR, as if tags were not part of the grammar.
+.ie n .IP "$json\->boolean_values ([$false, $true])" 4
+.el .IP "\f(CW$json\fR\->boolean_values ([$false, \f(CW$true\fR])" 4
+.IX Item "$json->boolean_values ([$false, $true])"
+.PD 0
+.ie n .IP "($false,  $true) = $json\->get_boolean_values" 4
+.el .IP "($false,  \f(CW$true\fR) = \f(CW$json\fR\->get_boolean_values" 4
+.IX Item "($false, $true) = $json->get_boolean_values"
+.PD
+By default, \s-1JSON\s0 booleans will be decoded as overloaded
+\&\f(CW$Types::Serialiser::false\fR and \f(CW$Types::Serialiser::true\fR objects.
+.Sp
+With this method you can specify your own boolean values for decoding \-
+on decode, \s-1JSON\s0 \f(CW\*(C`false\*(C'\fR will be decoded as a copy of \f(CW$false\fR, and \s-1JSON\s0
+\&\f(CW\*(C`true\*(C'\fR will be decoded as \f(CW$true\fR (\*(L"copy\*(R" here is the same thing as
+assigning a value to another variable, i.e. \f(CW\*(C`$copy = $false\*(C'\fR).
+.Sp
+Calling this method without any arguments will reset the booleans
+to their default values.
+.Sp
+\&\f(CW\*(C`get_boolean_values\*(C'\fR will return both \f(CW$false\fR and \f(CW$true\fR values, or
+the empty list when they are set to the default.
 .ie n .IP "$json = $json\->filter_json_object ([$coderef\->($hashref)])" 4
 .el .IP "\f(CW$json\fR = \f(CW$json\fR\->filter_json_object ([$coderef\->($hashref)])" 4
 .IX Item "$json = $json->filter_json_object ([$coderef->($hashref)])"
 When \f(CW$coderef\fR is specified, it will be called from \f(CW\*(C`decode\*(C'\fR each
-time it decodes a \s-1JSON\s0 object. The only argument is a reference to the
-newly-created hash. If the code references returns a single scalar (which
-need not be a reference), this value (i.e. a copy of that scalar to avoid
-aliasing) is inserted into the deserialised data structure. If it returns
-an empty list (\s-1NOTE:\s0 \fInot\fR \f(CW\*(C`undef\*(C'\fR, which is a valid scalar), the
-original deserialised hash will be inserted. This setting can slow down
-decoding considerably.
+time it decodes a \s-1JSON\s0 object. The only argument is a reference to
+the newly-created hash. If the code reference returns a single scalar
+(which need not be a reference), this value (or rather a copy of it) is
+inserted into the deserialised data structure. If it returns an empty
+list (\s-1NOTE:\s0 \fInot\fR \f(CW\*(C`undef\*(C'\fR, which is a valid scalar), the original
+deserialised hash will be inserted. This setting can slow down decoding
+considerably.
 .Sp
 When \f(CW$coderef\fR is omitted or undefined, any existing callback will
 be removed and \f(CW\*(C`decode\*(C'\fR will not change the deserialised hash in any
@@ -909,16 +921,21 @@ ignore any trailing data, which means you have to reset the parser after
 each successful decode.
 .SS "\s-1LIMITATIONS\s0"
 .IX Subsection "LIMITATIONS"
-All options that affect decoding are supported, except
-\&\f(CW\*(C`allow_nonref\*(C'\fR. The reason for this is that it cannot be made to work
-sensibly: \s-1JSON\s0 objects and arrays are self-delimited, i.e. you can
-concatenate them back to back and still decode them perfectly. This does
-not hold true for \s-1JSON\s0 numbers, however.
+The incremental parser is a non-exact parser: it works by gathering as
+much text as possible that \fIcould\fR be a valid \s-1JSON\s0 text, followed by
+trying to decode it.
 .PP
-For example, is the string \f(CW1\fR a single \s-1JSON\s0 number, or is it simply the
-start of \f(CW12\fR? Or is \f(CW12\fR a single \s-1JSON\s0 number, or the concatenation
-of \f(CW1\fR and \f(CW2\fR? In neither case you can tell, and this is why \s-1JSON::XS\s0
-takes the conservative route and disallows this case.
+That means it sometimes needs to read more data than strictly necessary to
+diagnose an invalid \s-1JSON\s0 text. For example, after parsing the following
+fragment, the parser \fIcould\fR stop with an error, as this fragment
+\&\fIcannot\fR be the beginning of a valid \s-1JSON\s0 text:
+.PP
+.Vb 1
+\&   [,
+.Ve
+.PP
+In reality, hopwever, the parser might continue to read data until a
+length limit is exceeded or it finds a closing bracket.
 .SS "\s-1EXAMPLES\s0"
 .IX Subsection "EXAMPLES"
 Some examples will make all this clearer. First, a simple example that
@@ -1388,7 +1405,7 @@ of the input string must have any value > 255, as \s-1UTF\-8\s0 does not allow
 that.
 .Sp
 The \f(CW\*(C`utf8\*(C'\fR flag therefore switches between two modes: disabled means you
-will get a Unicode string in Perl, enabled means you get an \s-1UTF\-8\s0 encoded
+will get a Unicode string in Perl, enabled means you get a \s-1UTF\-8\s0 encoded
 octet/binary string in Perl.
 .ie n .IP """latin1"" or ""ascii"" flags enabled" 4
 .el .IP "\f(CWlatin1\fR or \f(CWascii\fR flags enabled" 4
@@ -1664,47 +1681,100 @@ see whether you are vulnerable to some common attack vectors (which really
 are browser design bugs, but it is still you who will have to deal with
 it, as major browser developers care only for features, not about getting
 security right).
-.ie n .SH """OLD"" VS. ""NEW"" JSON (RFC 4627 VS. RFC 7159)"
-.el .SH "``OLD'' VS. ``NEW'' JSON (RFC 4627 VS. RFC 7159)"
-.IX Header "OLD VS. NEW JSON (RFC 4627 VS. RFC 7159)"
-\&\s-1TL\s0;DR: Due to security concerns, \s-1JSON::XS\s0 will not allow scalar data in
-\&\s-1JSON\s0 texts by default \- you need to create your own \s-1JSON::XS\s0 object and
-enable \f(CW\*(C`allow_nonref\*(C'\fR:
+.ie n .SS """\s-1OLD"" VS. ""NEW"" JSON\s0 (\s-1RFC4627 VS. RFC7159\s0)"
+.el .SS "``\s-1OLD'' VS. ``NEW'' JSON\s0 (\s-1RFC4627 VS. RFC7159\s0)"
+.IX Subsection "OLD VS. NEW JSON (RFC4627 VS. RFC7159)"
+\&\s-1JSON\s0 originally required \s-1JSON\s0 texts to represent an array or object \-
+scalar values were explicitly not allowed. This has changed, and versions
+of \s-1JSON::XS\s0 beginning with \f(CW4.0\fR reflect this by allowing scalar values
+by default.
+.PP
+One reason why one might not want this is that this removes a fundamental
+property of \s-1JSON\s0 texts, namely that they are self-delimited and
+self-contained, or in other words, you could take any number of \*(L"old\*(R"
+\&\s-1JSON\s0 texts and paste them together, and the result would be unambiguously
+parseable:
 .PP
 .Vb 1
-\&   my $json = JSON::XS\->new\->allow_nonref;
-\&
-\&   $text = $json\->encode ($data);
-\&   $data = $json\->decode ($text);
+\&   [1,3]{"k":5}[][null] # four JSON texts, without doubt
 .Ve
 .PP
-The long version: \s-1JSON\s0 being an important and supposedly stable format,
-the \s-1IETF\s0 standardised it as \s-1RFC 4627\s0 in 2006. Unfortunately, the inventor
-of \s-1JSON,\s0 Dougles Crockford, unilaterally changed the definition of \s-1JSON\s0 in
-javascript. Rather than create a fork, the \s-1IETF\s0 decided to standardise the
-new syntax (apparently, so Iw as told, without finding it very amusing).
+By allowing scalars, this property is lost: in the following example, is
+this one \s-1JSON\s0 text (the number 12) or two \s-1JSON\s0 texts (the numbers 1 and
+2):
 .PP
-The biggest difference between thed original \s-1JSON\s0 and the new \s-1JSON\s0 is that
-the new \s-1JSON\s0 supports scalars (anything other than arrays and objects) at
-the toplevel of a \s-1JSON\s0 text. While this is strictly backwards compatible
-to older versions, it breaks a number of protocols that relied on sending
-\&\s-1JSON\s0 back-to-back, and is a minor security concern.
+.Vb 1
+\&   12    # could be 12, or 1 and 2
+.Ve
 .PP
-For example, imagine you have two banks communicating, and on one side,
-trhe \s-1JSON\s0 coder gets upgraded. Two messages, such as \f(CW10\fR and \f(CW1000\fR
-might then be confused to mean \f(CW101000\fR, something that couldn't happen
-in the original \s-1JSON,\s0 because niether of these messages would be valid
-\&\s-1JSON.\s0
+Another lost property of \*(L"old\*(R" \s-1JSON\s0 is that no lookahead is required to
+know the end of a \s-1JSON\s0 text, i.e. the \s-1JSON\s0 text definitely ended at the
+last \f(CW\*(C`]\*(C'\fR or \f(CW\*(C`}\*(C'\fR character, there was no need to read extra characters.
 .PP
-If one side accepts these messages, then an upgrade in the coder on either
-side could result in this becoming exploitable.
+For example, a viable network protocol with \*(L"old\*(R" \s-1JSON\s0 was to simply
+exchange \s-1JSON\s0 texts without delimiter. For \*(L"new\*(R" \s-1JSON,\s0 you have to use a
+suitable delimiter (such as a newline) after every \s-1JSON\s0 text or ensure you
+never encode/decode scalar values.
 .PP
-This module has always allowed these messages as an optional extension, by
-default disabled. The security concerns are the reason why the default is
-still disabled, but future versions might/will likely upgrade to the newer
-\&\s-1RFC\s0 as default format, so you are advised to check your implementation
-and/or override the default with \f(CW\*(C`\->allow_nonref (0)\*(C'\fR to ensure that
-future versions are safe.
+Most protocols do work by only transferring arrays or objects, and the
+easiest way to avoid problems with the \*(L"new\*(R" \s-1JSON\s0 definition is to
+explicitly disallow scalar values in your encoder and decoder:
+.PP
+.Vb 1
+\&   $json_coder = JSON::XS\->new\->allow_nonref (0)
+.Ve
+.PP
+This is a somewhat unhappy situation, and the blame can fully be put on
+\&\s-1JSON\s0's inmventor, Douglas Crockford, who unilaterally changed the format
+in 2006 without consulting the \s-1IETF,\s0 forcing the \s-1IETF\s0 to either fork the
+format or go with it (as I was told, the \s-1IETF\s0 wasn't amused).
+.SH "RELATIONSHIP WITH I\-JSON"
+.IX Header "RELATIONSHIP WITH I-JSON"
+\&\s-1JSON\s0 is a somewhat sloppily-defined format \- it carries around obvious
+Javascript baggage, such as not really defining number range, probably
+because Javascript only has one type of numbers: \s-1IEEE 64\s0 bit floats
+(\*(L"binary64\*(R").
+.PP
+For this reaosn, \s-1RFC7493\s0 defines \*(L"Internet \s-1JSON\*(R",\s0 which is a restricted
+subset of \s-1JSON\s0 that is supposedly more interoperable on the internet.
+.PP
+While \f(CW\*(C`JSON::XS\*(C'\fR does not offer specific support for I\-JSON, it of course
+accepts valid I\-JSON and by default implements some of the limitations
+of I\-JSON, such as parsing numbers as perl numbers, which are usually a
+superset of binary64 numbers.
+.PP
+To generate I\-JSON, follow these rules:
+.IP "\(bu" 4
+always generate \s-1UTF\-8\s0
+.Sp
+I\-JSON must be encoded in \s-1UTF\-8,\s0 the default for \f(CW\*(C`encode_json\*(C'\fR.
+.IP "\(bu" 4
+numbers should be within \s-1IEEE 754\s0 binary64 range
+.Sp
+Basically all existing perl installations use binary64 to represent
+floating point numbers, so all you need to do is to avoid large integers.
+.IP "\(bu" 4
+objects must not have duplicate keys
+.Sp
+This is trivially done, as \f(CW\*(C`JSON::XS\*(C'\fR does not allow duplicate keys.
+.IP "\(bu" 4
+do not generate scalar \s-1JSON\s0 texts, use \f(CW\*(C`\->allow_nonref (0)\*(C'\fR
+.Sp
+I\-JSON strongly requests you to only encode arrays and objects into \s-1JSON.\s0
+.IP "\(bu" 4
+times should be strings in \s-1ISO 8601\s0 format
+.Sp
+There are a myriad of modules on \s-1CPAN\s0 dealing with \s-1ISO 8601\s0 \- search for
+\&\f(CW\*(C`ISO8601\*(C'\fR on \s-1CPAN\s0 and use one.
+.IP "\(bu" 4
+encode binary data as base64
+.Sp
+While it's tempting to just dump binary data as a string (and let
+\&\f(CW\*(C`JSON::XS\*(C'\fR do the escaping), for I\-JSON, it's \fIrecommended\fR to encode
+binary data as base64.
+.PP
+There are some other considerations \- read \s-1RFC7493\s0 for the details if
+interested.
 .SH "INTEROPERABILITY WITH OTHER MODULES"
 .IX Header "INTEROPERABILITY WITH OTHER MODULES"
 \&\f(CW\*(C`JSON::XS\*(C'\fR uses the Types::Serialiser module to provide boolean
@@ -1780,29 +1850,11 @@ of your \s-1JSON\s0 structure, and then:
 .PP
 Again, this has some limitations \- the magic string must not be encoded
 with character escapes, and the constructor arguments must be non-empty.
-.SH "RFC7159"
-.IX Header "RFC7159"
-Since this module was written, Google has written a new \s-1JSON RFC, RFC 7159\s0
-(and \s-1RFC7158\s0). Unfortunately, this \s-1RFC\s0 breaks compatibility with both the
-original \s-1JSON\s0 specification on www.json.org and \s-1RFC4627.\s0
-.PP
-As far as I can see, you can get partial compatibility when parsing by
-using \f(CW\*(C`\->allow_nonref\*(C'\fR. However, consider the security implications
-of doing so.
-.PP
-I haven't decided yet when to break compatibility with \s-1RFC4627\s0 by default
-(and potentially leave applications insecure) and change the default to
-follow \s-1RFC7159,\s0 but application authors are well advised to call \f(CW\*(C`\->allow_nonref(0)\*(C'\fR even if this is the current default, if they cannot
-handle non-reference values, in preparation for the day when the default
-will change.
-.SH "THREADS"
-.IX Header "THREADS"
-This module is \fInot\fR guaranteed to be thread safe and there are no
-plans to change this until Perl gets thread support (as opposed to the
-horribly slow so-called \*(L"threads\*(R" which are simply slow and bloated
-process simulations \- use fork, it's \fImuch\fR faster, cheaper, better).
-.PP
-(It might actually work, but you have been warned).
+.SH "(I\-)THREADS"
+.IX Header "(I-)THREADS"
+This module is \fInot\fR guaranteed to be ithread (or \s-1MULTIPLICITY\-\s0) safe
+and there are no plans to change this. Note that perl's builtin so-called
+threads/ithreads are officially deprecated and should not be used.
 .SH "THE PERILS OF SETLOCALE"
 .IX Header "THE PERILS OF SETLOCALE"
 Sometimes people avoid the Perl locale support and directly call the
@@ -1819,6 +1871,30 @@ categories you need, such as \f(CW\*(C`LC_MESSAGES\*(C'\fR or \f(CW\*(C`LC_CTYPE
 If you need \f(CW\*(C`LC_NUMERIC\*(C'\fR, you should enable it only around the code that
 actually needs it (avoiding stringification of numbers), and restore it
 afterwards.
+.SH "SOME HISTORY"
+.IX Header "SOME HISTORY"
+At the time this module was created there already were a number of \s-1JSON\s0
+modules available on \s-1CPAN,\s0 so what was the reason to write yet another
+\&\s-1JSON\s0 module? While it seems there are many \s-1JSON\s0 modules, none of them
+correctly handled all corner cases, and in most cases their maintainers
+are unresponsive, gone missing, or not listening to bug reports for other
+reasons.
+.PP
+Beginning with version 2.0 of the \s-1JSON\s0 module, when both \s-1JSON\s0 and
+\&\s-1JSON::XS\s0 are installed, then \s-1JSON\s0 will fall back on \s-1JSON::XS\s0 (this can be
+overridden) with no overhead due to emulation (by inheriting constructor
+and methods). If \s-1JSON::XS\s0 is not available, it will fall back to the
+compatible \s-1JSON::PP\s0 module as backend, so using \s-1JSON\s0 instead of \s-1JSON::XS\s0
+gives you a portable \s-1JSON API\s0 that can be fast when you need it and
+doesn't require a C compiler when that is a problem.
+.PP
+Somewhere around version 3, this module was forked into
+\&\f(CW\*(C`Cpanel::JSON::XS\*(C'\fR, because its maintainer had serious trouble
+understanding \s-1JSON\s0 and insisted on a fork with many bugs \*(L"fixed\*(R" that
+weren't actually bugs, while spreading \s-1FUD\s0 about this module without
+actually giving any details on his accusations. You be the judge, but
+in my personal opinion, if you want quality, you will stay away from
+dangerous forks like that.
 .SH "BUGS"
 .IX Header "BUGS"
 While the goal of this module is to be correct, that unfortunately does

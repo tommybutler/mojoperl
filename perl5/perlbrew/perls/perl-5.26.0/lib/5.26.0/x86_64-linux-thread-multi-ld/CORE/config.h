@@ -11,7 +11,7 @@
  * Source directory  : .
  * Configuration time: Thu Aug  3 20:04:42 CDT 2017
  * Configured by     : tommy
- * Target system     : linux cent7.butler.sh 3.10.0-514.10.2.el7.x86_64 #1 smp fri mar 3 00:04:05 utc 2017 x86_64 x86_64 x86_64 gnulinux 
+ * Target system     : linux cent7.butler.sh 3.10.0-514.10.2.el7.x86_64 #1 smp fri mar 3 00:04:05 utc 2017 x86_64 x86_64 x86_64 gnulinux
  */
 
 #ifndef _config_h_
@@ -3261,7 +3261,7 @@
 #define	HAS_FREELOCALE	/**/
 #define	HAS_USELOCALE	/**/
 /*#define	HAS_QUERYLOCALE	/ **/
-#define	I_XLOCALE               /**/
+/*#define	I_XLOCALE               / **/
 
 /* HAS_NEXTAFTER:
  *	This symbol, if defined, indicates that the nextafter routine is
@@ -4293,7 +4293,7 @@
  */
 /*#define	HAS_STDIO_STREAM_ARRAY	/ **/
 #ifdef HAS_STDIO_STREAM_ARRAY
-#define STDIO_STREAM_ARRAY	
+#define STDIO_STREAM_ARRAY
 #endif
 
 /* GMTIME_MAX:

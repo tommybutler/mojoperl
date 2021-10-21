@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Routes::Match 3"
-.TH Mojolicious::Routes::Match 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Routes::Match 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -83,24 +83,22 @@ Mojolicious::Routes::Match \- Find routes
 \&
 \&  # Routes
 \&  my $r = Mojolicious::Routes\->new;
-\&  $r\->get(\*(Aq/:controller/:action\*(Aq);
-\&  $r\->put(\*(Aq/:controller/:action\*(Aq);
+\&  $r\->get(\*(Aq/user/:id\*(Aq);
+\&  $r\->put(\*(Aq/user/:id\*(Aq);
 \&
 \&  # Match
 \&  my $c = Mojolicious::Controller\->new;
 \&  my $match = Mojolicious::Routes::Match\->new(root => $r);
-\&  $match\->find($c => {method => \*(AqPUT\*(Aq, path => \*(Aq/foo/bar\*(Aq});
-\&  say $match\->stack\->[0]{controller};
-\&  say $match\->stack\->[0]{action};
+\&  $match\->find($c => {method => \*(AqPUT\*(Aq, path => \*(Aq/user/23\*(Aq});
+\&  say $match\->stack\->[0]{id};
 \&
 \&  # Render
 \&  say $match\->path_for\->{path};
-\&  say $match\->path_for(action => \*(Aqbaz\*(Aq)\->{path};
+\&  say $match\->path_for(id => 24)\->{path};
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojolicious::Routes::Match finds routes in Mojolicious::Routes
-structures.
+Mojolicious::Routes::Match finds routes in Mojolicious::Routes structures.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojolicious::Routes::Match implements the following attributes.
@@ -111,8 +109,7 @@ Mojolicious::Routes::Match implements the following attributes.
 \&  $match    = $match\->endpoint(Mojolicious::Routes::Route\->new);
 .Ve
 .PP
-The route endpoint that matched, usually a Mojolicious::Routes::Route
-object.
+The route endpoint that matched, usually a Mojolicious::Routes::Route object.
 .SS "position"
 .IX Subsection "position"
 .Vb 2
@@ -139,16 +136,14 @@ The root of the route structure, usually a Mojolicious::Routes object.
 Captured parameters with nesting history.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Routes::Match inherits all methods from Mojo::Base and
-implements the following new ones.
+Mojolicious::Routes::Match inherits all methods from Mojo::Base and implements the following new ones.
 .SS "find"
 .IX Subsection "find"
 .Vb 1
 \&  $match\->find(Mojolicious::Controller\->new, {method => \*(AqGET\*(Aq, path => \*(Aq/\*(Aq});
 .Ve
 .PP
-Match controller and options against \*(L"root\*(R" to find an appropriate
-\&\*(L"endpoint\*(R".
+Match controller and options against \*(L"root\*(R" to find an appropriate \*(L"endpoint\*(R".
 .SS "path_for"
 .IX Subsection "path_for"
 .Vb 6

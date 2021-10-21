@@ -1,5 +1,5 @@
 package Moose::Meta::Method;
-our $VERSION = '2.2006';
+our $VERSION = '2.2015';
 
 use strict;
 use warnings;
@@ -26,14 +26,14 @@ Moose::Meta::Method - A Moose Method metaclass
 
 =head1 VERSION
 
-version 2.2006
+version 2.2015
 
 =head1 DESCRIPTION
 
 This class is a subclass of L<Class::MOP::Method> that provides
 additional Moose-specific functionality, all of which is private.
 
-To understand this class, you should read the the L<Class::MOP::Method>
+To understand this class, you should read the L<Class::MOP::Method>
 documentation.
 
 =head1 INHERITANCE
@@ -50,7 +50,7 @@ See L<Moose/BUGS> for details on reporting bugs.
 
 =item *
 
-Stevan Little <stevan.little@iinteractive.com>
+Stevan Little <stevan@cpan.org>
 
 =item *
 
@@ -58,11 +58,11 @@ Dave Rolsky <autarch@urth.org>
 
 =item *
 
-Jesse Luehrs <doy@tozt.net>
+Jesse Luehrs <doy@cpan.org>
 
 =item *
 
-Shawn M Moore <code@sartak.org>
+Shawn M Moore <sartak@cpan.org>
 
 =item *
 
@@ -78,7 +78,7 @@ Florian Ragwitz <rafl@debian.org>
 
 =item *
 
-Hans Dieter Pearcey <hdp@weftsoar.net>
+Hans Dieter Pearcey <hdp@cpan.org>
 
 =item *
 
@@ -86,7 +86,7 @@ Chris Prather <chris@prather.org>
 
 =item *
 
-Matt S Trout <mst@shadowcat.co.uk>
+Matt S Trout <mstrout@cpan.org>
 
 =back
 

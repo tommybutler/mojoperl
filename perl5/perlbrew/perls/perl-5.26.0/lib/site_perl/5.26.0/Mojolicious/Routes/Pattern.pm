@@ -1,7 +1,7 @@
 package Mojolicious::Routes::Pattern;
 use Mojo::Base -base;
 
-use Carp 'croak';
+use Carp qw(croak);
 
 has [qw(constraints defaults types)]   => sub { {} };
 has [qw(placeholder_start type_start)] => ':';
@@ -53,8 +53,6 @@ sub parse {
 sub render {
   my ($self, $values, $endpoint) = @_;
 
-  my $start = $self->type_start;
-
   # Placeholders can only be optional without a format
   my $optional = !(my $format = $values->{format});
 
@@ -71,7 +69,7 @@ sub render {
 
     # Placeholder
     else {
-      my $name    = (split $start, $value)[0] // '';
+      my $name    = $value->[0];
       my $default = $self->defaults->{$name};
       $part = $values->{$name} // $default // '';
       if    (!defined $default || ($default ne $part)) { $optional = 0 }
@@ -88,11 +86,9 @@ sub render {
 sub _compile {
   my ($self, $detect) = @_;
 
-  my $placeholders = $self->placeholders;
-  my $constraints  = $self->constraints;
-  my $defaults     = $self->defaults;
-  my $start        = $self->type_start;
-  my $types        = $self->types;
+  my $constraints = $self->constraints;
+  my $defaults    = $self->defaults;
+  my $types       = $self->types;
 
   my $block    = my $regex = '';
   my $optional = 1;
@@ -112,19 +108,14 @@ sub _compile {
 
     # Placeholder
     else {
-      if ($value =~ /^(.+)\Q$start\E(.+)$/) {
-        ($value, $part) = ($1, _compile_req($types->{$2} // '?!'));
-      }
-      else {
-        $part = $type ? $type eq 'relaxed' ? '([^/]+)' : '(.+)' : '([^/.]+)';
-      }
-      unshift @$placeholders, $value;
+      if ($value->[1]) { $part = _compile_req($types->{$value->[1]} // '?!') }
+      else             { $part = $type ? $type eq 'relaxed' ? '([^/]+)' : '(.+)' : '([^/.]+)' }
 
       # Custom regex
-      if (my $c = $constraints->{$value}) { $part = _compile_req($c) }
+      if (my $c = $constraints->{$value->[0]}) { $part = _compile_req($c) }
 
       # Optional placeholder
-      exists $defaults->{$value} ? ($part .= '?') : ($optional = 0);
+      exists $defaults->{$value->[0]} ? ($part .= '?') : ($optional = 0);
     }
 
     $block = $part . $block;
@@ -134,24 +125,23 @@ sub _compile {
   $regex = $block . $regex if $block;
 
   # Format
-  $regex .= _compile_format($constraints->{format}, $defaults->{format})
-    if $detect;
+  $regex .= _compile_format($constraints->{format}, exists $defaults->{format}) if $detect;
 
   $self->regex(qr/^$regex/ps);
 }
 
 sub _compile_format {
-  my ($format, $default) = @_;
-
-  # Default regex
-  return '/?(?:\.([^/]+))?$' unless defined $format;
+  my ($format, $has_default) = @_;
 
   # No regex
   return '' unless $format;
 
+  # Default regex
+  return '/?(?:\.([^/]+))?$' if $format eq '1';
+
   # Compile custom regex
   my $regex = '\.' . _compile_req($format);
-  return $default ? "/?(?:$regex)?\$" : "/?$regex\$";
+  return $has_default ? "/?(?:$regex)?\$" : "/?$regex\$";
 }
 
 sub _compile_req {
@@ -163,23 +153,23 @@ sub _compile_req {
 sub _tokenize {
   my ($self, $pattern) = @_;
 
-  my $quote_end   = $self->quote_end;
-  my $quote_start = $self->quote_start;
-  my $start       = $self->placeholder_start;
-  my $relaxed     = $self->relaxed_start;
-  my $wildcard    = $self->wildcard_start;
+  my $placeholders = $self->placeholders;
+  my $type_start   = $self->type_start;
+  my $quote_end    = $self->quote_end;
+  my $quote_start  = $self->quote_start;
+  my $start        = $self->placeholder_start;
+  my $relaxed      = $self->relaxed_start;
+  my $wildcard     = $self->wildcard_start;
 
   my (@tree, $spec, $more);
-  for my $char (split '', $pattern) {
+  for my $char (split //, $pattern) {
 
     # Quoted
     if    ($char eq $quote_start) { push @tree, ['placeholder', ''] if ++$spec }
     elsif ($char eq $quote_end)   { $spec = $more = 0 }
 
     # Placeholder
-    elsif (!$more && $char eq $start) {
-      push @tree, ['placeholder', ''] unless $spec++;
-    }
+    elsif (!$more && $char eq $start) { push @tree, ['placeholder', ''] unless $spec++ }
 
     # Relaxed or wildcard (upgrade when quoted)
     elsif (!$more && ($char eq $relaxed || $char eq $wildcard)) {
@@ -197,14 +187,17 @@ sub _tokenize {
     elsif ($spec && ++$more) { $tree[-1][1] .= $char }
 
     # Text (optimize slash+text and *+text+slash+text)
-    elsif ($tree[-1][0] eq 'text') { $tree[-1][-1] .= $char }
-    elsif (!$tree[-2] && $tree[-1][0] eq 'slash') {
-      @tree = (['text', "/$char"]);
-    }
-    elsif ($tree[-2] && $tree[-2][0] eq 'text' && $tree[-1][0] eq 'slash') {
-      pop @tree && ($tree[-1][-1] .= "/$char");
-    }
-    else { push @tree, ['text', $char] }
+    elsif ($tree[-1][0] eq 'text')                                         { $tree[-1][-1] .= $char }
+    elsif (!$tree[-2] && $tree[-1][0] eq 'slash')                          { @tree = (['text', "/$char"]) }
+    elsif ($tree[-2] && $tree[-2][0] eq 'text' && $tree[-1][0] eq 'slash') { pop @tree && ($tree[-1][-1] .= "/$char") }
+    else                                                                   { push @tree, ['text', $char] }
+  }
+
+  # Placeholder types
+  for my $token (reverse @tree) {
+    next unless $token->[0] eq 'placeholder';
+    $token->[1] = $token->[1] =~ /^(.+)\Q$type_start\E(.+)$/ ? [$1, $2] : [$token->[1]];
+    unshift @$placeholders, $token->[1][0];
   }
 
   return $self->unparsed($pattern)->tree(\@tree);
@@ -298,8 +291,7 @@ Character indicating a relaxed placeholder, defaults to C<#>.
   my $tree = $pattern->tree;
   $pattern = $pattern->tree([['text', '/foo']]);
 
-Pattern in parsed form. Note that this structure should only be used very
-carefully since it is very dynamic.
+Pattern in parsed form. Note that this structure should only be used very carefully since it is very dynamic.
 
 =head2 type_start
 
@@ -331,8 +323,7 @@ Character indicating the start of a wildcard placeholder, defaults to C<*>.
 
 =head1 METHODS
 
-L<Mojolicious::Routes::Pattern> inherits all methods from L<Mojo::Base> and
-implements the following new ones.
+L<Mojolicious::Routes::Pattern> inherits all methods from L<Mojo::Base> and implements the following new ones.
 
 =head2 match
 
@@ -346,35 +337,31 @@ Match pattern against entire path, format detection is disabled by default.
   my $captures = $pattern->match_partial(\$path);
   my $captures = $pattern->match_partial(\$path, 1);
 
-Match pattern against path and remove matching parts, format detection is
-disabled by default.
+Match pattern against path and remove matching parts, format detection is disabled by default.
 
 =head2 new
 
   my $pattern = Mojolicious::Routes::Pattern->new;
-  my $pattern = Mojolicious::Routes::Pattern->new('/:action');
-  my $pattern
-    = Mojolicious::Routes::Pattern->new('/:action', action => qr/\w+/);
-  my $pattern = Mojolicious::Routes::Pattern->new(format => 0);
+  my $pattern = Mojolicious::Routes::Pattern->new('/users/:id');
+  my $pattern = Mojolicious::Routes::Pattern->new('/user/:id', id => qr/\d+/);
+  my $pattern = Mojolicious::Routes::Pattern->new(format => ['json', 'yaml']);
 
-Construct a new L<Mojolicious::Routes::Pattern> object and L</"parse"> pattern
-if necessary.
+Construct a new L<Mojolicious::Routes::Pattern> object and L</"parse"> pattern if necessary.
 
 =head2 parse
 
-  $pattern = $pattern->parse('/:action');
-  $pattern = $pattern->parse('/:action', action => qr/\w+/);
-  $pattern = $pattern->parse(format => 0);
+  $pattern = $pattern->parse('/user/:id');
+  $pattern = $pattern->parse('/user/:id', id=> qr/\d+/);
+  $pattern = $pattern->parse(format => ['json', 'yaml']);
 
 Parse pattern.
 
 =head2 render
 
-  my $path = $pattern->render({action => 'foo'});
-  my $path = $pattern->render({action => 'foo'}, 1);
+  my $path = $pattern->render({id => 24});
+  my $path = $pattern->render({id => 24}, 1);
 
-Render pattern into a path with parameters, format rendering is disabled by
-default.
+Render pattern into a path with parameters, format rendering is disabled by default.
 
 =head1 SEE ALSO
 

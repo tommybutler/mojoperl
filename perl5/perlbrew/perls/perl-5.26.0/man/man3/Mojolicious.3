@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious 3"
-.TH Mojolicious 3 "2020-02-08" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious 3 "2021-10-09" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -79,31 +79,28 @@ Mojolicious \- Real\-time web framework
 .Vb 3
 \&  # Application
 \&  package MyApp;
-\&  use Mojo::Base \*(AqMojolicious\*(Aq;
+\&  use Mojo::Base \*(AqMojolicious\*(Aq, \-signatures;
 \&
 \&  # Route
-\&  sub startup {
-\&    my $self = shift;
+\&  sub startup ($self) {
 \&    $self\->routes\->get(\*(Aq/hello\*(Aq)\->to(\*(Aqfoo#hello\*(Aq);
 \&  }
 \&
 \&  # Controller
 \&  package MyApp::Controller::Foo;
-\&  use Mojo::Base \*(AqMojolicious::Controller\*(Aq;
+\&  use Mojo::Base \*(AqMojolicious::Controller\*(Aq, \-signatures;
 \&
 \&  # Action
-\&  sub hello {
-\&    my $self = shift;
+\&  sub hello ($self) {
 \&    $self\->render(text => \*(AqHello World!\*(Aq);
 \&  }
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-An amazing real-time web framework built on top of the powerful Mojo web
-development toolkit. With support for RESTful routes, plugins, commands,
-Perl-ish templates, content negotiation, session management, form validation,
-testing framework, static file server, \f(CW\*(C`CGI\*(C'\fR/\f(CW\*(C`PSGI\*(C'\fR detection, first class
-Unicode support and much more for you to discover.
+An amazing real-time web framework built on top of the powerful Mojo web development toolkit. With support for
+RESTful routes, plugins, commands, Perl-ish templates, content negotiation, session management, form validation,
+testing framework, static file server, \f(CW\*(C`CGI\*(C'\fR/\f(CW\*(C`PSGI\*(C'\fR detection, first class Unicode support and much more for you to
+discover.
 .PP
 Take a look at our excellent documentation in Mojolicious::Guides!
 .SH "HOOKS"
@@ -111,178 +108,131 @@ Take a look at our excellent documentation in Mojolicious::Guides!
 Mojolicious will emit the following hooks in the listed order.
 .SS "before_command"
 .IX Subsection "before_command"
-Emitted right before the application runs a command through the command line
-interface. Note that this hook is \fB\s-1EXPERIMENTAL\s0\fR and might change without
-warning!
+Emitted right before the application runs a command through the command line interface.
 .PP
-.Vb 4
-\&  $app\->hook(before_command => sub {
-\&    my ($command, $args) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $app\->hook(before_command => sub ($command, $args) {...});
 .Ve
 .PP
-Useful for reconfiguring the application before running a command or to modify
-the behavior of a command. (Passed the command object and the command arguments)
+Useful for reconfiguring the application before running a command or to modify the behavior of a command. (Passed the
+command object and the command arguments)
 .SS "before_server_start"
 .IX Subsection "before_server_start"
-Emitted right before the application server is started, for web servers that
-support it, which includes all the built-in ones (except for
-Mojo::Server::CGI).
+Emitted right before the application server is started, for web servers that support it, which includes all the
+built-in ones.
 .PP
-.Vb 4
-\&  $app\->hook(before_server_start => sub {
-\&    my ($server, $app) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $app\->hook(before_server_start => sub ($server, $app) {...});
 .Ve
 .PP
-Useful for reconfiguring application servers dynamically or collecting server
-diagnostics information. (Passed the server and application objects)
+Useful for reconfiguring application servers dynamically or collecting server diagnostics information. (Passed the
+server and application objects)
 .SS "after_build_tx"
 .IX Subsection "after_build_tx"
-Emitted right after the transaction is built and before the \s-1HTTP\s0 request gets
-parsed.
+Emitted right after the transaction is built and before the \s-1HTTP\s0 request gets parsed.
 .PP
-.Vb 4
-\&  $app\->hook(after_build_tx => sub {
-\&    my ($tx, $app) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $app\->hook(after_build_tx => sub ($tx, $app) {...});
 .Ve
 .PP
-This is a very powerful hook and should not be used lightly, it makes some
-rather advanced features such as upload progress bars possible. Note that this
-hook will not work for embedded applications, because only the host application
+This is a very powerful hook and should not be used lightly, it makes some rather advanced features such as upload
+progress bars possible. Note that this hook will not work for embedded applications, because only the host application
 gets to build transactions. (Passed the transaction and application objects)
 .SS "around_dispatch"
 .IX Subsection "around_dispatch"
-Emitted right after a new request has been received and wraps around the whole
-dispatch process, so you have to manually forward to the next hook if you want
-to continue the chain. Default exception handling with
-\&\*(L"reply\->exception\*(R" in Mojolicious::Plugin::DefaultHelpers is the first hook
-in the chain and a call to \*(L"dispatch\*(R" the last, yours will be in between.
+Emitted right after a new request has been received and wraps around the whole dispatch process, so you have to
+manually forward to the next hook if you want to continue the chain. Default exception handling with
+\&\*(L"reply\->exception\*(R" in Mojolicious::Plugin::DefaultHelpers is the first hook in the chain and a call to
+\&\*(L"dispatch\*(R" the last, yours will be in between.
 .PP
-.Vb 6
-\&  $app\->hook(around_dispatch => sub {
-\&    my ($next, $c) = @_;
+.Vb 5
+\&  $app\->hook(around_dispatch => sub ($next, $c) {
 \&    ...
 \&    $next\->();
 \&    ...
 \&  });
 .Ve
 .PP
-This is a very powerful hook and should not be used lightly, it allows you to,
-for example, customize application-wide exception handling, consider it the
-sledgehammer in your toolbox. (Passed a callback leading to the next hook and
-the default controller object)
+This is a very powerful hook and should not be used lightly, it allows you to, for example, customize application-wide
+exception handling, consider it the sledgehammer in your toolbox. (Passed a callback leading to the next hook and the
+default controller object)
 .SS "before_dispatch"
 .IX Subsection "before_dispatch"
 Emitted right before the static file server and router start their work.
 .PP
-.Vb 4
-\&  $app\->hook(before_dispatch => sub {
-\&    my $c = shift;
-\&    ...
-\&  });
+.Vb 1
+\&  $app\->hook(before_dispatch => sub ($c) {...});
 .Ve
 .PP
-Very useful for rewriting incoming requests and other preprocessing tasks.
-(Passed the default controller object)
+Very useful for rewriting incoming requests and other preprocessing tasks. (Passed the default controller object)
 .SS "after_static"
 .IX Subsection "after_static"
-Emitted after a static file response has been generated by the static file
-server.
+Emitted after a static file response has been generated by the static file server.
 .PP
-.Vb 4
-\&  $app\->hook(after_static => sub {
-\&    my $c = shift;
-\&    ...
-\&  });
+.Vb 1
+\&  $app\->hook(after_static => sub ($c) {...});
 .Ve
 .PP
-Mostly used for post-processing static file responses. (Passed the default
-controller object)
+Mostly used for post-processing static file responses. (Passed the default controller object)
 .SS "before_routes"
 .IX Subsection "before_routes"
-Emitted after the static file server determined if a static file should be
-served and before the router starts its work.
+Emitted after the static file server determined if a static file should be served and before the router starts its
+work.
 .PP
-.Vb 4
-\&  $app\->hook(before_routes => sub {
-\&    my $c = shift;
-\&    ...
-\&  });
+.Vb 1
+\&  $app\->hook(before_routes => sub ($c) {...});
 .Ve
 .PP
-Mostly used for custom dispatchers and collecting metrics. (Passed the default
-controller object)
+Mostly used for custom dispatchers and collecting metrics. (Passed the default controller object)
 .SS "around_action"
 .IX Subsection "around_action"
-Emitted right before an action gets executed and wraps around it, so you have to
-manually forward to the next hook if you want to continue the chain. Default
-action dispatching is the last hook in the chain, yours will run before it.
+Emitted right before an action gets executed and wraps around it, so you have to manually forward to the next hook if
+you want to continue the chain. Default action dispatching is the last hook in the chain, yours will run before it.
 .PP
-.Vb 5
-\&  $app\->hook(around_action => sub {
-\&    my ($next, $c, $action, $last) = @_;
+.Vb 4
+\&  $app\->hook(around_action => sub ($next, $c, $action, $last) {
 \&    ...
 \&    return $next\->();
 \&  });
 .Ve
 .PP
-This is a very powerful hook and should not be used lightly, it allows you for
-example to pass additional arguments to actions or handle return values
-differently. Note that this hook can trigger more than once for the same
-request if there are nested routes. (Passed a callback leading to the next hook,
-the current controller object, the action callback and a flag indicating if this
-action is an endpoint)
+This is a very powerful hook and should not be used lightly, it allows you for example to pass additional arguments to
+actions or handle return values differently. Note that this hook can trigger more than once for the same request if
+there are nested routes. (Passed a callback leading to the next hook, the current controller object, the action
+callback and a flag indicating if this action is an endpoint)
 .SS "before_render"
 .IX Subsection "before_render"
-Emitted before content is generated by the renderer. Note that this hook can
-trigger out of order due to its dynamic nature, and with embedded applications
-will only work for the application that is rendering.
+Emitted before content is generated by the renderer. Note that this hook can trigger out of order due to its dynamic
+nature, and with embedded applications will only work for the application that is rendering.
 .PP
-.Vb 4
-\&  $app\->hook(before_render => sub {
-\&    my ($c, $args) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $app\->hook(before_render => sub ($c, $args) {...});
 .Ve
 .PP
-Mostly used for pre-processing arguments passed to the renderer. (Passed the
-current controller object and the render arguments)
+Mostly used for pre-processing arguments passed to the renderer. (Passed the current controller object and the render
+arguments)
 .SS "after_render"
 .IX Subsection "after_render"
-Emitted after content has been generated by the renderer that will be assigned
-to the response. Note that this hook can trigger out of order due to its
-dynamic nature, and with embedded applications will only work for the
-application that is rendering.
+Emitted after content has been generated by the renderer that will be assigned to the response. Note that this hook can
+trigger out of order due to its dynamic nature, and with embedded applications will only work for the application that
+is rendering.
 .PP
-.Vb 4
-\&  $app\->hook(after_render => sub {
-\&    my ($c, $output, $format) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $app\->hook(after_render => sub ($c, $output, $format) {...});
 .Ve
 .PP
-Mostly used for post-processing dynamically generated content. (Passed the
-current controller object, a reference to the content and the format)
+Mostly used for post-processing dynamically generated content. (Passed the current controller object, a reference to
+the content and the format)
 .SS "after_dispatch"
 .IX Subsection "after_dispatch"
-Emitted in reverse order after a response has been generated. Note that this
-hook can trigger out of order due to its dynamic nature, and with embedded
-applications will only work for the application that is generating the response.
+Emitted in reverse order after a response has been generated. Note that this hook can trigger out of order due to its
+dynamic nature, and with embedded applications will only work for the application that is generating the response.
 .PP
-.Vb 4
-\&  $app\->hook(after_dispatch => sub {
-\&    my $c = shift;
-\&    ...
-\&  });
+.Vb 1
+\&  $app\->hook(after_dispatch => sub ($c) {...});
 .Ve
 .PP
-Useful for rewriting outgoing responses and other post-processing tasks.
-(Passed the current controller object)
+Useful for rewriting outgoing responses and other post-processing tasks. (Passed the current controller object)
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojolicious implements the following attributes.
@@ -293,8 +243,7 @@ Mojolicious implements the following attributes.
 \&  $app         = $app\->commands(Mojolicious::Commands\->new);
 .Ve
 .PP
-Command line interface for your application, defaults to a
-Mojolicious::Commands object.
+Command line interface for your application, defaults to a Mojolicious::Commands object.
 .PP
 .Vb 2
 \&  # Add another namespace to load commands from
@@ -307,9 +256,8 @@ Mojolicious::Commands object.
 \&  $app      = $app\->controller_class(\*(AqMojolicious::Controller\*(Aq);
 .Ve
 .PP
-Class to be used for the default controller, defaults to
-Mojolicious::Controller. Note that this class needs to have already been
-loaded before the first request arrives.
+Class to be used for the default controller, defaults to Mojolicious::Controller. Note that this class needs to have
+already been loaded before the first request arrives.
 .SS "home"
 .IX Subsection "home"
 .Vb 2
@@ -317,8 +265,7 @@ loaded before the first request arrives.
 \&  $app     = $app\->home(Mojo::Home\->new);
 .Ve
 .PP
-The home directory of your application, defaults to a Mojo::Home object
-which stringifies to the actual path.
+The home directory of your application, defaults to a Mojo::Home object which stringifies to the actual path.
 .PP
 .Vb 2
 \&  # Portably generate path relative to home directory
@@ -331,11 +278,9 @@ which stringifies to the actual path.
 \&  $app    = $app\->log(Mojo::Log\->new);
 .Ve
 .PP
-The logging layer of your application, defaults to a Mojo::Log object. The
-level will default to either the \f(CW\*(C`MOJO_LOG_LEVEL\*(C'\fR environment variable,
-\&\f(CW\*(C`debug\*(C'\fR if the \*(L"mode\*(R" is \f(CW\*(C`development\*(C'\fR, or \f(CW\*(C`info\*(C'\fR otherwise. All messages
-will be written to \f(CW\*(C`STDERR\*(C'\fR, or a \f(CW\*(C`log/$mode.log\*(C'\fR file if a \f(CW\*(C`log\*(C'\fR directory
-exists.
+The logging layer of your application, defaults to a Mojo::Log object. The level will default to either the
+\&\f(CW\*(C`MOJO_LOG_LEVEL\*(C'\fR environment variable, \f(CW\*(C`trace\*(C'\fR if the \*(L"mode\*(R" is \f(CW\*(C`development\*(C'\fR, or \f(CW\*(C`info\*(C'\fR otherwise. All messages
+will be written to \f(CW\*(C`STDERR\*(C'\fR by default.
 .PP
 .Vb 2
 \&  # Log debug message
@@ -348,11 +293,9 @@ exists.
 \&  $app    = $app\->max_request_size(16777216);
 .Ve
 .PP
-Maximum request size in bytes, defaults to the value of
-\&\*(L"max_message_size\*(R" in Mojo::Message. Setting the value to \f(CW0\fR will allow
-requests of indefinite size. Note that increasing this value can also
-drastically increase memory usage, should you for example attempt to parse an
-excessively large request body with the methods \*(L"dom\*(R" in Mojo::Message or
+Maximum request size in bytes, defaults to the value of \*(L"max_message_size\*(R" in Mojo::Message. Setting the value to \f(CW0\fR
+will allow requests of indefinite size. Note that increasing this value can also drastically increase memory usage,
+should you for example attempt to parse an excessively large request body with the methods \*(L"dom\*(R" in Mojo::Message or
 \&\*(L"json\*(R" in Mojo::Message.
 .SS "mode"
 .IX Subsection "mode"
@@ -361,8 +304,8 @@ excessively large request body with the methods \*(L"dom\*(R" in Mojo::Message o
 \&  $app     = $app\->mode(\*(Aqproduction\*(Aq);
 .Ve
 .PP
-The operating mode for your application, defaults to a value from the
-\&\f(CW\*(C`MOJO_MODE\*(C'\fR and \f(CW\*(C`PLACK_ENV\*(C'\fR environment variables or \f(CW\*(C`development\*(C'\fR.
+The operating mode for your application, defaults to a value from the \f(CW\*(C`MOJO_MODE\*(C'\fR and \f(CW\*(C`PLACK_ENV\*(C'\fR environment
+variables or \f(CW\*(C`development\*(C'\fR.
 .SS "moniker"
 .IX Subsection "moniker"
 .Vb 2
@@ -370,9 +313,8 @@ The operating mode for your application, defaults to a value from the
 \&  $app        = $app\->moniker(\*(Aqfoo_bar\*(Aq);
 .Ve
 .PP
-Moniker of this application, often used as default filename for configuration
-files and the like, defaults to decamelizing the application class with
-\&\*(L"decamelize\*(R" in Mojo::Util.
+Moniker of this application, often used as default filename for configuration files and the like, defaults to
+decamelizing the application class with \*(L"decamelize\*(R" in Mojo::Util.
 .SS "plugins"
 .IX Subsection "plugins"
 .Vb 2
@@ -380,13 +322,21 @@ files and the like, defaults to decamelizing the application class with
 \&  $app        = $app\->plugins(Mojolicious::Plugins\->new);
 .Ve
 .PP
-The plugin manager, defaults to a Mojolicious::Plugins object. See the
-\&\*(L"plugin\*(R" method below if you want to load a plugin.
+The plugin manager, defaults to a Mojolicious::Plugins object. See the \*(L"plugin\*(R" method below if you want to load
+a plugin.
 .PP
 .Vb 2
 \&  # Add another namespace to load plugins from
 \&  push @{$app\->plugins\->namespaces}, \*(AqMyApp::Plugin\*(Aq;
 .Ve
+.SS "preload_namespaces"
+.IX Subsection "preload_namespaces"
+.Vb 2
+\&  my $namespaces = $app\->preload_namespaces;
+\&  $app           = $app\->preload_namespaces([\*(AqMyApp::Controller\*(Aq]);
+.Ve
+.PP
+Namespaces to preload classes from during application startup.
 .SS "renderer"
 .IX Subsection "renderer"
 .Vb 2
@@ -394,9 +344,8 @@ The plugin manager, defaults to a Mojolicious::Plugins object. See the
 \&  $app         = $app\->renderer(Mojolicious::Renderer\->new);
 .Ve
 .PP
-Used to render content, defaults to a Mojolicious::Renderer object. For more
-information about how to generate content see
-Mojolicious::Guides::Rendering.
+Used to render content, defaults to a Mojolicious::Renderer object. For more information about how to generate
+content see Mojolicious::Guides::Rendering.
 .PP
 .Vb 2
 \&  # Enable compression
@@ -418,8 +367,8 @@ Mojolicious::Guides::Rendering.
 \&  $app       = $app\->routes(Mojolicious::Routes\->new);
 .Ve
 .PP
-The router, defaults to a Mojolicious::Routes object. You use this in your
-startup method to define the url endpoints for your application.
+The router, defaults to a Mojolicious::Routes object. You use this in your startup method to define the url
+endpoints for your application.
 .PP
 .Vb 4
 \&  # Add routes
@@ -437,14 +386,11 @@ startup method to define the url endpoints for your application.
 \&  $app        = $app\->secrets([$bytes]);
 .Ve
 .PP
-Secret passphrases used for signed cookies and the like, defaults to the
-\&\*(L"moniker\*(R" of this application, which is not very secure, so you should
-change it!!! As long as you are using the insecure default there will be debug
-messages in the log file reminding you to change your passphrase. Only the
-first passphrase is used to create new signatures, but all of them for
-verification. So you can increase security without invalidating all your
-existing signed cookies by rotating passphrases, just add new ones to the front
-and remove old ones from the back.
+Secret passphrases used for signed cookies and the like, defaults to the \*(L"moniker\*(R" of this application, which is
+not very secure, so you should change it!!! As long as you are using the insecure default there will be debug messages
+in the log file reminding you to change your passphrase. Only the first passphrase is used to create new signatures,
+but all of them for verification. So you can increase security without invalidating all your existing signed cookies by
+rotating passphrases, just add new ones to the front and remove old ones from the back.
 .PP
 .Vb 2
 \&  # Rotate passphrases
@@ -457,10 +403,8 @@ and remove old ones from the back.
 \&  $app         = $app\->sessions(Mojolicious::Sessions\->new);
 .Ve
 .PP
-Signed cookie based session manager, defaults to a Mojolicious::Sessions
-object. You can usually leave this alone, see
-\&\*(L"session\*(R" in Mojolicious::Controller for more information about working with
-session data.
+Signed cookie based session manager, defaults to a Mojolicious::Sessions object. You can usually leave this alone,
+see \*(L"session\*(R" in Mojolicious::Controller for more information about working with session data.
 .PP
 .Vb 2
 \&  # Change name of cookie used for all sessions
@@ -476,8 +420,7 @@ session data.
 \&  $app       = $app\->static(Mojolicious::Static\->new);
 .Ve
 .PP
-For serving static files from your \f(CW\*(C`public\*(C'\fR directories, defaults to a
-Mojolicious::Static object.
+For serving static files from your \f(CW\*(C`public\*(C'\fR directories, defaults to a Mojolicious::Static object.
 .PP
 .Vb 2
 \&  # Add another "public" directory
@@ -499,8 +442,7 @@ Mojolicious::Static object.
 \&  $app      = $app\->types(Mojolicious::Types\->new);
 .Ve
 .PP
-Responsible for connecting file extensions with \s-1MIME\s0 types, defaults to a
-Mojolicious::Types object.
+Responsible for connecting file extensions with \s-1MIME\s0 types, defaults to a Mojolicious::Types object.
 .PP
 .Vb 2
 \&  # Add custom MIME type
@@ -513,8 +455,7 @@ Mojolicious::Types object.
 \&  $app   = $app\->ua(Mojo::UserAgent\->new);
 .Ve
 .PP
-A full featured \s-1HTTP\s0 user agent for use in your applications, defaults to a
-Mojo::UserAgent object.
+A full featured \s-1HTTP\s0 user agent for use in your applications, defaults to a Mojo::UserAgent object.
 .PP
 .Vb 2
 \&  # Perform blocking request
@@ -529,23 +470,20 @@ Mojo::UserAgent object.
 .PP
 Validate values, defaults to a Mojolicious::Validator object.
 .PP
-.Vb 5
+.Vb 4
 \&  # Add validation check
-\&  $app\->validator\->add_check(foo => sub {
-\&    my ($v, $name, $value) = @_;
+\&  $app\->validator\->add_check(foo => sub ($v, $name, $value) {
 \&    return $value ne \*(Aqfoo\*(Aq;
 \&  });
 \&
 \&  # Add validation filter
-\&  $app\->validator\->add_filter(quotemeta => sub {
-\&    my ($v, $name, $value) = @_;
+\&  $app\->validator\->add_filter(quotemeta => sub ($v, $name, $value) {
 \&    return quotemeta $value;
 \&  });
 .Ve
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious inherits all methods from Mojo::Base and implements the
-following new ones.
+Mojolicious inherits all methods from Mojo::Base and implements the following new ones.
 .SS "build_controller"
 .IX Subsection "build_controller"
 .Vb 3
@@ -594,8 +532,7 @@ Application configuration.
 \&  $app     = $app\->defaults(foo => \*(Aqbar\*(Aq, baz => 23);
 .Ve
 .PP
-Default values for \*(L"stash\*(R" in Mojolicious::Controller, assigned for every new
-request.
+Default values for \*(L"stash\*(R" in Mojolicious::Controller, assigned for every new request.
 .PP
 .Vb 2
 \&  # Remove value
@@ -610,9 +547,8 @@ request.
 \&  $app\->dispatch(Mojolicious::Controller\->new);
 .Ve
 .PP
-The heart of every Mojolicious application, calls the \*(L"static\*(R" and
-\&\*(L"routes\*(R" dispatchers for every request and passes them a
-Mojolicious::Controller object.
+The heart of every Mojolicious application, calls the \*(L"static\*(R" and \*(L"routes\*(R" dispatchers for every request
+and passes them a Mojolicious::Controller object.
 .SS "handler"
 .IX Subsection "handler"
 .Vb 2
@@ -620,17 +556,15 @@ Mojolicious::Controller object.
 \&  $app\->handler(Mojolicious::Controller\->new);
 .Ve
 .PP
-Sets up the default controller and emits the \*(L"around_dispatch\*(R" hook for
-every request.
+Sets up the default controller and emits the \*(L"around_dispatch\*(R" hook for every request.
 .SS "helper"
 .IX Subsection "helper"
 .Vb 1
 \&  $app\->helper(foo => sub {...});
 .Ve
 .PP
-Add or replace a helper that will be available as a method of the controller
-object and the application object, as well as a function in \f(CW\*(C`ep\*(C'\fR templates. For
-a full list of helpers that are available by default see
+Add or replace a helper that will be available as a method of the controller object and the application object, as well
+as a function in \f(CW\*(C`ep\*(C'\fR templates. For a full list of helpers that are available by default see
 Mojolicious::Plugin::DefaultHelpers and Mojolicious::Plugin::TagHelpers.
 .PP
 .Vb 2
@@ -655,13 +589,12 @@ Mojolicious::Plugin::DefaultHelpers and Mojolicious::Plugin::TagHelpers.
 \&  $app\->hook(after_dispatch => sub {...});
 .Ve
 .PP
-Extend Mojolicious with hooks, which allow code to be shared with all
-requests indiscriminately, for a full list of available hooks see \*(L"\s-1HOOKS\*(R"\s0.
+Extend Mojolicious with hooks, which allow code to be shared with all requests indiscriminately, for a full list of
+available hooks see \*(L"\s-1HOOKS\*(R"\s0.
 .PP
-.Vb 6
+.Vb 5
 \&  # Dispatchers will not run if there\*(Aqs already a response code defined
-\&  $app\->hook(before_dispatch => sub {
-\&    my $c = shift;
+\&  $app\->hook(before_dispatch => sub ($c) {
 \&    $c\->render(text => \*(AqSkipped static file server and router!\*(Aq)
 \&      if $c\->req\->url\->path\->to_route =~ /do_not_dispatch/;
 \&  });
@@ -674,10 +607,9 @@ requests indiscriminately, for a full list of available hooks see \*(L"\s-1HOOKS
 \&  my $app = Mojolicious\->new({moniker => \*(Aqfoo_bar\*(Aq});
 .Ve
 .PP
-Construct a new Mojolicious application and call \*(L"startup\*(R". Will
-automatically detect your home directory. Also sets up the renderer, static file
-server, a default set of plugins and an \*(L"around_dispatch\*(R" hook with the
-default exception handling.
+Construct a new Mojolicious application and call \*(L"startup\*(R". Will automatically detect your home directory. Also
+sets up the renderer, static file server, a default set of plugins and an \*(L"around_dispatch\*(R" hook with the default
+exception handling.
 .SS "plugin"
 .IX Subsection "plugin"
 .Vb 9
@@ -692,8 +624,8 @@ default exception handling.
 \&  $app\->plugin(\*(AqMyApp::Plugin::SomeThing\*(Aq, {foo => 23});
 .Ve
 .PP
-Load a plugin, for a full list of example plugins included in the
-Mojolicious distribution see \*(L"\s-1PLUGINS\*(R"\s0 in Mojolicious::Plugins.
+Load a plugin, for a full list of example plugins included in the Mojolicious distribution see
+\&\*(L"\s-1PLUGINS\*(R"\s0 in Mojolicious::Plugins.
 .SS "server"
 .IX Subsection "server"
 .Vb 1
@@ -708,9 +640,8 @@ Emits the \*(L"before_server_start\*(R" hook.
 \&  $app\->start(@ARGV);
 .Ve
 .PP
-Start the command line interface for your application. For a full list of
-commands that are available by default see \*(L"\s-1COMMANDS\*(R"\s0 in Mojolicious::Commands.
-Note that the options \f(CW\*(C`\-h\*(C'\fR/\f(CW\*(C`\-\-help\*(C'\fR, \f(CW\*(C`\-\-home\*(C'\fR and \f(CW\*(C`\-m\*(C'\fR/\f(CW\*(C`\-\-mode\*(C'\fR, which are
+Start the command line interface for your application. For a full list of commands that are available by default see
+\&\*(L"\s-1COMMANDS\*(R"\s0 in Mojolicious::Commands. Note that the options \f(CW\*(C`\-h\*(C'\fR/\f(CW\*(C`\-\-help\*(C'\fR, \f(CW\*(C`\-\-home\*(C'\fR and \f(CW\*(C`\-m\*(C'\fR/\f(CW\*(C`\-\-mode\*(C'\fR, which are
 shared by all commands, will be parsed from \f(CW@ARGV\fR during compile time.
 .PP
 .Vb 2
@@ -723,23 +654,25 @@ shared by all commands, will be parsed from \f(CW@ARGV\fR during compile time.
 \&  $app\->startup;
 .Ve
 .PP
-This is your main hook into the application, it will be called at application
-startup. Meant to be overloaded in a subclass.
+This is your main hook into the application, it will be called at application startup. Meant to be overloaded in a
+subclass.
 .PP
-.Vb 4
-\&  sub startup {
-\&    my $self = shift;
-\&    ...
-\&  }
+.Vb 1
+\&  sub startup ($self) {...}
 .Ve
+.SS "warmup"
+.IX Subsection "warmup"
+.Vb 1
+\&  $app\->warmup;
+.Ve
+.PP
+Preload classes from \*(L"preload_namespaces\*(R" for future use.
 .SH "HELPERS"
 .IX Header "HELPERS"
-In addition to the \*(L"\s-1ATTRIBUTES\*(R"\s0 and \*(L"\s-1METHODS\*(R"\s0 above you can also call
-helpers on Mojolicious objects. This includes all helpers from
-Mojolicious::Plugin::DefaultHelpers and Mojolicious::Plugin::TagHelpers.
-Note that application helpers are always called with a new default controller
-object, so they can't depend on or change controller state, which includes
-request, response and stash.
+In addition to the \*(L"\s-1ATTRIBUTES\*(R"\s0 and \*(L"\s-1METHODS\*(R"\s0 above you can also call helpers on Mojolicious objects. This
+includes all helpers from Mojolicious::Plugin::DefaultHelpers and Mojolicious::Plugin::TagHelpers. Note that
+application helpers are always called with a new default controller object, so they can't depend on or change
+controller state, which includes request, response and stash.
 .PP
 .Vb 2
 \&  # Call helper
@@ -750,16 +683,14 @@ request, response and stash.
 .Ve
 .SH "BUNDLED FILES"
 .IX Header "BUNDLED FILES"
-The Mojolicious distribution includes a few files with different licenses
-that have been bundled for internal use.
+The Mojolicious distribution includes a few files with different licenses that have been bundled for internal use.
 .SS "Mojolicious Artwork"
 .IX Subsection "Mojolicious Artwork"
 .Vb 1
-\&  Copyright (C) 2010\-2020, Sebastian Riedel.
+\&  Copyright (C) 2010\-2021, Sebastian Riedel.
 .Ve
 .PP
-Licensed under the CC-SA License, Version 4.0
-<http://creativecommons.org/licenses/by\-sa/4.0>.
+Licensed under the CC-SA License, Version 4.0 <http://creativecommons.org/licenses/by\-sa/4.0>.
 .SS "jQuery"
 .IX Subsection "jQuery"
 .Vb 1
@@ -767,18 +698,26 @@ Licensed under the CC-SA License, Version 4.0
 .Ve
 .PP
 Licensed under the \s-1MIT\s0 License, <http://creativecommons.org/licenses/MIT>.
-.SS "prettify.js"
-.IX Subsection "prettify.js"
+.SS "highlight.js"
+.IX Subsection "highlight.js"
 .Vb 1
-\&  Copyright (C) 2006, 2013 Google Inc..
+\&  Copyright (C) 2006, Ivan Sagalaev.
 .Ve
 .PP
-Licensed under the Apache License, Version 2.0
-<http://www.apache.org/licenses/LICENSE\-2.0>.
+Licensed under the \s-1BSD\s0 License, <https://github.com/highlightjs/highlight.js/blob/master/LICENSE>.
+.SS "Bootstrap"
+.IX Subsection "Bootstrap"
+.Vb 2
+\&  Copyright 2011\-2020 The Bootstrap Authors.
+\&  Copyright 2011\-2020 Twitter, Inc.
+.Ve
+.PP
+Licensed under the \s-1MIT\s0 License, <http://creativecommons.org/licenses/MIT>.
 .SH "CODE NAMES"
 .IX Header "CODE NAMES"
-Every major release of Mojolicious has a code name, these are the ones that
-have been used in the past.
+Every major release of Mojolicious has a code name, these are the ones that have been used in the past.
+.PP
+9.0, \f(CW\*(C`Waffle\*(C'\fR (U+1F9C7)
 .PP
 8.0, \f(CW\*(C`Supervillain\*(C'\fR (U+1F9B9)
 .PP
@@ -798,16 +737,18 @@ have been used in the past.
 .SH "SPONSORS"
 .IX Header "SPONSORS"
 .IP "\(bu" 2
-Stix <https://stix.no> sponsored the creation of the Mojolicious logo (designed
-by Nicolai Graesdal) and transferred its copyright to Sebastian Riedel.
+Stix <https://stix.no> sponsored the creation of the Mojolicious logo (designed by Nicolai Graesdal) and transferred
+its copyright to Sebastian Riedel.
 .IP "\(bu" 2
-Some of the work on this distribution has been sponsored by
-The Perl Foundation <http://www.perlfoundation.org>.
-.SH "PROJECT FOUNDER"
-.IX Header "PROJECT FOUNDER"
+Some of the work on this distribution has been sponsored by The Perl Foundation <https://www.perlfoundation.org>.
+.SH "AUTHORS"
+.IX Header "AUTHORS"
+Mojolicious is an open source project that relies on the tireless support of its contributors.
+.SS "Project Founder"
+.IX Subsection "Project Founder"
 Sebastian Riedel, \f(CW\*(C`kraih@mojolicious.org\*(C'\fR
-.SH "CORE DEVELOPERS"
-.IX Header "CORE DEVELOPERS"
+.SS "Core Developers"
+.IX Subsection "Core Developers"
 Current voting members of the core team in alphabetical order:
 .Sp
 .RS 2
@@ -831,8 +772,8 @@ Abhijit Menon-Sen, \f(CW\*(C`ams@cpan.org\*(C'\fR
 .Sp
 Glen Hinkle, \f(CW\*(C`tempire@cpan.org\*(C'\fR
 .RE
-.SH "CREDITS"
-.IX Header "CREDITS"
+.SS "Contributors"
+.IX Subsection "Contributors"
 In alphabetical order:
 .Sp
 .RS 2
@@ -872,6 +813,8 @@ Andrey Kuzmin
 .Sp
 Andy Grundman
 .Sp
+Andy Lester
+.Sp
 Aristotle Pagaltzis
 .Sp
 Ashley Dev
@@ -904,6 +847,8 @@ Chas. J. Owens \s-1IV\s0
 .Sp
 Chase Whitener
 .Sp
+Chris Scheller
+.Sp
 Christian Hansen
 .Sp
 chromatic
@@ -916,7 +861,7 @@ Daniel Mantovani
 .Sp
 Danijel Tasov
 .Sp
-Dagfinn Ilmari Mannsåker
+Dagfinn Ilmari Manns�ker
 .Sp
 Danny Thomas
 .Sp
@@ -937,6 +882,8 @@ Dominique Dumont
 Dotan Dimet
 .Sp
 Douglas Christopher Wilson
+.Sp
+Elmar S. Heeb
 .Sp
 Ettore Di Giacinto
 .Sp
@@ -1012,6 +959,8 @@ Mark Grimes
 .Sp
 Mark Stosberg
 .Sp
+Martin McGrath
+.Sp
 Marty Tennison
 .Sp
 Matt S Trout
@@ -1076,6 +1025,8 @@ Rick Delaney
 .Sp
 Robert Hicks
 .Sp
+Robert Rothenberg
+.Sp
 Robin Lee
 .Sp
 Roland Lammel
@@ -1091,6 +1042,8 @@ Santiago Zarate
 Sascha Kiefer
 .Sp
 Scott Wiersdorf
+.Sp
+Sebastian Paaske Torholm
 .Sp
 Sergey Zasenko
 .Sp
@@ -1134,6 +1087,8 @@ Ulrich Kautz
 .Sp
 Uwe Voelker
 .Sp
+Veesh Goldman
+.Sp
 Viacheslav Tykhanovskyi
 .Sp
 Victor Engmark
@@ -1154,11 +1109,10 @@ Zoffix Znet
 .RE
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
-Copyright (C) 2008\-2020, Sebastian Riedel and others.
+Copyright (C) 2008\-2021, Sebastian Riedel and others.
 .PP
-This program is free software, you can redistribute it and/or modify it under
-the terms of the Artistic License version 2.0.
+This program is free software, you can redistribute it and/or modify it under the terms of the Artistic License version
+2.0.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-<https://github.com/mojolicious/mojo>, Mojolicious::Guides,
-<https://mojolicious.org>.
+<https://github.com/mojolicious/mojo>, Mojolicious::Guides, <https://mojolicious.org>.

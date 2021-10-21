@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::DOM 3"
-.TH Mojo::DOM 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::DOM 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -105,9 +105,8 @@ Mojo::DOM \- Minimalistic HTML/XML DOM parser with CSS selectors
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::DOM is a minimalistic and relaxed \s-1HTML/XML DOM\s0 parser with \s-1CSS\s0
-selector support. It will even try to interpret broken \s-1HTML\s0 and \s-1XML,\s0 so you
-should not use it for validation.
+Mojo::DOM is a minimalistic and relaxed \s-1HTML/XML DOM\s0 parser with \s-1CSS\s0 selector support. It will even try to interpret
+broken \s-1HTML\s0 and \s-1XML,\s0 so you should not use it for validation.
 .SH "NODES AND ELEMENTS"
 .IX Header "NODES AND ELEMENTS"
 When we parse an \s-1HTML/XML\s0 fragment, it gets turned into a tree of nodes.
@@ -120,9 +119,8 @@ When we parse an \s-1HTML/XML\s0 fragment, it gets turned into a tree of nodes.
 \&  </html>
 .Ve
 .PP
-There are currently eight different kinds of nodes, \f(CW\*(C`cdata\*(C'\fR, \f(CW\*(C`comment\*(C'\fR,
-\&\f(CW\*(C`doctype\*(C'\fR, \f(CW\*(C`pi\*(C'\fR, \f(CW\*(C`raw\*(C'\fR, \f(CW\*(C`root\*(C'\fR, \f(CW\*(C`tag\*(C'\fR and \f(CW\*(C`text\*(C'\fR. Elements are nodes of
-the type \f(CW\*(C`tag\*(C'\fR.
+There are currently eight different kinds of nodes, \f(CW\*(C`cdata\*(C'\fR, \f(CW\*(C`comment\*(C'\fR, \f(CW\*(C`doctype\*(C'\fR, \f(CW\*(C`pi\*(C'\fR, \f(CW\*(C`raw\*(C'\fR, \f(CW\*(C`root\*(C'\fR, \f(CW\*(C`tag\*(C'\fR
+and \f(CW\*(C`text\*(C'\fR. Elements are nodes of the type \f(CW\*(C`tag\*(C'\fR.
 .PP
 .Vb 8
 \&  root
@@ -135,12 +133,12 @@ the type \f(CW\*(C`tag\*(C'\fR.
 \&        +\- text (World!)
 .Ve
 .PP
-While all node types are represented as Mojo::DOM objects, some methods like
-\&\*(L"attr\*(R" and \*(L"namespace\*(R" only apply to elements.
+While all node types are represented as Mojo::DOM objects, some methods like \*(L"attr\*(R" and \*(L"namespace\*(R" only
+apply to elements.
 .SH "CASE-SENSITIVITY"
 .IX Header "CASE-SENSITIVITY"
-Mojo::DOM defaults to \s-1HTML\s0 semantics, that means all tags and attribute
-names are lowercased and selectors need to be lowercase as well.
+Mojo::DOM defaults to \s-1HTML\s0 semantics, that means all tags and attribute names are lowercased and selectors need to
+be lowercase as well.
 .PP
 .Vb 3
 \&  # HTML semantics
@@ -148,8 +146,8 @@ names are lowercased and selectors need to be lowercase as well.
 \&  say $dom\->at(\*(Aqp[id]\*(Aq)\->text;
 .Ve
 .PP
-If an \s-1XML\s0 declaration is found, the parser will automatically switch into \s-1XML\s0
-mode and everything becomes case-sensitive.
+If an \s-1XML\s0 declaration is found, the parser will automatically switch into \s-1XML\s0 mode and everything becomes
+case-sensitive.
 .PP
 .Vb 3
 \&  # XML semantics
@@ -177,7 +175,8 @@ Mojo::DOM implements the following methods.
 \&  my $text = $dom\->all_text;
 .Ve
 .PP
-Extract text content from all descendant nodes of this element.
+Extract text content from all descendant nodes of this element. For \s-1HTML\s0 documents \f(CW\*(C`script\*(C'\fR and \f(CW\*(C`style\*(C'\fR elements are
+excluded.
 .PP
 .Vb 2
 \&  # "foo\enbarbaz\en"
@@ -190,9 +189,8 @@ Extract text content from all descendant nodes of this element.
 \&  my $collection = $dom\->ancestors(\*(Aqdiv ~ p\*(Aq);
 .Ve
 .PP
-Find all ancestor elements of this node matching the \s-1CSS\s0 selector and return a
-Mojo::Collection object containing these elements as Mojo::DOM objects.
-All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
+Find all ancestor elements of this node matching the \s-1CSS\s0 selector and return a Mojo::Collection object containing
+these elements as Mojo::DOM objects. All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
 .PP
 .Vb 2
 \&  # List tag names of ancestor elements
@@ -223,8 +221,7 @@ Append \s-1HTML/XML\s0 fragment to this node (for all node types other than \f(C
 \&  $dom = $dom\->append_content(Mojo::DOM\->new);
 .Ve
 .PP
-Append \s-1HTML/XML\s0 fragment (for \f(CW\*(C`root\*(C'\fR and \f(CW\*(C`tag\*(C'\fR nodes) or raw content to this
-node's content.
+Append \s-1HTML/XML\s0 fragment (for \f(CW\*(C`root\*(C'\fR and \f(CW\*(C`tag\*(C'\fR nodes) or raw content to this node's content.
 .PP
 .Vb 3
 \&  # "<div><h1>Test123</h1></div>"
@@ -245,9 +242,8 @@ node's content.
 \&  my $result = $dom\->at(\*(Aqsvg|line\*(Aq, svg => \*(Aqhttp://www.w3.org/2000/svg\*(Aq);
 .Ve
 .PP
-Find first descendant element of this element matching the \s-1CSS\s0 selector and
-return it as a Mojo::DOM object, or \f(CW\*(C`undef\*(C'\fR if none could be found. All
-selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
+Find first descendant element of this element matching the \s-1CSS\s0 selector and return it as a Mojo::DOM object, or
+\&\f(CW\*(C`undef\*(C'\fR if none could be found. All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
 .PP
 .Vb 2
 \&  # Find first element with "svg" namespace definition
@@ -288,8 +284,7 @@ This element's attributes.
 \&  my $collection = $dom\->child_nodes;
 .Ve
 .PP
-Return a Mojo::Collection object containing all child nodes of this element
-as Mojo::DOM objects.
+Return a Mojo::Collection object containing all child nodes of this element as Mojo::DOM objects.
 .PP
 .Vb 2
 \&  # "<p><b>123</b></p>"
@@ -308,9 +303,8 @@ as Mojo::DOM objects.
 \&  my $collection = $dom\->children(\*(Aqdiv ~ p\*(Aq);
 .Ve
 .PP
-Find all child elements of this element matching the \s-1CSS\s0 selector and return a
-Mojo::Collection object containing these elements as Mojo::DOM objects.
-All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
+Find all child elements of this element matching the \s-1CSS\s0 selector and return a Mojo::Collection object containing
+these elements as Mojo::DOM objects. All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
 .PP
 .Vb 2
 \&  # Show tag name of random child element
@@ -324,8 +318,7 @@ All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
 \&  $dom    = $dom\->content(Mojo::DOM\->new);
 .Ve
 .PP
-Return this node's content or replace it with \s-1HTML/XML\s0 fragment (for \f(CW\*(C`root\*(C'\fR
-and \f(CW\*(C`tag\*(C'\fR nodes) or raw content.
+Return this node's content or replace it with \s-1HTML/XML\s0 fragment (for \f(CW\*(C`root\*(C'\fR and \f(CW\*(C`tag\*(C'\fR nodes) or raw content.
 .PP
 .Vb 2
 \&  # "<b>Test</b>"
@@ -353,8 +346,7 @@ and \f(CW\*(C`tag\*(C'\fR nodes) or raw content.
 \&  my $collection = $dom\->descendant_nodes;
 .Ve
 .PP
-Return a Mojo::Collection object containing all descendant nodes of this
-element as Mojo::DOM objects.
+Return a Mojo::Collection object containing all descendant nodes of this element as Mojo::DOM objects.
 .PP
 .Vb 4
 \&  # "<p><b>123</b></p>"
@@ -374,9 +366,8 @@ element as Mojo::DOM objects.
 \&  my $collection = $dom\->find(\*(Aqsvg|line\*(Aq, svg => \*(Aqhttp://www.w3.org/2000/svg\*(Aq);
 .Ve
 .PP
-Find all descendant elements of this element matching the \s-1CSS\s0 selector and
-return a Mojo::Collection object containing these elements as Mojo::DOM
-objects. All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
+Find all descendant elements of this element matching the \s-1CSS\s0 selector and return a Mojo::Collection object
+containing these elements as Mojo::DOM objects. All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
 .PP
 .Vb 2
 \&  # Find a specific element and extract information
@@ -406,9 +397,8 @@ Trailing key/value pairs can be used to declare xml namespace aliases.
 \&  my $collection = $dom\->following(\*(Aqdiv ~ p\*(Aq);
 .Ve
 .PP
-Find all sibling elements after this node matching the \s-1CSS\s0 selector and return
-a Mojo::Collection object containing these elements as Mojo::DOM objects.
-All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
+Find all sibling elements after this node matching the \s-1CSS\s0 selector and return a Mojo::Collection object containing
+these elements as Mojo::DOM objects. All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
 .PP
 .Vb 2
 \&  # List tags of sibling elements after this node
@@ -420,8 +410,7 @@ All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
 \&  my $collection = $dom\->following_nodes;
 .Ve
 .PP
-Return a Mojo::Collection object containing all sibling nodes after this
-node as Mojo::DOM objects.
+Return a Mojo::Collection object containing all sibling nodes after this node as Mojo::DOM objects.
 .PP
 .Vb 2
 \&  # "C"
@@ -434,8 +423,7 @@ node as Mojo::DOM objects.
 \&  my $bool = $dom\->matches(\*(Aqsvg|line\*(Aq, svg => \*(Aqhttp://www.w3.org/2000/svg\*(Aq);
 .Ve
 .PP
-Check if this element matches the \s-1CSS\s0 selector. All selectors from
-\&\*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
+Check if this element matches the \s-1CSS\s0 selector. All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
 .PP
 .Vb 3
 \&  # True
@@ -463,6 +451,9 @@ Trailing key/value pairs can be used to declare xml namespace aliases.
 Find this element's namespace, or return \f(CW\*(C`undef\*(C'\fR if none could be found.
 .PP
 .Vb 2
+\&  # "http://www.w3.org/2000/svg"
+\&  Mojo::DOM\->new(\*(Aq<svg xmlns:svg="http://www.w3.org/2000/svg"><svg:circle>3.14</svg:circle></svg>\*(Aq)\->at(\*(Aqsvg\e:circle\*(Aq)\->namespace;
+\&
 \&  # Find namespace for an element with namespace prefix
 \&  my $namespace = $dom\->at(\*(Aqsvg > svg\e:circle\*(Aq)\->namespace;
 \&
@@ -476,8 +467,7 @@ Find this element's namespace, or return \f(CW\*(C`undef\*(C'\fR if none could b
 \&  my $dom = Mojo::DOM\->new(\*(Aq<foo bar="baz">I ♥ Mojolicious!</foo>\*(Aq);
 .Ve
 .PP
-Construct a new scalar-based Mojo::DOM object and \*(L"parse\*(R" \s-1HTML/XML\s0
-fragment if necessary.
+Construct a new scalar-based Mojo::DOM object and \*(L"parse\*(R" \s-1HTML/XML\s0 fragment if necessary.
 .SS "new_tag"
 .IX Subsection "new_tag"
 .Vb 7
@@ -490,9 +480,8 @@ fragment if necessary.
 \&  my $tag = $dom\->new_tag(\*(Aqdiv\*(Aq, id => \*(Aqfoo\*(Aq, sub { \*(Aqunsafe content\*(Aq });
 .Ve
 .PP
-Construct a new Mojo::DOM object for an \s-1HTML/XML\s0 tag with or without
-attributes and content. The \f(CW\*(C`data\*(C'\fR attribute may contain a hash reference with
-key/value pairs to generate attributes from.
+Construct a new Mojo::DOM object for an \s-1HTML/XML\s0 tag with or without attributes and content. The \f(CW\*(C`data\*(C'\fR attribute
+may contain a hash reference with key/value pairs to generate attributes from.
 .PP
 .Vb 2
 \&  # "<br>"
@@ -526,8 +515,7 @@ key/value pairs to generate attributes from.
 \&  my $sibling = $dom\->next;
 .Ve
 .PP
-Return Mojo::DOM object for next sibling element, or \f(CW\*(C`undef\*(C'\fR if there are no
-more siblings.
+Return Mojo::DOM object for next sibling element, or \f(CW\*(C`undef\*(C'\fR if there are no more siblings.
 .PP
 .Vb 2
 \&  # "<h2>123</h2>"
@@ -539,8 +527,7 @@ more siblings.
 \&  my $sibling = $dom\->next_node;
 .Ve
 .PP
-Return Mojo::DOM object for next sibling node, or \f(CW\*(C`undef\*(C'\fR if there are no
-more siblings.
+Return Mojo::DOM object for next sibling node, or \f(CW\*(C`undef\*(C'\fR if there are no more siblings.
 .PP
 .Vb 3
 \&  # "456"
@@ -557,8 +544,7 @@ more siblings.
 \&  my $parent = $dom\->parent;
 .Ve
 .PP
-Return Mojo::DOM object for parent of this node, or \f(CW\*(C`undef\*(C'\fR if this node has
-no parent.
+Return Mojo::DOM object for parent of this node, or \f(CW\*(C`undef\*(C'\fR if this node has no parent.
 .PP
 .Vb 2
 \&  # "<b><i>Test</i></b>"
@@ -583,9 +569,8 @@ Parse \s-1HTML/XML\s0 fragment with Mojo::DOM::HTML.
 \&  my $collection = $dom\->preceding(\*(Aqdiv ~ p\*(Aq);
 .Ve
 .PP
-Find all sibling elements before this node matching the \s-1CSS\s0 selector and return
-a Mojo::Collection object containing these elements as Mojo::DOM objects.
-All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
+Find all sibling elements before this node matching the \s-1CSS\s0 selector and return a Mojo::Collection object containing
+these elements as Mojo::DOM objects. All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
 .PP
 .Vb 2
 \&  # List tags of sibling elements before this node
@@ -597,8 +582,7 @@ All selectors from \*(L"\s-1SELECTORS\*(R"\s0 in Mojo::DOM::CSS are supported.
 \&  my $collection = $dom\->preceding_nodes;
 .Ve
 .PP
-Return a Mojo::Collection object containing all sibling nodes before this
-node as Mojo::DOM objects.
+Return a Mojo::Collection object containing all sibling nodes before this node as Mojo::DOM objects.
 .PP
 .Vb 2
 \&  # "A"
@@ -629,8 +613,7 @@ Prepend \s-1HTML/XML\s0 fragment to this node (for all node types other than \f(
 \&  $dom = $dom\->prepend_content(Mojo::DOM\->new);
 .Ve
 .PP
-Prepend \s-1HTML/XML\s0 fragment (for \f(CW\*(C`root\*(C'\fR and \f(CW\*(C`tag\*(C'\fR nodes) or raw content to this
-node's content.
+Prepend \s-1HTML/XML\s0 fragment (for \f(CW\*(C`root\*(C'\fR and \f(CW\*(C`tag\*(C'\fR nodes) or raw content to this node's content.
 .PP
 .Vb 3
 \&  # "<div><h2>Test123</h2></div>"
@@ -650,8 +633,7 @@ node's content.
 \&  my $sibling = $dom\->previous;
 .Ve
 .PP
-Return Mojo::DOM object for previous sibling element, or \f(CW\*(C`undef\*(C'\fR if there
-are no more siblings.
+Return Mojo::DOM object for previous sibling element, or \f(CW\*(C`undef\*(C'\fR if there are no more siblings.
 .PP
 .Vb 2
 \&  # "<h1>Test</h1>"
@@ -663,8 +645,7 @@ are no more siblings.
 \&  my $sibling = $dom\->previous_node;
 .Ve
 .PP
-Return Mojo::DOM object for previous sibling node, or \f(CW\*(C`undef\*(C'\fR if there are
-no more siblings.
+Return Mojo::DOM object for previous sibling node, or \f(CW\*(C`undef\*(C'\fR if there are no more siblings.
 .PP
 .Vb 3
 \&  # "123"
@@ -698,8 +679,7 @@ Remove this node and return \*(L"root\*(R" (for \f(CW\*(C`root\*(C'\fR nodes) or
 \&  my $parent = $dom\->replace(Mojo::DOM\->new);
 .Ve
 .PP
-Replace this node with \s-1HTML/XML\s0 fragment and return \*(L"root\*(R" (for \f(CW\*(C`root\*(C'\fR
-nodes) or \*(L"parent\*(R".
+Replace this node with \s-1HTML/XML\s0 fragment and return \*(L"root\*(R" (for \f(CW\*(C`root\*(C'\fR nodes) or \*(L"parent\*(R".
 .PP
 .Vb 2
 \&  # "<div><h2>123</h2></div>"
@@ -778,6 +758,8 @@ Extract text content from this element only (not including child elements).
 \&  # "foo\enbaz\en"
 \&  $dom\->parse("<div>foo\en<p>bar</p>baz\en</div>")\->at(\*(Aqdiv\*(Aq)\->text;
 .Ve
+.PP
+To extract text content from all descendant nodes see \*(L"all_text\*(R".
 .SS "to_string"
 .IX Subsection "to_string"
 .Vb 1
@@ -797,16 +779,14 @@ Render this node and its content to \s-1HTML/XML.\s0
 \&  $dom     = $dom\->tree([\*(Aqroot\*(Aq]);
 .Ve
 .PP
-Document Object Model. Note that this structure should only be used very
-carefully since it is very dynamic.
+Document Object Model. Note that this structure should only be used very carefully since it is very dynamic.
 .SS "type"
 .IX Subsection "type"
 .Vb 1
 \&  my $type = $dom\->type;
 .Ve
 .PP
-This node's type, usually \f(CW\*(C`cdata\*(C'\fR, \f(CW\*(C`comment\*(C'\fR, \f(CW\*(C`doctype\*(C'\fR, \f(CW\*(C`pi\*(C'\fR, \f(CW\*(C`raw\*(C'\fR,
-\&\f(CW\*(C`root\*(C'\fR, \f(CW\*(C`tag\*(C'\fR or \f(CW\*(C`text\*(C'\fR.
+This node's type, usually \f(CW\*(C`cdata\*(C'\fR, \f(CW\*(C`comment\*(C'\fR, \f(CW\*(C`doctype\*(C'\fR, \f(CW\*(C`pi\*(C'\fR, \f(CW\*(C`raw\*(C'\fR, \f(CW\*(C`root\*(C'\fR, \f(CW\*(C`tag\*(C'\fR or \f(CW\*(C`text\*(C'\fR.
 .PP
 .Vb 2
 \&  # "cdata"
@@ -839,11 +819,9 @@ This node's type, usually \f(CW\*(C`cdata\*(C'\fR, \f(CW\*(C`comment\*(C'\fR, \f
 \&  my $value = $dom\->val;
 .Ve
 .PP
-Extract value from form element (such as \f(CW\*(C`button\*(C'\fR, \f(CW\*(C`input\*(C'\fR, \f(CW\*(C`option\*(C'\fR,
-\&\f(CW\*(C`select\*(C'\fR and \f(CW\*(C`textarea\*(C'\fR), or return \f(CW\*(C`undef\*(C'\fR if this element has no value. In
-the case of \f(CW\*(C`select\*(C'\fR with \f(CW\*(C`multiple\*(C'\fR attribute, find \f(CW\*(C`option\*(C'\fR elements with
-\&\f(CW\*(C`selected\*(C'\fR attribute and return an array reference with all values, or \f(CW\*(C`undef\*(C'\fR
-if none could be found.
+Extract value from form element (such as \f(CW\*(C`button\*(C'\fR, \f(CW\*(C`input\*(C'\fR, \f(CW\*(C`option\*(C'\fR, \f(CW\*(C`select\*(C'\fR and \f(CW\*(C`textarea\*(C'\fR), or return \f(CW\*(C`undef\*(C'\fR
+if this element has no value. In the case of \f(CW\*(C`select\*(C'\fR with \f(CW\*(C`multiple\*(C'\fR attribute, find \f(CW\*(C`option\*(C'\fR elements with
+\&\f(CW\*(C`selected\*(C'\fR attribute and return an array reference with all values, or \f(CW\*(C`undef\*(C'\fR if none could be found.
 .PP
 .Vb 2
 \&  # "a"
@@ -882,8 +860,8 @@ Alias for \*(L"with_roles\*(R" in Mojo::Base.
 \&  $dom = $dom\->wrap(Mojo::DOM\->new);
 .Ve
 .PP
-Wrap \s-1HTML/XML\s0 fragment around this node (for all node types other than \f(CW\*(C`root\*(C'\fR),
-placing it as the last child of the first innermost element.
+Wrap \s-1HTML/XML\s0 fragment around this node (for all node types other than \f(CW\*(C`root\*(C'\fR), placing it as the last child of the
+first innermost element.
 .PP
 .Vb 2
 \&  # "<p>123<b>Test</b></p>"
@@ -905,8 +883,8 @@ placing it as the last child of the first innermost element.
 \&  $dom = $dom\->wrap_content(Mojo::DOM\->new);
 .Ve
 .PP
-Wrap \s-1HTML/XML\s0 fragment around this node's content (for \f(CW\*(C`root\*(C'\fR and \f(CW\*(C`tag\*(C'\fR
-nodes), placing it as the last children of the first innermost element.
+Wrap \s-1HTML/XML\s0 fragment around this node's content (for \f(CW\*(C`root\*(C'\fR and \f(CW\*(C`tag\*(C'\fR nodes), placing it as the last children of
+the first innermost element.
 .PP
 .Vb 2
 \&  # "<p><b>123Test</b></p>"
@@ -922,8 +900,7 @@ nodes), placing it as the last children of the first innermost element.
 \&  $dom     = $dom\->xml($bool);
 .Ve
 .PP
-Disable \s-1HTML\s0 semantics in parser and activate case-sensitivity, defaults to
-auto-detection based on \s-1XML\s0 declarations.
+Disable \s-1HTML\s0 semantics in parser and activate case-sensitivity, defaults to auto-detection based on \s-1XML\s0 declarations.
 .SH "OPERATORS"
 .IX Header "OPERATORS"
 Mojo::DOM overloads the following operators.

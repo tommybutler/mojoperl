@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::UserAgent::Server 3"
-.TH Mojo::UserAgent::Server 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::UserAgent::Server 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -84,8 +84,8 @@ Mojo::UserAgent::Server \- Application server
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::UserAgent::Server is an embedded web server based on
-Mojo::Server::Daemon that processes requests for Mojo::UserAgent.
+Mojo::UserAgent::Server is an embedded web server based on Mojo::Server::Daemon that processes requests for
+Mojo::UserAgent.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojo::UserAgent::Server implements the following attributes.
@@ -96,12 +96,10 @@ Mojo::UserAgent::Server implements the following attributes.
 \&  $server  = $server\->ioloop(Mojo::IOLoop\->new);
 .Ve
 .PP
-Event loop object to use for I/O operations, defaults to the global
-Mojo::IOLoop singleton.
+Event loop object to use for I/O operations, defaults to the global Mojo::IOLoop singleton.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::UserAgent::Server inherits all methods from Mojo::Base and
-implements the following new ones.
+Mojo::UserAgent::Server inherits all methods from Mojo::Base and implements the following new ones.
 .SS "app"
 .IX Subsection "app"
 .Vb 4
@@ -111,8 +109,7 @@ implements the following new ones.
 \&  $server = $server\->app(Mojolicious\->new);
 .Ve
 .PP
-Application this server handles, instance specific applications override the
-global default.
+Application this server handles, instance specific applications override the global default.
 .PP
 .Vb 2
 \&  # Change application behavior
@@ -121,13 +118,13 @@ global default.
 .SS "nb_url"
 .IX Subsection "nb_url"
 .Vb 3
-\&  my $url = $ua\->nb_url;
-\&  my $url = $ua\->nb_url(\*(Aqhttp\*(Aq);
-\&  my $url = $ua\->nb_url(\*(Aqhttps\*(Aq);
+\&  my $url = $server\->nb_url;
+\&  my $url = $server\->nb_url(\*(Aqhttp\*(Aq);
+\&  my $url = $server\->nb_url(\*(Aqhttps\*(Aq);
 .Ve
 .PP
-Get absolute Mojo::URL object for server processing non-blocking requests
-with \*(L"app\*(R" and switch protocol if necessary.
+Get absolute Mojo::URL object for server processing non-blocking requests with \*(L"app\*(R" and switch protocol if
+necessary.
 .SS "restart"
 .IX Subsection "restart"
 .Vb 1
@@ -138,13 +135,13 @@ Restart server with new port.
 .SS "url"
 .IX Subsection "url"
 .Vb 3
-\&  my $url = $ua\->url;
-\&  my $url = $ua\->url(\*(Aqhttp\*(Aq);
-\&  my $url = $ua\->url(\*(Aqhttps\*(Aq);
+\&  my $url = $server\->url;
+\&  my $url = $server\->url(\*(Aqhttp\*(Aq);
+\&  my $url = $server\->url(\*(Aqhttps\*(Aq);
 .Ve
 .PP
-Get absolute Mojo::URL object for server processing blocking requests with
-\&\*(L"app\*(R" and switch protocol if necessary.
+Get absolute Mojo::URL object for server processing blocking requests with \*(L"app\*(R" and switch protocol if
+necessary.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

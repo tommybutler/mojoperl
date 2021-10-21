@@ -64,72 +64,10 @@
 .        nr F 2
 .    \}
 .\}
-.\"
-.\" Accent mark definitions (@(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2).
-.\" Fear.  Run.  Save yourself.  No user-serviceable parts.
-.    \" fudge factors for nroff and troff
-.if n \{\
-.    ds #H 0
-.    ds #V .8m
-.    ds #F .3m
-.    ds #[ \f1
-.    ds #] \fP
-.\}
-.if t \{\
-.    ds #H ((1u-(\\\\n(.fu%2u))*.13m)
-.    ds #V .6m
-.    ds #F 0
-.    ds #[ \&
-.    ds #] \&
-.\}
-.    \" simple accents for nroff and troff
-.if n \{\
-.    ds ' \&
-.    ds ` \&
-.    ds ^ \&
-.    ds , \&
-.    ds ~ ~
-.    ds /
-.\}
-.if t \{\
-.    ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
-.    ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
-.    ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
-.    ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
-.    ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
-.    ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
-.\}
-.    \" troff and (daisy-wheel) nroff accents
-.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
-.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
-.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
-.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
-.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
-.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
-.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
-.ds ae a\h'-(\w'a'u*4/10)'e
-.ds Ae A\h'-(\w'A'u*4/10)'E
-.    \" corrections for vroff
-.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
-.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
-.    \" for low resolution devices (crt and lpr)
-.if \n(.H>23 .if \n(.V>19 \
-\{\
-.    ds : e
-.    ds 8 ss
-.    ds o a
-.    ds d- d\h'-1'\(ga
-.    ds D- D\h'-1'\(hy
-.    ds th \o'bp'
-.    ds Th \o'LP'
-.    ds ae ae
-.    ds Ae AE
-.\}
-.rm #[ #] #H #V #F C
 .\" ========================================================================
 .\"
 .IX Title "List::Util 3"
-.TH List::Util 3 "2017-04-19" "perl v5.26.0" "Perl Programmers Reference Guide"
+.TH List::Util 3 "2021-10-08" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -140,13 +78,13 @@ List::Util \- A selection of general\-utility list subroutines
 .IX Header "SYNOPSIS"
 .Vb 2
 \&    use List::Util qw(
-\&      reduce any all none notall first
+\&      reduce any all none notall first reductions
 \&
 \&      max maxstr min minstr product sum sum0
 \&
 \&      pairs unpairs pairkeys pairvalues pairfirst pairgrep pairmap
 \&
-\&      shuffle uniq uniqnum uniqstr
+\&      shuffle uniq uniqint uniqnum uniqstr zip mesh
 \&    );
 .Ve
 .SH "DESCRIPTION"
@@ -159,7 +97,8 @@ individual extensions would be wasteful.
 By default \f(CW\*(C`List::Util\*(C'\fR does not export any subroutines.
 .SH "LIST-REDUCTION FUNCTIONS"
 .IX Header "LIST-REDUCTION FUNCTIONS"
-The following set of functions all reduce a list down to a single value.
+The following set of functions all apply a given block of code to a list of
+values.
 .SS "reduce"
 .IX Subsection "reduce"
 .Vb 1
@@ -210,7 +149,7 @@ sure that you always pass that identity value as the first argument to prevent
 .PP
 The above example code blocks also suggest how to use \f(CW\*(C`reduce\*(C'\fR to build a
 more efficient combined version of one of these basic functions and a \f(CW\*(C`map\*(C'\fR
-block. For example, to find the total length of the all the strings in a list,
+block. For example, to find the total length of all the strings in a list,
 we could use
 .PP
 .Vb 1
@@ -226,8 +165,31 @@ block that accumulates lengths by writing this instead as:
 \&    $total = reduce { $a + length $b } 0, @strings
 .Ve
 .PP
-The remaining list-reduction functions are all specialisations of this generic
-idea.
+The other scalar-returning list reduction functions are all specialisations of
+this generic idea.
+.SS "reductions"
+.IX Subsection "reductions"
+.Vb 1
+\&    @results = reductions { BLOCK } @list
+.Ve
+.PP
+\&\fISince version 1.54.\fR
+.PP
+Similar to \f(CW\*(C`reduce\*(C'\fR except that it also returns the intermediate values along
+with the final result. As before, \f(CW$a\fR is set to the first element of the
+given list, and the \f(CW\*(C`BLOCK\*(C'\fR is then called once for remaining item in the
+list set into \f(CW$b\fR, with the result being captured for return as well as
+becoming the new value for \f(CW$a\fR.
+.PP
+The returned list will begin with the initial value for \f(CW$a\fR, followed by
+each return value from the block in order. The final value of the result will
+be identical to what the \f(CW\*(C`reduce\*(C'\fR function would have returned given the same
+block and list.
+.PP
+.Vb 2
+\&    reduce     { "$a\-$b" }  "a".."d"    # "a\-b\-c\-d"
+\&    reductions { "$a\-$b" }  "a".."d"    # "a", "a\-b", "a\-b\-c", "a\-b\-c\-d"
+.Ve
 .SS "any"
 .IX Subsection "any"
 .Vb 1
@@ -249,6 +211,9 @@ instead, as it can short-circuit after the first true result.
 \&        # at least one string has more than 10 characters
 \&    }
 .Ve
+.PP
+Note: Due to \s-1XS\s0 issues the block passed may be able to access the outer \f(CW@_\fR
+directly. This is not intentional and will break under debugger.
 .SS "all"
 .IX Subsection "all"
 .Vb 1
@@ -261,6 +226,9 @@ Similar to \*(L"any\*(R", except that it requires all elements of the \f(CW@list
 make the \f(CW\*(C`BLOCK\*(C'\fR return true. If any element returns false, then it returns
 false. If the \f(CW\*(C`BLOCK\*(C'\fR never returns false or the \f(CW@list\fR was empty then it
 returns true.
+.PP
+Note: Due to \s-1XS\s0 issues the block passed may be able to access the outer \f(CW@_\fR
+directly. This is not intentional and will break under debugger.
 .SS "none"
 .IX Subsection "none"
 .SS "notall"
@@ -276,6 +244,9 @@ returns true.
 Similar to \*(L"any\*(R" and \*(L"all\*(R", but with the return sense inverted. \f(CW\*(C`none\*(C'\fR
 returns true only if no value in the \f(CW@list\fR causes the \f(CW\*(C`BLOCK\*(C'\fR to return
 true, and \f(CW\*(C`notall\*(C'\fR returns true only if not all of the values do.
+.PP
+Note: Due to \s-1XS\s0 issues the block passed may be able to access the outer \f(CW@_\fR
+directly. This is not intentional and will break under debugger.
 .SS "first"
 .IX Subsection "first"
 .Vb 1
@@ -462,6 +433,9 @@ equivalent:
 \&       ...
 \&    }
 .Ve
+.PP
+Since version \f(CW1.51\fR they also have a \f(CW\*(C`TO_JSON\*(C'\fR method to ease
+serialisation.
 .SS "unpairs"
 .IX Subsection "unpairs"
 .Vb 1
@@ -627,6 +601,24 @@ Returns the values of the input in a random order
 .Vb 1
 \&    @cards = shuffle 0..51      # 0..51 in a random order
 .Ve
+.PP
+This function is affected by the \f(CW$RAND\fR variable.
+.SS "sample"
+.IX Subsection "sample"
+.Vb 1
+\&    my @items = sample $count, @values
+.Ve
+.PP
+\&\fISince version 1.54.\fR
+.PP
+Randomly select the given number of elements from the input list. Any given
+position in the input list will be selected at most once.
+.PP
+If there are fewer than \f(CW$count\fR items in the list then the function will
+return once all of them have been randomly selected; effectively the function
+behaves similarly to \*(L"shuffle\*(R".
+.PP
+This function is affected by the \f(CW$RAND\fR variable.
 .SS "uniq"
 .IX Subsection "uniq"
 .Vb 1
@@ -650,6 +642,31 @@ The \f(CW\*(C`undef\*(C'\fR value is treated by this function as distinct from t
 string, and no warning will be produced. It is left as-is in the returned
 list. Subsequent \f(CW\*(C`undef\*(C'\fR values are still considered identical to the first,
 and will be removed.
+.SS "uniqint"
+.IX Subsection "uniqint"
+.Vb 1
+\&    my @subset = uniqint @values
+.Ve
+.PP
+\&\fISince version 1.55.\fR
+.PP
+Filters a list of values to remove subsequent duplicates, as judged by an
+integer numerical equality test. Preserves the order of unique elements, and
+retains the first value of any duplicate set. Values in the returned list will
+be coerced into integers.
+.PP
+.Vb 1
+\&    my $count = uniqint @values
+.Ve
+.PP
+In scalar context, returns the number of elements that would have been
+returned as a list.
+.PP
+Note that \f(CW\*(C`undef\*(C'\fR is treated much as other numerical operations treat it; it
+compares equal to zero but additionally produces a warning if such warnings
+are enabled (\f(CW\*(C`use warnings \*(Aquninitialized\*(Aq;\*(C'\fR). In addition, an \f(CW\*(C`undef\*(C'\fR in
+the returned list is coerced into a numerical zero, so that the entire list of
+values returned by \f(CW\*(C`uniqint\*(C'\fR are well-behaved as integers.
 .SS "uniqnum"
 .IX Subsection "uniqnum"
 .Vb 1
@@ -702,6 +719,148 @@ compares equal to the empty string but additionally produces a warning if such
 warnings are enabled (\f(CW\*(C`use warnings \*(Aquninitialized\*(Aq;\*(C'\fR). In addition, an
 \&\f(CW\*(C`undef\*(C'\fR in the returned list is coerced into an empty string, so that the
 entire list of values returned by \f(CW\*(C`uniqstr\*(C'\fR are well-behaved as strings.
+.SS "head"
+.IX Subsection "head"
+.Vb 1
+\&    my @values = head $size, @list;
+.Ve
+.PP
+\&\fISince version 1.50.\fR
+.PP
+Returns the first \f(CW$size\fR elements from \f(CW@list\fR. If \f(CW$size\fR is negative, returns
+all but the last \f(CW$size\fR elements from \f(CW@list\fR.
+.PP
+.Vb 2
+\&    @result = head 2, qw( foo bar baz );
+\&    # foo, bar
+\&
+\&    @result = head \-2, qw( foo bar baz );
+\&    # foo
+.Ve
+.SS "tail"
+.IX Subsection "tail"
+.Vb 1
+\&    my @values = tail $size, @list;
+.Ve
+.PP
+\&\fISince version 1.50.\fR
+.PP
+Returns the last \f(CW$size\fR elements from \f(CW@list\fR. If \f(CW$size\fR is negative, returns
+all but the first \f(CW$size\fR elements from \f(CW@list\fR.
+.PP
+.Vb 2
+\&    @result = tail 2, qw( foo bar baz );
+\&    # bar, baz
+\&
+\&    @result = tail \-2, qw( foo bar baz );
+\&    # baz
+.Ve
+.SS "zip"
+.IX Subsection "zip"
+.Vb 2
+\&    my @result = zip [1..3], [\*(Aqa\*(Aq..\*(Aqc\*(Aq];
+\&    # [1, \*(Aqa\*(Aq], [2, \*(Aqb\*(Aq], [3, \*(Aqc\*(Aq]
+.Ve
+.PP
+\&\fISince version 1.56.\fR
+.PP
+Returns a list of array references, composed of elements from the given list
+of array references. Each array in the returned list is composed of elements
+at that corresponding position from each of the given input arrays. If any
+input arrays run out of elements before others, then \f(CW\*(C`undef\*(C'\fR will be inserted
+into the result to fill in the gaps.
+.PP
+The \f(CW\*(C`zip\*(C'\fR function is particularly handy for iterating over multiple arrays
+at the same time with a \f(CW\*(C`foreach\*(C'\fR loop, taking one element from each:
+.PP
+.Vb 4
+\&    foreach ( zip \e@xs, \e@ys, \e@zs ) {
+\&        my ($x, $y, $z) = @$_;
+\&        ...
+\&    }
+.Ve
+.PP
+\&\fB\s-1NOTE\s0\fR to users of List::MoreUtils: This function does not behave the same
+as \f(CW\*(C`List::MoreUtils::zip\*(C'\fR, but is actually a non-prototyped equivalent to
+\&\f(CW\*(C`List::MoreUtils::zip_unflatten\*(C'\fR. This function does not apply a prototype,
+so make sure to invoke it with references to arrays.
+.PP
+For a function similar to the \f(CW\*(C`zip\*(C'\fR function from \f(CW\*(C`List::MoreUtils\*(C'\fR, see
+mesh.
+.PP
+.Vb 1
+\&    my @result = zip_shortest ...
+.Ve
+.PP
+A variation of the function that differs in how it behaves when given input
+arrays of differing lengths. \f(CW\*(C`zip_shortest\*(C'\fR will stop as soon as any one of
+the input arrays run out of elements, discarding any remaining unused values
+from the others.
+.PP
+.Vb 1
+\&    my @result = zip_longest ...
+.Ve
+.PP
+\&\f(CW\*(C`zip_longest\*(C'\fR is an alias to the \f(CW\*(C`zip\*(C'\fR function, provided simply to be
+explicit about that behaviour as compared to \f(CW\*(C`zip_shortest\*(C'\fR.
+.SS "mesh"
+.IX Subsection "mesh"
+.Vb 2
+\&    my @result = mesh [1..3], [\*(Aqa\*(Aq..\*(Aqc\*(Aq];
+\&    # (1, \*(Aqa\*(Aq, 2, \*(Aqb\*(Aq, 3, \*(Aqc\*(Aq)
+.Ve
+.PP
+\&\fISince version 1.56.\fR
+.PP
+Returns a list of items collected from elements of the given list of array
+references. Each section of items in the returned list is composed of elements
+at the corresponding position from each of the given input arrays. If any
+input arrays run out of elements before others, then \f(CW\*(C`undef\*(C'\fR will be inserted
+into the result to fill in the gaps.
+.PP
+This is similar to zip, except that all of the ranges in the result are
+returned in one long flattened list, instead of being bundled into separate
+arrays.
+.PP
+Because it returns a flat list of items, the \f(CW\*(C`mesh\*(C'\fR function is particularly
+useful for building a hash out of two separate arrays of keys and values:
+.PP
+.Vb 1
+\&    my %hash = mesh \e@keys, \e@values;
+\&
+\&    my $href = { mesh \e@keys, \e@values };
+.Ve
+.PP
+\&\fB\s-1NOTE\s0\fR to users of List::MoreUtils: This function is a non-prototyped
+equivalent to \f(CW\*(C`List::MoreUtils::mesh\*(C'\fR or \f(CW\*(C`List::MoreUtils::zip\*(C'\fR (themselves
+aliases of each other). This function does not apply a prototype, so make sure
+to invoke it with references to arrays.
+.PP
+.Vb 1
+\&    my @result = mesh_shortest ...
+\&
+\&    my @result = mesh_longest ...
+.Ve
+.PP
+These variations are similar to those of zip, in that they differ in
+behaviour when one of the input lists runs out of elements before the others.
+.SH "CONFIGURATION VARIABLES"
+.IX Header "CONFIGURATION VARIABLES"
+.ie n .SS "$RAND"
+.el .SS "\f(CW$RAND\fP"
+.IX Subsection "$RAND"
+.Vb 1
+\&    local $List::Util::RAND = sub { ... };
+.Ve
+.PP
+\&\fISince version 1.54.\fR
+.PP
+This package variable is used by code which needs to generate random numbers
+(such as the \*(L"shuffle\*(R" and \*(L"sample\*(R" functions). If set to a \s-1CODE\s0 reference
+it provides an alternative to perl's builtin \f(CW\*(C`rand()\*(C'\fR function. When a new
+random number is needed this function will be invoked with no arguments and is
+expected to return a floating-point value, of which only the fractional part
+will be used.
 .SH "KNOWN BUGS"
 .IX Header "KNOWN BUGS"
 .SS "\s-1RT\s0 #95409"

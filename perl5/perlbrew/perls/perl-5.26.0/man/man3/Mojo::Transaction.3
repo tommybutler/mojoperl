@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Transaction 3"
-.TH Mojo::Transaction 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Transaction 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -87,29 +87,22 @@ Mojo::Transaction \- Transaction base class
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Transaction is an abstract base class for transactions, like
-Mojo::Transaction::HTTP and Mojo::Transaction::WebSocket.
+Mojo::Transaction is an abstract base class for transactions, like Mojo::Transaction::HTTP and
+Mojo::Transaction::WebSocket.
 .SH "EVENTS"
 .IX Header "EVENTS"
-Mojo::Transaction inherits all events from Mojo::EventEmitter and can
-emit the following new ones.
+Mojo::Transaction inherits all events from Mojo::EventEmitter and can emit the following new ones.
 .SS "connection"
 .IX Subsection "connection"
-.Vb 4
-\&  $tx\->on(connection => sub {
-\&    my ($tx, $connection) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $tx\->on(connection => sub ($tx, $connection) {...});
 .Ve
 .PP
 Emitted when a connection has been assigned to transaction.
 .SS "finish"
 .IX Subsection "finish"
-.Vb 4
-\&  $tx\->on(finish => sub {
-\&    my $tx = shift;
-\&    ...
-\&  });
+.Vb 1
+\&  $tx\->on(finish => sub ($tx) {...});
 .Ve
 .PP
 Emitted when transaction is finished.
@@ -206,32 +199,28 @@ Remote interface port.
 .Ve
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Transaction inherits all methods from Mojo::EventEmitter and
-implements the following new ones.
+Mojo::Transaction inherits all methods from Mojo::EventEmitter and implements the following new ones.
 .SS "client_read"
 .IX Subsection "client_read"
 .Vb 1
 \&  $tx\->client_read($bytes);
 .Ve
 .PP
-Read data client-side, used to implement user agents such as Mojo::UserAgent.
-Meant to be overloaded in a subclass.
+Read data client-side, used to implement user agents such as Mojo::UserAgent. Meant to be overloaded in a subclass.
 .SS "client_write"
 .IX Subsection "client_write"
 .Vb 1
 \&  my $bytes = $tx\->client_write;
 .Ve
 .PP
-Write data client-side, used to implement user agents such as
-Mojo::UserAgent. Meant to be overloaded in a subclass.
+Write data client-side, used to implement user agents such as Mojo::UserAgent. Meant to be overloaded in a subclass.
 .SS "closed"
 .IX Subsection "closed"
 .Vb 1
 \&  $tx = $tx\->closed;
 .Ve
 .PP
-Same as \*(L"completed\*(R", but also indicates that all transaction data has been
-sent.
+Same as \*(L"completed\*(R", but also indicates that all transaction data has been sent.
 .SS "completed"
 .IX Subsection "completed"
 .Vb 1
@@ -286,17 +275,18 @@ False, this is not a Mojo::Transaction::WebSocket object.
 \&  $tx         = $tx\->remote_address(\*(Aq127.0.0.1\*(Aq);
 .Ve
 .PP
-Same as \*(L"original_remote_address\*(R" or the last value of the
-\&\f(CW\*(C`X\-Forwarded\-For\*(C'\fR header if \*(L"req\*(R" has been performed through a reverse
-proxy.
+Same as \*(L"original_remote_address\*(R" unless \*(L"req\*(R" has been performed via a \*(L"reverse_proxy\*(R" in Mojo::Message::Request.
+If so then the last value of \f(CW\*(C`X\-Forwarded\-For\*(C'\fR header is returned. Additionally if
+\&\*(L"trusted_proxies\*(R" in Mojo::Message::Request are also provided then the original address must be trusted and any
+\&\f(CW\*(C`X\-Forwarded\-For\*(C'\fR entries that are trusted are ignored, returning the last untrusted address or the first address if
+all are trusted.
 .SS "result"
 .IX Subsection "result"
 .Vb 1
 \&  my $res = $tx\->result;
 .Ve
 .PP
-Returns the Mojo::Message::Response object from \*(L"res\*(R" or dies if a
-connection error has occurred.
+Returns the Mojo::Message::Response object from \*(L"res\*(R" or dies if a connection error has occurred.
 .PP
 .Vb 6
 \&  # Fine grained response handling (dies on connection errors)
@@ -312,16 +302,16 @@ connection error has occurred.
 \&  $tx\->server_read($bytes);
 .Ve
 .PP
-Read data server-side, used to implement web servers such as
-Mojo::Server::Daemon. Meant to be overloaded in a subclass.
+Read data server-side, used to implement web servers such as Mojo::Server::Daemon. Meant to be overloaded in a
+subclass.
 .SS "server_write"
 .IX Subsection "server_write"
 .Vb 1
 \&  my $bytes = $tx\->server_write;
 .Ve
 .PP
-Write data server-side, used to implement web servers such as
-Mojo::Server::Daemon. Meant to be overloaded in a subclass.
+Write data server-side, used to implement web servers such as Mojo::Server::Daemon. Meant to be overloaded in a
+subclass.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

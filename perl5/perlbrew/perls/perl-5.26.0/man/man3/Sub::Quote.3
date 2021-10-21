@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Sub::Quote 3"
-.TH Sub::Quote 3 "2017-06-07" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Sub::Quote 3 "2019-10-01" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -143,7 +143,40 @@ good idea.  For a sub that will most likely be inlined, it is not recommended.
 .el .IP "\f(CWpackage\fR" 2
 .IX Item "package"
 The package that the quoted sub will be evaluated in.  If not specified, the
-sub calling \f(CW\*(C`quote_sub\*(C'\fR will be used.
+package from sub calling \f(CW\*(C`quote_sub\*(C'\fR will be used.
+.ie n .IP """hints""" 2
+.el .IP "\f(CWhints\fR" 2
+.IX Item "hints"
+The value of \f(CW$^H\fR  to use for the code being evaluated.
+This captures the settings of the strict pragma.  If not specified, the value
+from the calling code will be used.
+.ie n .IP """warning_bits""" 2
+.el .IP "\f(CWwarning_bits\fR" 2
+.IX Item "warning_bits"
+The value of \f(CW\*(C`${^WARNING_BITS}\*(C'\fR  to use for
+the code being evaluated.  This captures the warnings set.  If not specified,
+the warnings from the calling code will be used.
+.ie n .IP """%^H""" 2
+.el .IP "\f(CW%^H\fR" 2
+.IX Item "%^H"
+The value of \f(CW\*(C`%^H\*(C'\fR  to use for the code being evaluated.
+This captures additional pragma settings.  If not specified, the value from the
+calling code will be used if possible (on perl 5.10+).
+.ie n .IP """attributes""" 2
+.el .IP "\f(CWattributes\fR" 2
+.IX Item "attributes"
+The \*(L"Subroutine Attributes\*(R" in perlsub to apply to the sub generated.  Should be
+specified as an array reference.  The attributes will be applied to both the
+generated sub and the deferred wrapper, if one is used.
+.ie n .IP """file""" 2
+.el .IP "\f(CWfile\fR" 2
+.IX Item "file"
+The apparent filename to use for the code being evaluated.
+.ie n .IP """line""" 2
+.el .IP "\f(CWline\fR" 2
+.IX Item "line"
+The apparent line number
+to use for the code being evaluated.
 .SS "unquote_sub"
 .IX Subsection "unquote_sub"
 .Vb 1
@@ -194,9 +227,12 @@ arguments.
 \& my $quoted_value = quotify $value;
 .Ve
 .PP
-Quotes a single (non-reference) scalar value for use in a code string.  Numbers
-aren't treated specially and will be quoted as strings, but undef will quoted as
-\&\f(CW\*(C`undef()\*(C'\fR.
+Quotes a single (non-reference) scalar value for use in a code string.  The
+result should reproduce the original value, including strings, undef, integers,
+and floating point numbers.  The resulting floating point numbers (including
+infinites and not a number) should be precisely equal to the original, if
+possible.  The exact format of the resulting number should not be relied on, as
+it may include hex floats or math expressions.
 .SS "capture_unroll"
 .IX Subsection "capture_unroll"
 .Vb 4
@@ -237,6 +273,32 @@ Exported by default.
 Arguments: \f(CW$identifier\fR
 .PP
 Sanitizes a value so that it can be used in an identifier.
+.SH "ENVIRONMENT"
+.IX Header "ENVIRONMENT"
+.SS "\s-1SUB_QUOTE_DEBUG\s0"
+.IX Subsection "SUB_QUOTE_DEBUG"
+Causes code to be output to \f(CW\*(C`STDERR\*(C'\fR before being evaled.  Several forms are
+supported:
+.ie n .IP "1" 4
+.el .IP "\f(CW1\fR" 4
+.IX Item "1"
+All subs will be output.
+.ie n .IP """/foo/""" 4
+.el .IP "\f(CW/foo/\fR" 4
+.IX Item "/foo/"
+Subs will be output if their code matches the given regular expression.
+.ie n .IP """simple_identifier""" 4
+.el .IP "\f(CWsimple_identifier\fR" 4
+.IX Item "simple_identifier"
+Any sub with the given name will be output.
+.ie n .IP """Full::identifier""" 4
+.el .IP "\f(CWFull::identifier\fR" 4
+.IX Item "Full::identifier"
+A sub matching the full name will be output.
+.ie n .IP """Package::Name::""" 4
+.el .IP "\f(CWPackage::Name::\fR" 4
+.IX Item "Package::Name::"
+Any sub in the given package (including anonymous subs) will be output.
 .SH "CAVEATS"
 .IX Header "CAVEATS"
 Much of this is just string-based code-generation, and as a result, a few

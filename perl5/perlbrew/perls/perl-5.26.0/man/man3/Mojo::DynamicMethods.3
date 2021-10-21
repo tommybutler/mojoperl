@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::DynamicMethods 3"
-.TH Mojo::DynamicMethods 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::DynamicMethods 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -78,17 +78,15 @@ Mojo::DynamicMethods \- Fast dynamic method dispatch
 .IX Header "SYNOPSIS"
 .Vb 2
 \&  package MyClass;
-\&  use Mojo::Base \-base;
+\&  use Mojo::Base \-base, \-signatures;
 \&
 \&  use Mojo::DynamicMethods \-dispatch;
 \&
-\&  sub BUILD_DYNAMIC {
-\&    my ($class, $method, $dyn_methods) = @_;
+\&  sub BUILD_DYNAMIC ($class, $method, $dyn_methods) {
 \&    return sub {...};
 \&  }
 \&
-\&  sub add_helper {
-\&    my ($self, $name, $cb) = @_;
+\&  sub add_helper ($self, $name, $cb) {
 \&    Mojo::DynamicMethods::register \*(AqMyClass\*(Aq, $self, $name, $cb;
 \&  }
 \&
@@ -101,8 +99,8 @@ Mojo::DynamicMethods \- Fast dynamic method dispatch
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::DynamicMethods provides dynamic method dispatch for per-object helper
-methods without requiring use of \f(CW\*(C`AUTOLOAD\*(C'\fR.
+Mojo::DynamicMethods provides dynamic method dispatch for per-object helper methods without requiring use of
+\&\f(CW\*(C`AUTOLOAD\*(C'\fR.
 .PP
 To opt your class into dynamic dispatch simply pass the \f(CW\*(C`\-dispatch\*(C'\fR flag.
 .PP
@@ -110,15 +108,12 @@ To opt your class into dynamic dispatch simply pass the \f(CW\*(C`\-dispatch\*(C
 \&  use Mojo::DynamicMethods \-dispatch;
 .Ve
 .PP
-And then implement a \f(CW\*(C`BUILD_DYNAMIC\*(C'\fR method in your class, making sure that the
-key you use to lookup methods in \f(CW$dyn_methods\fR is the same thing you pass as
-\&\f(CW$ref\fR to \*(L"register\*(R".
+And then implement a \f(CW\*(C`BUILD_DYNAMIC\*(C'\fR method in your class, making sure that the key you use to lookup methods in
+\&\f(CW$dyn_methods\fR is the same thing you pass as \f(CW$ref\fR to \*(L"register\*(R".
 .PP
-.Vb 10
-\&  sub BUILD_DYNAMIC {
-\&    my ($class, $method, $dyn_methods) = @_;
-\&    return sub {
-\&      my ($self, @args) = @_;
+.Vb 8
+\&  sub BUILD_DYNAMIC ($class, $method, $dyn_methods) {
+\&    return sub ($self, @args) {
 \&      my $dynamic = $dyn_methods\->{$self}{$method};
 \&      return $self\->$dynamic(@args) if $dynamic;
 \&      my $package = ref $self;
@@ -127,7 +122,7 @@ key you use to lookup methods in \f(CW$dyn_methods\fR is the same thing you pass
 \&  }
 .Ve
 .PP
-Note that this module is \fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
+Note that this module will summon \fBCthulhu\fR, use it at your own risk!
 .SH "FUNCTIONS"
 .IX Header "FUNCTIONS"
 Mojo::DynamicMethods implements the following functions.
@@ -137,9 +132,8 @@ Mojo::DynamicMethods implements the following functions.
 \&  Mojo::DynamicMethods::register $class, $ref, $name, $cb;
 .Ve
 .PP
-Registers the method \f(CW$name\fR as eligible for dynamic dispatch for \f(CW$class\fR,
-and sets \f(CW$cb\fR to be looked up for \f(CW$name\fR by reference \f(CW$ref\fR in a dynamic
-method constructed by \f(CW\*(C`BUILD_DYNAMIC\*(C'\fR.
+Registers the method \f(CW$name\fR as eligible for dynamic dispatch for \f(CW$class\fR, and sets \f(CW$cb\fR to be looked up for
+\&\f(CW$name\fR by reference \f(CW$ref\fR in a dynamic method constructed by \f(CW\*(C`BUILD_DYNAMIC\*(C'\fR.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

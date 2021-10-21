@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Plugin::Config 3"
-.TH Mojolicious::Plugin::Config 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Plugin::Config 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -111,22 +111,30 @@ Mojolicious::Plugin::Config \- Perl\-ish configuration plugin
 .IX Header "DESCRIPTION"
 Mojolicious::Plugin::Config is a Perl-ish configuration plugin.
 .PP
-The application object can be accessed via \f(CW$app\fR or the \f(CW\*(C`app\*(C'\fR function,
-strict, warnings, utf8 and Perl 5.10 features are
-automatically enabled. A default configuration filename in the application home
-directory will be generated from the value of \*(L"moniker\*(R" in Mojolicious
-(\f(CW\*(C`$moniker.conf\*(C'\fR). You can extend the normal configuration file
-\&\f(CW\*(C`$moniker.conf\*(C'\fR with \f(CW\*(C`mode\*(C'\fR specific ones like \f(CW\*(C`$moniker.$mode.conf\*(C'\fR, which
-will be detected automatically.
+The application object can be accessed via \f(CW$app\fR or the \f(CW\*(C`app\*(C'\fR function, strict, warnings, utf8 and Perl
+5.16 features are automatically enabled. A default configuration filename in the application home directory
+will be generated from the value of \*(L"moniker\*(R" in Mojolicious (\f(CW\*(C`$moniker.conf\*(C'\fR). You can extend the normal
+configuration file \f(CW\*(C`$moniker.conf\*(C'\fR with \f(CW\*(C`mode\*(C'\fR specific ones like \f(CW\*(C`$moniker.$mode.conf\*(C'\fR, which will be detected
+automatically.
 .PP
-If the configuration value \f(CW\*(C`config_override\*(C'\fR has been set in
-\&\*(L"config\*(R" in Mojolicious when this plugin is loaded, it will not do anything.
+These configuration values are currently reserved:
+.ie n .IP """config_override""" 2
+.el .IP "\f(CWconfig_override\fR" 2
+.IX Item "config_override"
+If this configuration value has been set in \*(L"config\*(R" in Mojolicious when this plugin is loaded, it will not do anything
+besides loading deployment specific plugins.
+.ie n .IP """plugins""" 2
+.el .IP "\f(CWplugins\fR" 2
+.IX Item "plugins"
+.Vb 1
+\&  plugins => [{SetUserGroup => {user => \*(Aqsri\*(Aq, group => \*(Aqstaff\*(Aq}}]
+.Ve
+.Sp
+One or more deployment specific plugins that should be loaded right after this plugin has been loaded.
 .PP
-The code of this plugin is a good example for learning to build new plugins,
-you're welcome to fork it.
+The code of this plugin is a good example for learning to build new plugins, you're welcome to fork it.
 .PP
-See \*(L"\s-1PLUGINS\*(R"\s0 in Mojolicious::Plugins for a list of plugins that are available
-by default.
+See \*(L"\s-1PLUGINS\*(R"\s0 in Mojolicious::Plugins for a list of plugins that are available by default.
 .SH "OPTIONS"
 .IX Header "OPTIONS"
 Mojolicious::Plugin::Config supports the following options.
@@ -154,13 +162,11 @@ File extension for generated configuration filenames, defaults to \f(CW\*(C`conf
 \&  plugin Config => {file => \*(Aq/etc/foo.stuff\*(Aq};
 .Ve
 .PP
-Path to configuration file, absolute or relative to the application home
-directory, defaults to the value of the \f(CW\*(C`MOJO_CONFIG\*(C'\fR environment variable or
-\&\f(CW\*(C`$moniker.conf\*(C'\fR in the application home directory.
+Path to configuration file, absolute or relative to the application home directory, defaults to the value of the
+\&\f(CW\*(C`MOJO_CONFIG\*(C'\fR environment variable or \f(CW\*(C`$moniker.conf\*(C'\fR in the application home directory.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Plugin::Config inherits all methods from Mojolicious::Plugin
-and implements the following new ones.
+Mojolicious::Plugin::Config inherits all methods from Mojolicious::Plugin and implements the following new ones.
 .SS "load"
 .IX Subsection "load"
 .Vb 1
@@ -169,9 +175,8 @@ and implements the following new ones.
 .PP
 Loads configuration file and passes the content to \*(L"parse\*(R".
 .PP
-.Vb 5
-\&  sub load {
-\&    my ($self, $file, $conf, $app) = @_;
+.Vb 4
+\&  sub load ($self, $file, $conf, $app) {
 \&    ...
 \&    return $self\->parse($content, $file, $conf, $app);
 \&  }
@@ -184,9 +189,8 @@ Loads configuration file and passes the content to \*(L"parse\*(R".
 .PP
 Parse configuration file.
 .PP
-.Vb 5
-\&  sub parse {
-\&    my ($self, $content, $file, $conf, $app) = @_;
+.Vb 4
+\&  sub parse ($self, $content, $file, $conf, $app) {
 \&    ...
 \&    return $hash;
 \&  }

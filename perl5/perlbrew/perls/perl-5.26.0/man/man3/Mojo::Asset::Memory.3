@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Asset::Memory 3"
-.TH Mojo::Asset::Memory 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Asset::Memory 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -88,29 +88,21 @@ Mojo::Asset::Memory \- In\-memory storage for HTTP content
 Mojo::Asset::Memory is an in-memory storage backend for \s-1HTTP\s0 content.
 .SH "EVENTS"
 .IX Header "EVENTS"
-Mojo::Asset::Memory inherits all events from Mojo::Asset and can emit the
-following new ones.
+Mojo::Asset::Memory inherits all events from Mojo::Asset and can emit the following new ones.
 .SS "upgrade"
 .IX Subsection "upgrade"
-.Vb 4
-\&  $mem\->on(upgrade => sub {
-\&    my ($mem, $file) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $mem\->on(upgrade => sub ($mem, $file) {...});
 .Ve
 .PP
 Emitted when asset gets upgraded to a Mojo::Asset::File object.
 .PP
-.Vb 4
-\&  $mem\->on(upgrade => sub {
-\&    my ($mem, $file) = @_;
-\&    $file\->tmpdir(\*(Aq/tmp\*(Aq);
-\&  });
+.Vb 1
+\&  $mem\->on(upgrade => sub ($mem, $file) { $file\->tmpdir(\*(Aq/tmp\*(Aq) });
 .Ve
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojo::Asset::Memory inherits all attributes from Mojo::Asset and
-implements the following new ones.
+Mojo::Asset::Memory inherits all attributes from Mojo::Asset and implements the following new ones.
 .SS "auto_upgrade"
 .IX Subsection "auto_upgrade"
 .Vb 2
@@ -118,8 +110,8 @@ implements the following new ones.
 \&  $mem     = $mem\->auto_upgrade($bool);
 .Ve
 .PP
-Try to detect if content size exceeds \*(L"max_memory_size\*(R" limit and
-automatically upgrade to a Mojo::Asset::File object.
+Try to detect if content size exceeds \*(L"max_memory_size\*(R" limit and automatically upgrade to a Mojo::Asset::File
+object.
 .SS "max_memory_size"
 .IX Subsection "max_memory_size"
 .Vb 2
@@ -127,9 +119,8 @@ automatically upgrade to a Mojo::Asset::File object.
 \&  $mem     = $mem\->max_memory_size(1024);
 .Ve
 .PP
-Maximum size in bytes of data to keep in memory before automatically upgrading
-to a Mojo::Asset::File object, defaults to the value of the
-\&\f(CW\*(C`MOJO_MAX_MEMORY_SIZE\*(C'\fR environment variable or \f(CW262144\fR (256KiB).
+Maximum size in bytes of data to keep in memory before automatically upgrading to a Mojo::Asset::File object,
+defaults to the value of the \f(CW\*(C`MOJO_MAX_MEMORY_SIZE\*(C'\fR environment variable or \f(CW262144\fR (256KiB).
 .SS "mtime"
 .IX Subsection "mtime"
 .Vb 2
@@ -140,8 +131,7 @@ to a Mojo::Asset::File object, defaults to the value of the
 Modification time of asset, defaults to the value of \f(CW$^T\fR.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Asset::Memory inherits all methods from Mojo::Asset and implements
-the following new ones.
+Mojo::Asset::Memory inherits all methods from Mojo::Asset and implements the following new ones.
 .SS "add_chunk"
 .IX Subsection "add_chunk"
 .Vb 2
@@ -164,8 +154,7 @@ Check if asset contains a specific string.
 \&  my $bytes = $mem\->get_chunk($offset, $max);
 .Ve
 .PP
-Get chunk of data starting from a specific position, defaults to a maximum
-chunk size of \f(CW131072\fR bytes (128KiB).
+Get chunk of data starting from a specific position, defaults to a maximum chunk size of \f(CW131072\fR bytes (128KiB).
 .SS "move_to"
 .IX Subsection "move_to"
 .Vb 1
@@ -183,7 +172,7 @@ Size of asset data in bytes.
 .SS "slurp"
 .IX Subsection "slurp"
 .Vb 1
-\&  my $bytes = mem\->slurp;
+\&  my $bytes = $mem\->slurp;
 .Ve
 .PP
 Read all asset data at once.

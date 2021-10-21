@@ -1,10 +1,11 @@
 package Moo::sification;
-
-use Moo::_strictures;
+use strict;
+use warnings;
 no warnings 'once';
-use Devel::GlobalDestruction qw(in_global_destruction);
+
 use Carp qw(croak);
 BEGIN { our @CARP_NOT = qw(Moo::HandleMoose) }
+use Moo::_Utils qw(_in_global_destruction);
 
 sub unimport {
   croak "Can't disable Moo::sification after inflation has been done"
@@ -13,7 +14,7 @@ sub unimport {
 }
 
 sub Moo::HandleMoose::AuthorityHack::DESTROY {
-  unless (our $disabled or in_global_destruction) {
+  unless (our $disabled or _in_global_destruction) {
     require Moo::HandleMoose;
     Moo::HandleMoose->import;
   }

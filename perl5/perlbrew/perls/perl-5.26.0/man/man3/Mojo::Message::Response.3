@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Message::Response 3"
-.TH Mojo::Message::Response 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Message::Response 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -98,16 +98,14 @@ Mojo::Message::Response \- HTTP response
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Message::Response is a container for \s-1HTTP\s0 responses, based on
-\&\s-1RFC 7230\s0 <http://tools.ietf.org/html/rfc7230> and
-\&\s-1RFC 7231\s0 <http://tools.ietf.org/html/rfc7231>.
+Mojo::Message::Response is a container for \s-1HTTP\s0 responses, based on \s-1RFC 7230\s0 <https://tools.ietf.org/html/rfc7230>
+and \s-1RFC 7231\s0 <https://tools.ietf.org/html/rfc7231>.
 .SH "EVENTS"
 .IX Header "EVENTS"
 Mojo::Message::Response inherits all events from Mojo::Message.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojo::Message::Response inherits all attributes from Mojo::Message and
-implements the following new ones.
+Mojo::Message::Response inherits all attributes from Mojo::Message and implements the following new ones.
 .SS "code"
 .IX Subsection "code"
 .Vb 2
@@ -123,9 +121,8 @@ implements the following new ones.
 \&  $res     = $res\->max_message_size(1024);
 .Ve
 .PP
-Maximum message size in bytes, defaults to the value of the
-\&\f(CW\*(C`MOJO_MAX_MESSAGE_SIZE\*(C'\fR environment variable or \f(CW2147483648\fR (2GiB). Setting
-the value to \f(CW0\fR will allow messages of indefinite size.
+Maximum message size in bytes, defaults to the value of the \f(CW\*(C`MOJO_MAX_MESSAGE_SIZE\*(C'\fR environment variable or
+\&\f(CW2147483648\fR (2GiB). Setting the value to \f(CW0\fR will allow messages of indefinite size.
 .SS "message"
 .IX Subsection "message"
 .Vb 2
@@ -136,8 +133,7 @@ the value to \f(CW0\fR will allow messages of indefinite size.
 \&\s-1HTTP\s0 response status message.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Message::Response inherits all methods from Mojo::Message and
-implements the following new ones.
+Mojo::Message::Response inherits all methods from Mojo::Message and implements the following new ones.
 .SS "cookies"
 .IX Subsection "cookies"
 .Vb 3
@@ -159,8 +155,7 @@ Access response cookies, usually Mojo::Cookie::Response objects.
 \&  my $msg = $res\->default_message(418);
 .Ve
 .PP
-Generate default response message for status code, defaults to using
-\&\*(L"code\*(R".
+Generate default response message for status code, defaults to using \*(L"code\*(R".
 .SS "extract_start_line"
 .IX Subsection "extract_start_line"
 .Vb 1
@@ -181,8 +176,7 @@ Make sure response has all required headers.
 \&  my $bytes = $res\->get_start_line_chunk($offset);
 .Ve
 .PP
-Get a chunk of status-line data starting from a specific position. Note that
-this method finalizes the response.
+Get a chunk of status-line data starting from a specific position. Note that this method finalizes the response.
 .SS "is_client_error"
 .IX Subsection "is_client_error"
 .Vb 1

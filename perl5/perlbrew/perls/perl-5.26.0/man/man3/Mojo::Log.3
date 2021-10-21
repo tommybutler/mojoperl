@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Log 3"
-.TH Mojo::Log 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Log 3 "2021-08-09" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -86,6 +86,7 @@ Mojo::Log \- Simple logger
 \&  my $log = Mojo::Log\->new(path => \*(Aq/var/log/mojo.log\*(Aq, level => \*(Aqwarn\*(Aq);
 \&
 \&  # Log messages
+\&  $log\->trace(\*(AqDoing stuff\*(Aq);
 \&  $log\->debug(\*(AqNot sure what is happening here\*(Aq);
 \&  $log\->info(\*(AqFYI: it happened again\*(Aq);
 \&  $log\->warn(\*(AqThis might be a problem\*(Aq);
@@ -97,28 +98,31 @@ Mojo::Log \- Simple logger
 Mojo::Log is a simple logger for Mojo projects.
 .SH "EVENTS"
 .IX Header "EVENTS"
-Mojo::Log inherits all events from Mojo::EventEmitter and can emit the
-following new ones.
+Mojo::Log inherits all events from Mojo::EventEmitter and can emit the following new ones.
 .SS "message"
 .IX Subsection "message"
-.Vb 4
-\&  $log\->on(message => sub {
-\&    my ($log, $level, @lines) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $log\->on(message => sub ($log, $level, @lines) {...});
 .Ve
 .PP
 Emitted when a new message gets logged.
 .PP
-.Vb 4
-\&  $log\->on(message => sub {
-\&    my ($log, $level, @lines) = @_;
-\&    say "$level: ", @lines;
-\&  });
+.Vb 1
+\&  $log\->on(message => sub ($log, $level, @lines) { say "$level: ", @lines });
 .Ve
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojo::Log implements the following attributes.
+.SS "color"
+.IX Subsection "color"
+.Vb 2
+\&  my $bool = $log\->color;
+\&  $log     = $log\->color($bool);
+.Ve
+.PP
+Colorize log messages with the levels \f(CW\*(C`warn\*(C'\fR, \f(CW\*(C`error\*(C'\fR and \f(CW\*(C`fatal\*(C'\fR using Term::ANSIColor, defaults to the value of
+the \f(CW\*(C`MOJO_LOG_COLOR\*(C'\fR environment variables. Note that this attribute is \fB\s-1EXPERIMENTAL\s0\fR and might change without
+warning!
 .SS "format"
 .IX Subsection "format"
 .Vb 2
@@ -128,11 +132,8 @@ Mojo::Log implements the following attributes.
 .PP
 A callback for formatting log messages.
 .PP
-.Vb 4
-\&  $log\->format(sub {
-\&    my ($time, $level, @lines) = @_;
-\&    return "[2018\-11\-08 14:20:13.77168] [28320] [info] I ♥ Mojolicious\en";
-\&  });
+.Vb 1
+\&  $log\->format(sub ($time, $level, @lines) { "[2018\-11\-08 14:20:13.77168] [28320] [info] I ♥ Mojolicious\en" });
 .Ve
 .SS "handle"
 .IX Subsection "handle"
@@ -141,8 +142,7 @@ A callback for formatting log messages.
 \&  $log       = $log\->handle(IO::Handle\->new);
 .Ve
 .PP
-Log filehandle used by default \*(L"message\*(R" event, defaults to opening
-\&\*(L"path\*(R" or \f(CW\*(C`STDERR\*(C'\fR.
+Log filehandle used by default \*(L"message\*(R" event, defaults to opening \*(L"path\*(R" or \f(CW\*(C`STDERR\*(C'\fR.
 .SS "history"
 .IX Subsection "history"
 .Vb 2
@@ -158,8 +158,8 @@ The last few logged messages.
 \&  $log      = $log\->level(\*(Aqdebug\*(Aq);
 .Ve
 .PP
-Active log level, defaults to \f(CW\*(C`debug\*(C'\fR. Available log levels are \f(CW\*(C`debug\*(C'\fR,
-\&\f(CW\*(C`info\*(C'\fR, \f(CW\*(C`warn\*(C'\fR, \f(CW\*(C`error\*(C'\fR and \f(CW\*(C`fatal\*(C'\fR, in that order.
+Active log level, defaults to \f(CW\*(C`trace\*(C'\fR. Available log levels are \f(CW\*(C`trace\*(C'\fR, \f(CW\*(C`debug\*(C'\fR, \f(CW\*(C`info\*(C'\fR, \f(CW\*(C`warn\*(C'\fR, \f(CW\*(C`error\*(C'\fR and
+\&\f(CW\*(C`fatal\*(C'\fR, in that order.
 .SS "max_history_size"
 .IX Subsection "max_history_size"
 .Vb 2
@@ -183,12 +183,11 @@ Log file path used by \*(L"handle\*(R".
 \&  $log     = $log\->short($bool);
 .Ve
 .PP
-Generate short log messages without a timestamp, suitable for systemd, defaults
-to the value of the \f(CW\*(C`MOJO_LOG_SHORT\*(C'\fR environment variables.
+Generate short log messages without a timestamp but with journald log level prefix, suitable for systemd environments,
+defaults to the value of the \f(CW\*(C`MOJO_LOG_SHORT\*(C'\fR environment variables.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Log inherits all methods from Mojo::EventEmitter and implements the
-following new ones.
+Mojo::Log inherits all methods from Mojo::EventEmitter and implements the following new ones.
 .SS "append"
 .IX Subsection "append"
 .Vb 1
@@ -199,11 +198,10 @@ Append message to \*(L"handle\*(R".
 .SS "context"
 .IX Subsection "context"
 .Vb 1
-\&  my $new = $log\->context(\*(Aq[extra] [information]\*(Aq);
+\&  my $new = $log\->context(\*(Aq[extra]\*(Aq, \*(Aq[information]\*(Aq);
 .Ve
 .PP
-Construct a new child Mojo::Log object that will include context information
-with every log message.
+Construct a new child Mojo::Log object that will include context information with every log message.
 .PP
 .Vb 5
 \&  # Log with context
@@ -273,8 +271,16 @@ Check active log \*(L"level\*(R".
 \&  my $log = Mojo::Log\->new({level => \*(Aqwarn\*(Aq});
 .Ve
 .PP
-Construct a new Mojo::Log object and subscribe to \*(L"message\*(R" event with
-default logger.
+Construct a new Mojo::Log object and subscribe to \*(L"message\*(R" event with default logger.
+.SS "trace"
+.IX Subsection "trace"
+.Vb 3
+\&  $log = $log\->trace(\*(AqWhatever\*(Aq);
+\&  $log = $log\->trace(\*(AqWho\*(Aq, \*(Aqcares\*(Aq);
+\&  $log = $log\->trace(sub {...});
+.Ve
+.PP
+Emit \*(L"message\*(R" event and log \f(CW\*(C`trace\*(C'\fR message.
 .SS "warn"
 .IX Subsection "warn"
 .Vb 3

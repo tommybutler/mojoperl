@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::UserAgent::CookieJar 3"
-.TH Mojo::UserAgent::CookieJar 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::UserAgent::CookieJar 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -98,8 +98,8 @@ Mojo::UserAgent::CookieJar \- Cookie jar for HTTP user agents
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::UserAgent::CookieJar is a minimalistic and relaxed cookie jar used by
-Mojo::UserAgent, based on \s-1RFC 6265\s0 <http://tools.ietf.org/html/rfc6265>.
+Mojo::UserAgent::CookieJar is a minimalistic and relaxed cookie jar used by Mojo::UserAgent, based on \s-1RFC
+6265\s0 <https://tools.ietf.org/html/rfc6265>.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojo::UserAgent::CookieJar implements the following attributes.
@@ -117,8 +117,7 @@ A callback used to decide if a cookie should be ignored by \*(L"collect\*(R".
 \&  $jar\->ignore(sub { 1 });
 \&
 \&  # Ignore cookies for domains "com", "net" and "org"
-\&  $jar\->ignore(sub {
-\&    my $cookie = shift;
+\&  $jar\->ignore(sub ($cookie) {
 \&    return undef unless my $domain = $cookie\->domain;
 \&    return $domain eq \*(Aqcom\*(Aq || $domain eq \*(Aqnet\*(Aq || $domain eq \*(Aqorg\*(Aq;
 \&  });
@@ -133,8 +132,7 @@ A callback used to decide if a cookie should be ignored by \*(L"collect\*(R".
 Maximum cookie size in bytes, defaults to \f(CW4096\fR (4KiB).
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::UserAgent::CookieJar inherits all methods from Mojo::Base and
-implements the following new ones.
+Mojo::UserAgent::CookieJar inherits all methods from Mojo::Base and implements the following new ones.
 .SS "add"
 .IX Subsection "add"
 .Vb 1
@@ -148,8 +146,7 @@ Add multiple Mojo::Cookie::Response objects to the jar.
 \&  my $cookies = $jar\->all;
 .Ve
 .PP
-Return all Mojo::Cookie::Response objects that are currently stored in the
-jar.
+Return all Mojo::Cookie::Response objects that are currently stored in the jar.
 .PP
 .Vb 2
 \&  # Names of all cookies

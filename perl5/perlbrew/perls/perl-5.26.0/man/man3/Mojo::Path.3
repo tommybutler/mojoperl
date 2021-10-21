@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Path 3"
-.TH Mojo::Path 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Path 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -90,8 +90,7 @@ Mojo::Path \- Path
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Path is a container for paths used by Mojo::URL, based on
-\&\s-1RFC 3986\s0 <http://tools.ietf.org/html/rfc3986>.
+Mojo::Path is a container for paths used by Mojo::URL, based on \s-1RFC 3986\s0 <https://tools.ietf.org/html/rfc3986>.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojo::Path implements the following attributes.
@@ -110,16 +109,15 @@ Charset used for encoding and decoding, defaults to \f(CW\*(C`UTF\-8\*(C'\fR.
 .Ve
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Path inherits all methods from Mojo::Base and implements the
-following new ones.
+Mojo::Path inherits all methods from Mojo::Base and implements the following new ones.
 .SS "canonicalize"
 .IX Subsection "canonicalize"
 .Vb 1
 \&  $path = $path\->canonicalize;
 .Ve
 .PP
-Canonicalize path by resolving \f(CW\*(C`.\*(C'\fR and \f(CW\*(C`..\*(C'\fR, in addition \f(CW\*(C`...\*(C'\fR will be
-treated as \f(CW\*(C`.\*(C'\fR to protect from path traversal attacks.
+Canonicalize path by resolving \f(CW\*(C`.\*(C'\fR and \f(CW\*(C`..\*(C'\fR, in addition \f(CW\*(C`...\*(C'\fR will be treated as \f(CW\*(C`.\*(C'\fR to protect from path
+traversal attacks.
 .PP
 .Vb 2
 \&  # "/foo/baz"
@@ -164,8 +162,8 @@ Check if path contains given prefix.
 \&  $path    = $path\->leading_slash($bool);
 .Ve
 .PP
-Path has a leading slash. Note that this method will normalize the path and
-that \f(CW%2F\fR will be treated as \f(CW\*(C`/\*(C'\fR for security reasons.
+Path has a leading slash. Note that this method will normalize the path and that \f(CW%2F\fR will be treated as \f(CW\*(C`/\*(C'\fR for
+security reasons.
 .PP
 .Vb 2
 \&  # "/foo/bar"
@@ -182,8 +180,8 @@ that \f(CW%2F\fR will be treated as \f(CW\*(C`/\*(C'\fR for security reasons.
 \&  $path = $path\->merge(Mojo::Path\->new);
 .Ve
 .PP
-Merge paths. Note that this method will normalize both paths if necessary and
-that \f(CW%2F\fR will be treated as \f(CW\*(C`/\*(C'\fR for security reasons.
+Merge paths. Note that this method will normalize both paths if necessary and that \f(CW%2F\fR will be treated as \f(CW\*(C`/\*(C'\fR for
+security reasons.
 .PP
 .Vb 2
 \&  # "/baz/yada"
@@ -230,8 +228,8 @@ Turn path into an absolute string.
 \&  $path     = $path\->parts([qw(foo bar baz)]);
 .Ve
 .PP
-The path parts. Note that this method will normalize the path and that \f(CW%2F\fR
-will be treated as \f(CW\*(C`/\*(C'\fR for security reasons.
+The path parts. Note that this method will normalize the path and that \f(CW%2F\fR will be treated as \f(CW\*(C`/\*(C'\fR for security
+reasons.
 .PP
 .Vb 2
 \&  # Part with slash
@@ -287,8 +285,8 @@ Turn path into a string.
 \&  $path    = $path\->trailing_slash($bool);
 .Ve
 .PP
-Path has a trailing slash. Note that this method will normalize the path and
-that \f(CW%2F\fR will be treated as \f(CW\*(C`/\*(C'\fR for security reasons.
+Path has a trailing slash. Note that this method will normalize the path and that \f(CW%2F\fR will be treated as \f(CW\*(C`/\*(C'\fR for
+security reasons.
 .PP
 .Vb 2
 \&  # "/foo/bar/"
@@ -306,8 +304,8 @@ Mojo::Path overloads the following operators.
 \&  my @parts = @$path;
 .Ve
 .PP
-Alias for \*(L"parts\*(R". Note that this will normalize the path and that \f(CW%2F\fR
-will be treated as \f(CW\*(C`/\*(C'\fR for security reasons.
+Alias for \*(L"parts\*(R". Note that this will normalize the path and that \f(CW%2F\fR will be treated as \f(CW\*(C`/\*(C'\fR for security
+reasons.
 .PP
 .Vb 2
 \&  say $path\->[0];

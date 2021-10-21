@@ -13,7 +13,7 @@ Moose::Cookbook::Basics::Genome_OverloadingSubtypesAndCoercion - Operator overlo
 
 =head1 VERSION
 
-version 2.2006
+version 2.2015
 
 =head1 SYNOPSIS
 
@@ -210,12 +210,12 @@ returns a new C<Human::EyeColor> object.
 Our original C<Human> class requires just a few changes to incorporate
 our new C<Human::EyeColor> class.
 
-  use List::MoreUtils qw( zip );
+  use List::Util 1.56 qw( mesh );
 
   coerce 'Human::EyeColor'
       => from 'ArrayRef'
       => via { my @genes = qw( bey2_1 bey2_2 gey_1 gey_2 );
-               return Human::EyeColor->new( zip( @genes, @{$_} ) ); };
+               return Human::EyeColor->new( mesh ( \@genes, $_ ) ); };
 
   has 'eye_color' => (
       is       => 'ro',
@@ -269,7 +269,7 @@ Had this been a real project we'd probably want:
 
 =item *
 
-Stevan Little <stevan.little@iinteractive.com>
+Stevan Little <stevan@cpan.org>
 
 =item *
 
@@ -277,11 +277,11 @@ Dave Rolsky <autarch@urth.org>
 
 =item *
 
-Jesse Luehrs <doy@tozt.net>
+Jesse Luehrs <doy@cpan.org>
 
 =item *
 
-Shawn M Moore <code@sartak.org>
+Shawn M Moore <sartak@cpan.org>
 
 =item *
 
@@ -297,7 +297,7 @@ Florian Ragwitz <rafl@debian.org>
 
 =item *
 
-Hans Dieter Pearcey <hdp@weftsoar.net>
+Hans Dieter Pearcey <hdp@cpan.org>
 
 =item *
 
@@ -305,7 +305,7 @@ Chris Prather <chris@prather.org>
 
 =item *
 
-Matt S Trout <mst@shadowcat.co.uk>
+Matt S Trout <mstrout@cpan.org>
 
 =back
 

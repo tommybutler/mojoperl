@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::File 3"
-.TH Mojo::File 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::File 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -84,17 +84,18 @@ Mojo::File \- File system paths
 \&  say $path\->slurp;
 \&  say $path\->dirname;
 \&  say $path\->basename;
+\&  say $path\->extname;
 \&  say $path\->sibling(\*(Aq.bashrc\*(Aq);
 \&
 \&  # Use the alternative constructor
-\&  use Mojo::File \*(Aqpath\*(Aq;
+\&  use Mojo::File qw(path);
 \&  my $path = path(\*(Aq/tmp/foo/bar\*(Aq)\->make_path;
 \&  $path\->child(\*(Aqtest.txt\*(Aq)\->spurt(\*(AqHello Mojo!\*(Aq);
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::File is a scalar-based container for file system paths that provides a
-friendly \s-1API\s0 for dealing with different operating systems.
+Mojo::File is a scalar-based container for file system paths that provides a friendly \s-1API\s0 for dealing with different
+operating systems.
 .PP
 .Vb 3
 \&  # Access scalar directly to manipulate path
@@ -103,16 +104,14 @@ friendly \s-1API\s0 for dealing with different operating systems.
 .Ve
 .SH "FUNCTIONS"
 .IX Header "FUNCTIONS"
-Mojo::File implements the following functions, which can be imported
-individually.
+Mojo::File implements the following functions, which can be imported individually.
 .SS "curfile"
 .IX Subsection "curfile"
 .Vb 1
 \&  my $path = curfile;
 .Ve
 .PP
-Construct a new scalar-based Mojo::File object for the absolute path to the
-current source file.
+Construct a new scalar-based Mojo::File object for the absolute path to the current source file.
 .SS "path"
 .IX Subsection "path"
 .Vb 4
@@ -122,8 +121,7 @@ current source file.
 \&  my $path = path(File::Temp\->newdir);
 .Ve
 .PP
-Construct a new scalar-based Mojo::File object, defaults to using the current
-working directory.
+Construct a new scalar-based Mojo::File object, defaults to using the current working directory.
 .PP
 .Vb 2
 \&  # "foo/bar/baz.txt" (on UNIX)
@@ -136,8 +134,7 @@ working directory.
 \&  my $path = tempdir(\*(AqtempXXXXX\*(Aq);
 .Ve
 .PP
-Construct a new scalar-based Mojo::File object for a temporary directory with
-File::Temp.
+Construct a new scalar-based Mojo::File object for a temporary directory with File::Temp.
 .PP
 .Vb 2
 \&  # Longer version
@@ -150,8 +147,7 @@ File::Temp.
 \&  my $path = tempfile(DIR => \*(Aq/tmp\*(Aq);
 .Ve
 .PP
-Construct a new scalar-based Mojo::File object for a temporary file with
-File::Temp.
+Construct a new scalar-based Mojo::File object for a temporary file with File::Temp.
 .PP
 .Vb 2
 \&  # Longer version
@@ -202,20 +198,30 @@ Change file permissions.
 \&  my $destination = $path\->copy_to(\*(Aq/home/sri/.vimrc.backup\*(Aq);
 .Ve
 .PP
-Copy file with File::Copy and return the destination as a Mojo::File
-object.
+Copy file with File::Copy and return the destination as a Mojo::File object.
 .SS "dirname"
 .IX Subsection "dirname"
 .Vb 1
 \&  my $name = $path\->dirname;
 .Ve
 .PP
-Return all but the last level of the path with File::Basename as a
-Mojo::File object.
+Return all but the last level of the path with File::Basename as a Mojo::File object.
 .PP
 .Vb 2
 \&  # "/home/sri" (on UNIX)
 \&  path(\*(Aq/home/sri/.vimrc\*(Aq)\->dirname;
+.Ve
+.SS "extname"
+.IX Subsection "extname"
+.Vb 1
+\&  my $ext = $path\->extname;
+.Ve
+.PP
+Return file extension of the path.
+.PP
+.Vb 2
+\&  # "js"
+\&  path(\*(Aq/home/sri/test.js\*(Aq)\->extname;
 .Ve
 .SS "is_abs"
 .IX Subsection "is_abs"
@@ -239,9 +245,8 @@ Check if the path is absolute.
 \&  my $collection = $path\->list({hidden => 1});
 .Ve
 .PP
-List all files in the directory and return a Mojo::Collection object
-containing the results as Mojo::File objects. The list does not include \f(CW\*(C`.\*(C'\fR
-and \f(CW\*(C`..\*(C'\fR.
+List all files in the directory and return a Mojo::Collection object containing the results as Mojo::File
+objects. The list does not include \f(CW\*(C`.\*(C'\fR and \f(CW\*(C`..\*(C'\fR.
 .PP
 .Vb 2
 \&  # List files
@@ -270,9 +275,8 @@ Include hidden files.
 \&  my $collection = $path\->list_tree({hidden => 1});
 .Ve
 .PP
-List all files recursively in the directory and return a Mojo::Collection
-object containing the results as Mojo::File objects. The list does not
-include \f(CW\*(C`.\*(C'\fR and \f(CW\*(C`..\*(C'\fR.
+List all files recursively in the directory and return a Mojo::Collection object containing the results as
+Mojo::File objects. The list does not include \f(CW\*(C`.\*(C'\fR and \f(CW\*(C`..\*(C'\fR.
 .PP
 .Vb 2
 \&  # List all templates
@@ -330,8 +334,7 @@ Return a File::stat object for the symlink.
 \&  $path = $path\->make_path({mode => 0711});
 .Ve
 .PP
-Create the directories if they don't already exist, any additional arguments are
-passed through to File::Path.
+Create the directories if they don't already exist, any additional arguments are passed through to File::Path.
 .SS "move_to"
 .IX Subsection "move_to"
 .Vb 2
@@ -339,8 +342,7 @@ passed through to File::Path.
 \&  my $destination = $path\->move_to(\*(Aq/home/sri/.vimrc.backup\*(Aq);
 .Ve
 .PP
-Move file with File::Copy and return the destination as a Mojo::File
-object.
+Move file with File::Copy and return the destination as a Mojo::File object.
 .SS "new"
 .IX Subsection "new"
 .Vb 5
@@ -351,8 +353,7 @@ object.
 \&  my $path = Mojo::File\->new(File::Temp\->newdir);
 .Ve
 .PP
-Construct a new Mojo::File object, defaults to using the current working
-directory.
+Construct a new Mojo::File object, defaults to using the current working directory.
 .PP
 .Vb 2
 \&  # "foo/bar/baz.txt" (on UNIX)
@@ -395,8 +396,8 @@ Delete file.
 \&  $path = $path\->remove_tree({keep_root => 1});
 .Ve
 .PP
-Delete this directory and any files and subdirectories it may contain, any
-additional arguments are passed through to File::Path.
+Delete this directory and any files and subdirectories it may contain, any additional arguments are passed through to
+File::Path.
 .SS "sibling"
 .IX Subsection "sibling"
 .Vb 1
@@ -455,8 +456,7 @@ Alias for \*(L"tap\*(R" in Mojo::Base.
 \&  my $absolute = $path\->to_abs;
 .Ve
 .PP
-Return absolute path as a Mojo::File object, the path does not need to exist
-on the file system.
+Return absolute path as a Mojo::File object, the path does not need to exist on the file system.
 .SS "to_array"
 .IX Subsection "to_array"
 .Vb 1
@@ -475,8 +475,7 @@ Split the path on directory separators.
 \&  my $relative = $path\->to_rel(\*(Aq/some/base/path\*(Aq);
 .Ve
 .PP
-Return a relative path from the original path to the destination path as a
-Mojo::File object.
+Return a relative path from the original path to the destination path as a Mojo::File object.
 .PP
 .Vb 2
 \&  # "sri/.vimrc" (on UNIX)
@@ -495,8 +494,7 @@ Stringify the path.
 \&  $path = $path\->touch;
 .Ve
 .PP
-Create file if it does not exist or change the modification and access time to
-the current time.
+Create file if it does not exist or change the modification and access time to the current time.
 .PP
 .Vb 2
 \&  # Safely read file

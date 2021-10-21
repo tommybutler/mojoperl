@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Plugins 3"
-.TH Mojolicious::Plugins 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Plugins 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -87,8 +87,7 @@ Mojolicious::Plugins \- Plugin manager
 Mojolicious::Plugins is the plugin manager of Mojolicious.
 .SH "PLUGINS"
 .IX Header "PLUGINS"
-The following plugins are included in the Mojolicious distribution as
-examples.
+The following plugins are included in the Mojolicious distribution as examples.
 .IP "Mojolicious::Plugin::Config" 2
 .IX Item "Mojolicious::Plugin::Config"
 Perl-ish configuration files.
@@ -110,6 +109,9 @@ Route condition for all kinds of headers, loaded automatically.
 .IP "Mojolicious::Plugin::Mount" 2
 .IX Item "Mojolicious::Plugin::Mount"
 Mount whole Mojolicious applications.
+.IP "Mojolicious::Plugin::NotYAMLConfig" 2
+.IX Item "Mojolicious::Plugin::NotYAMLConfig"
+\&\s-1YAML\s0 configuration files.
 .IP "Mojolicious::Plugin::TagHelpers" 2
 .IX Item "Mojolicious::Plugin::TagHelpers"
 Template specific helper collection, loaded automatically.
@@ -134,8 +136,7 @@ Namespaces to load plugins from, defaults to Mojolicious::Plugin.
 .Ve
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Plugins inherits all methods from Mojo::EventEmitter and
-implements the following new ones.
+Mojolicious::Plugins inherits all methods from Mojo::EventEmitter and implements the following new ones.
 .SS "emit_chain"
 .IX Subsection "emit_chain"
 .Vb 2
@@ -185,8 +186,8 @@ Load a plugin from the configured namespaces or by full module name.
 \&    \*(AqMyApp::Plugin::SomeThing\*(Aq, Mojolicious\->new, {foo => 23});
 .Ve
 .PP
-Load a plugin from the configured namespaces or by full module name and run
-\&\f(CW\*(C`register\*(C'\fR, optional arguments are passed through.
+Load a plugin from the configured namespaces or by full module name and run \f(CW\*(C`register\*(C'\fR, optional arguments are passed
+through.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

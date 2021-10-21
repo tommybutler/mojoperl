@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Moose::Manual::Unsweetened 3"
-.TH Moose::Manual::Unsweetened 3 "2017-07-12" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Moose::Manual::Unsweetened 3 "2021-03-31" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -76,7 +76,7 @@
 Moose::Manual::Unsweetened \- Moose idioms in plain old Perl 5 without the sugar
 .SH "VERSION"
 .IX Header "VERSION"
-version 2.2006
+version 2.2015
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
 If you're trying to figure out just what the heck Moose does, and how
@@ -185,7 +185,7 @@ helpers like \f(CW\*(C`Class::Accessor\*(C'\fR.
 \&      $class\->_validate_birth_date( $p{birth_date} );
 \&
 \&      $p{shirt_size} = \*(Aql\*(Aq
-\&          unless exists $p{shirt_size}:
+\&          unless exists $p{shirt_size};
 \&
 \&      $class\->_validate_shirt_size( $p{shirt_size} );
 \&
@@ -403,13 +403,13 @@ users and is being actively maintained and developed.
 .SH "AUTHORS"
 .IX Header "AUTHORS"
 .IP "\(bu" 4
-Stevan Little <stevan.little@iinteractive.com>
+Stevan Little <stevan@cpan.org>
 .IP "\(bu" 4
 Dave Rolsky <autarch@urth.org>
 .IP "\(bu" 4
-Jesse Luehrs <doy@tozt.net>
+Jesse Luehrs <doy@cpan.org>
 .IP "\(bu" 4
-Shawn M Moore <code@sartak.org>
+Shawn M Moore <sartak@cpan.org>
 .IP "\(bu" 4
 יובל קוג'מן (Yuval Kogman) <nothingmuch@woobling.org>
 .IP "\(bu" 4
@@ -417,11 +417,11 @@ Karen Etheridge <ether@cpan.org>
 .IP "\(bu" 4
 Florian Ragwitz <rafl@debian.org>
 .IP "\(bu" 4
-Hans Dieter Pearcey <hdp@weftsoar.net>
+Hans Dieter Pearcey <hdp@cpan.org>
 .IP "\(bu" 4
 Chris Prather <chris@prather.org>
 .IP "\(bu" 4
-Matt S Trout <mst@shadowcat.co.uk>
+Matt S Trout <mstrout@cpan.org>
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
 This software is copyright (c) 2006 by Infinity Interactive, Inc.

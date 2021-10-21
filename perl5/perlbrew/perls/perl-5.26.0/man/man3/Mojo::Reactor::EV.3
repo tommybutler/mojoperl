@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Reactor::EV 3"
-.TH Mojo::Reactor::EV 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Reactor::EV 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -81,8 +81,7 @@ Mojo::Reactor::EV \- Low\-level event reactor with libev support
 \&
 \&  # Watch if handle becomes readable or writable
 \&  my $reactor = Mojo::Reactor::EV\->new;
-\&  $reactor\->io($first => sub {
-\&    my ($reactor, $writable) = @_;
+\&  $reactor\->io($first => sub ($reactor, $writable) {
 \&    say $writable ? \*(AqFirst handle is writable\*(Aq : \*(AqFirst handle is readable\*(Aq;
 \&  });
 \&
@@ -91,14 +90,12 @@ Mojo::Reactor::EV \- Low\-level event reactor with libev support
 \&
 \&  # Turn file descriptor into handle and watch if it becomes readable
 \&  my $second = IO::Handle\->new_from_fd($fd, \*(Aqr\*(Aq);
-\&  $reactor\->io($second => sub {
-\&    my ($reactor, $writable) = @_;
+\&  $reactor\->io($second => sub ($reactor, $writable) {
 \&    say $writable ? \*(AqSecond handle is writable\*(Aq : \*(AqSecond handle is readable\*(Aq;
 \&  })\->watch($second, 1, 0);
 \&
 \&  # Add a timer
-\&  $reactor\->timer(15 => sub {
-\&    my $reactor = shift;
+\&  $reactor\->timer(15 => sub ($reactor) {
 \&    $reactor\->remove($first);
 \&    $reactor\->remove($second);
 \&    say \*(AqTimeout!\*(Aq;
@@ -109,21 +106,21 @@ Mojo::Reactor::EV \- Low\-level event reactor with libev support
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Reactor::EV is a low-level event reactor based on \s-1EV\s0 (4.0+).
+Mojo::Reactor::EV is a low-level event reactor based on \s-1EV\s0 (4.32+).
 .SH "EVENTS"
 .IX Header "EVENTS"
 Mojo::Reactor::EV inherits all events from Mojo::Reactor::Poll.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Reactor::EV inherits all methods from Mojo::Reactor::Poll and
-implements the following new ones.
+Mojo::Reactor::EV inherits all methods from Mojo::Reactor::Poll and implements the following new ones.
 .SS "again"
 .IX Subsection "again"
-.Vb 1
+.Vb 2
 \&  $reactor\->again($id);
+\&  $reactor\->again($id, 0.5);
 .Ve
 .PP
-Restart timer. Note that this method requires an active timer.
+Restart timer and optionally change the invocation time. Note that this method requires an active timer.
 .SS "new"
 .IX Subsection "new"
 .Vb 1
@@ -151,16 +148,15 @@ Run reactor until an event occurs or no events are being watched anymore.
 \&  my $id = $reactor\->recurring(0.25 => sub {...});
 .Ve
 .PP
-Create a new recurring timer, invoking the callback repeatedly after a given
-amount of time in seconds.
+Create a new recurring timer, invoking the callback repeatedly after a given amount of time in seconds.
 .SS "start"
 .IX Subsection "start"
 .Vb 1
 \&  $reactor\->start;
 .Ve
 .PP
-Start watching for I/O and timer events, this will block until \*(L"stop\*(R" is
-called or no events are being watched anymore.
+Start watching for I/O and timer events, this will block until \*(L"stop\*(R" is called or no events are being watched
+anymore.
 .PP
 .Vb 2
 \&  # Start reactor only if it is not running already
@@ -179,16 +175,14 @@ Stop watching for I/O and timer events.
 \&  my $id = $reactor\->timer(0.5 => sub {...});
 .Ve
 .PP
-Create a new timer, invoking the callback after a given amount of time in
-seconds.
+Create a new timer, invoking the callback after a given amount of time in seconds.
 .SS "watch"
 .IX Subsection "watch"
 .Vb 1
 \&  $reactor = $reactor\->watch($handle, $readable, $writable);
 .Ve
 .PP
-Change I/O events to watch handle for with true and false values. Note that
-this method requires an active I/O watcher.
+Change I/O events to watch handle for with true and false values. Note that this method requires an active I/O watcher.
 .PP
 .Vb 2
 \&  # Watch only for readable events

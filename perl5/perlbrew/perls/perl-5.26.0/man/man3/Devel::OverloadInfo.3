@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Devel::OverloadInfo 3"
-.TH Devel::OverloadInfo 3 "2015-08-13" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Devel::OverloadInfo 3 "2021-04-28" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -76,13 +76,13 @@
 Devel::OverloadInfo \- introspect overloaded operators
 .SH "VERSION"
 .IX Header "VERSION"
-version 0.004
+version 0.007
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
 Devel::OverloadInfo returns information about overloaded
 operators for a given class (or object), including where in the
 inheritance hierarchy the overloads are declared and where the code
-implementing it is.
+implementing them is.
 .SH "FUNCTIONS"
 .IX Header "FUNCTIONS"
 .SS "is_overloaded"
@@ -99,16 +99,20 @@ Equivalent to
 \&\fIoverload::Overloaded()\fR, but
 doesn't trigger various bugs associated with it in versions of perl
 before 5.16.
-.SS "overload_info"
-.IX Subsection "overload_info"
+.SS "overload_op_info"
+.IX Subsection "overload_op_info"
 .Vb 1
-\&    my $info = overload_info($class_or_object);
+\&    my $info = overload_op_info($class_or_object, $op);
 .Ve
 .PP
-Returns a hash reference with information about all the overloaded
-operators of the argument, which can be either a class name or a blessed
-object. The keys are the overloaded operators, as specified in
-\&\f(CW%overload::ops\fR (see \*(L"Overloadable Operations\*(R" in overload).
+Returns a hash reference with information about the specified
+overloaded operator of the named class or blessed object.
+.PP
+Returns \f(CW\*(C`undef\*(C'\fR if the operator is not overloaded.
+.PP
+See \*(L"Overloadable Operations\*(R" in overload for the available operators.
+.PP
+The keys in the returned hash are as follows:
 .IP "class" 4
 .IX Item "class"
 The name of the class in which the operator overloading was declared.
@@ -117,8 +121,7 @@ The name of the class in which the operator overloading was declared.
 A reference to the function implementing the overloaded operator.
 .IP "code_name" 4
 .IX Item "code_name"
-The name of the function implementing the overloaded operator, as
-returned by \f(CW\*(C`sub_fullname\*(C'\fR in Sub::Identify.
+The fully qualified name of the function implementing the overloaded operator.
 .IP "method_name (optional)" 4
 .IX Item "method_name (optional)"
 The name of the method implementing the overloaded operator, if the
@@ -131,6 +134,17 @@ was found.
 .IP "value (optional)" 4
 .IX Item "value (optional)"
 For the special \f(CW\*(C`fallback\*(C'\fR key, the value it was given in \f(CW\*(C`class\*(C'\fR.
+.SS "overload_info"
+.IX Subsection "overload_info"
+.Vb 1
+\&    my $info = overload_info($class_or_object);
+.Ve
+.PP
+Returns a hash reference with information about all the overloaded
+operators of specified class name or blessed object.  The keys are the
+overloaded operators, as specified in \f(CW%overload::ops\fR (see
+\&\*(L"Overloadable Operations\*(R" in overload), and the values are the hashes
+returned by \*(L"overload_op_info\*(R".
 .SH "CAVEATS"
 .IX Header "CAVEATS"
 Whether the \f(CW\*(C`fallback\*(C'\fR key exists when it has its default value of

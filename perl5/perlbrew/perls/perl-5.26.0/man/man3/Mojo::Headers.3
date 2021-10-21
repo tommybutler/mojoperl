@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Headers 3"
-.TH Mojo::Headers 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Headers 3 "2021-10-18" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -94,9 +94,8 @@ Mojo::Headers \- HTTP headers
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Headers is a container for \s-1HTTP\s0 headers, based on
-\&\s-1RFC 7230\s0 <http://tools.ietf.org/html/rfc7230> and
-\&\s-1RFC 7231\s0 <http://tools.ietf.org/html/rfc7231>.
+Mojo::Headers is a container for \s-1HTTP\s0 headers, based on \s-1RFC 7230\s0 <https://tools.ietf.org/html/rfc7230> and \s-1RFC
+7231\s0 <https://tools.ietf.org/html/rfc7231>.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojo::Headers implements the following attributes.
@@ -107,8 +106,8 @@ Mojo::Headers implements the following attributes.
 \&  $headers = $headers\->max_line_size(1024);
 .Ve
 .PP
-Maximum header line size in bytes, defaults to the value of the
-\&\f(CW\*(C`MOJO_MAX_LINE_SIZE\*(C'\fR environment variable or \f(CW8192\fR (8KiB).
+Maximum header line size in bytes, defaults to the value of the \f(CW\*(C`MOJO_MAX_LINE_SIZE\*(C'\fR environment variable or \f(CW8192\fR
+(8KiB).
 .SS "max_lines"
 .IX Subsection "max_lines"
 .Vb 2
@@ -116,12 +115,10 @@ Maximum header line size in bytes, defaults to the value of the
 \&  $headers = $headers\->max_lines(200);
 .Ve
 .PP
-Maximum number of header lines, defaults to the value of the \f(CW\*(C`MOJO_MAX_LINES\*(C'\fR
-environment variable or \f(CW100\fR.
+Maximum number of header lines, defaults to the value of the \f(CW\*(C`MOJO_MAX_LINES\*(C'\fR environment variable or \f(CW100\fR.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Headers inherits all methods from Mojo::Base and implements the
-following new ones.
+Mojo::Headers inherits all methods from Mojo::Base and implements the following new ones.
 .SS "accept"
 .IX Subsection "accept"
 .Vb 2
@@ -169,9 +166,8 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Accept\-Ranges\*
 \&  $headers   = $headers\->access_control_allow_origin(\*(Aq*\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the
-\&\f(CW\*(C`Access\-Control\-Allow\-Origin\*(C'\fR header from
-Cross-Origin Resource Sharing <http://www.w3.org/TR/cors/>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Access\-Control\-Allow\-Origin\*(C'\fR header from Cross-Origin
+Resource Sharing <https://www.w3.org/TR/cors/>.
 .SS "add"
 .IX Subsection "add"
 .Vb 2
@@ -247,8 +243,7 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Connection\*(C'\
 \&  $headers        = $headers\->content_disposition(\*(Aqfoo\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Content\-Disposition\*(C'\fR
-header.
+Get or replace current header value, shortcut for the \f(CW\*(C`Content\-Disposition\*(C'\fR header.
 .SS "content_encoding"
 .IX Subsection "content_encoding"
 .Vb 2
@@ -256,8 +251,7 @@ header.
 \&  $headers     = $headers\->content_encoding(\*(Aqgzip\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Content\-Encoding\*(C'\fR
-header.
+Get or replace current header value, shortcut for the \f(CW\*(C`Content\-Encoding\*(C'\fR header.
 .SS "content_language"
 .IX Subsection "content_language"
 .Vb 2
@@ -265,8 +259,7 @@ header.
 \&  $headers     = $headers\->content_language(\*(Aqen\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Content\-Language\*(C'\fR
-header.
+Get or replace current header value, shortcut for the \f(CW\*(C`Content\-Language\*(C'\fR header.
 .SS "content_length"
 .IX Subsection "content_length"
 .Vb 2
@@ -282,8 +275,7 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Content\-Length\
 \&  $headers     = $headers\->content_location(\*(Aqhttp://127.0.0.1/foo\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Content\-Location\*(C'\fR
-header.
+Get or replace current header value, shortcut for the \f(CW\*(C`Content\-Location\*(C'\fR header.
 .SS "content_range"
 .IX Subsection "content_range"
 .Vb 2
@@ -299,8 +291,8 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Content\-Range\*
 \&  $headers   = $headers\->content_security_policy(\*(Aqdefault\-src https:\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Content\-Security\-Policy\*(C'\fR
-header from Content Security Policy 1.0 <http://www.w3.org/TR/CSP/>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Content\-Security\-Policy\*(C'\fR header from Content Security Policy
+1.0 <https://www.w3.org/TR/CSP/>.
 .SS "content_type"
 .IX Subsection "content_type"
 .Vb 2
@@ -316,8 +308,8 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Content\-Type\*(
 \&  $headers   = $headers\->cookie(\*(Aqf=b\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Cookie\*(C'\fR header from
-\&\s-1RFC 6265\s0 <http://tools.ietf.org/html/rfc6265>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Cookie\*(C'\fR header from \s-1RFC
+6265\s0 <https://tools.ietf.org/html/rfc6265>.
 .SS "date"
 .IX Subsection "date"
 .Vb 2
@@ -329,11 +321,10 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Date\*(C'\fR hea
 .SS "dehop"
 .IX Subsection "dehop"
 .Vb 1
-\&  $heders = $headers\->dehop;
+\&  $headers = $headers\->dehop;
 .Ve
 .PP
-Remove hop-by-hop headers that should not be retransmitted. Note that this
-method is \fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
+Remove hop-by-hop headers that should not be retransmitted.
 .SS "dnt"
 .IX Subsection "dnt"
 .Vb 2
@@ -341,8 +332,8 @@ method is \fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
 \&  $headers = $headers\->dnt(1);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`DNT\*(C'\fR (Do Not Track)
-header, which has no specification yet, but is very commonly used.
+Get or replace current header value, shortcut for the \f(CW\*(C`DNT\*(C'\fR (Do Not Track) header, which has no specification yet, but
+is very commonly used.
 .SS "etag"
 .IX Subsection "etag"
 .Vb 2
@@ -357,8 +348,7 @@ Get or replace current header value, shortcut for the \f(CW\*(C`ETag\*(C'\fR hea
 \&  my $all = $headers\->every_header(\*(AqLocation\*(Aq);
 .Ve
 .PP
-Similar to \*(L"header\*(R", but returns all headers sharing the same name as an
-array reference.
+Similar to \*(L"header\*(R", but returns all headers sharing the same name as an array reference.
 .PP
 .Vb 2
 \&  # Get first header value
@@ -413,8 +403,7 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Host\*(C'\fR hea
 \&  $headers = $headers\->if_modified_since(\*(AqSun, 17 Aug 2008 16:27:35 GMT\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`If\-Modified\-Since\*(C'\fR
-header.
+Get or replace current header value, shortcut for the \f(CW\*(C`If\-Modified\-Since\*(C'\fR header.
 .SS "if_none_match"
 .IX Subsection "if_none_match"
 .Vb 2
@@ -459,8 +448,8 @@ Get and remove leftover data from header parser.
 \&  $headers = $headers\->link(\*(Aq<http://127.0.0.1/foo/3>; rel="next"\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Link\*(C'\fR header from
-\&\s-1RFC 5988\s0 <http://tools.ietf.org/html/rfc5988>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Link\*(C'\fR header from \s-1RFC
+5988\s0 <https://tools.ietf.org/html/rfc5988>.
 .SS "location"
 .IX Subsection "location"
 .Vb 2
@@ -488,8 +477,8 @@ Return an array reference with all currently defined headers.
 \&  $headers   = $headers\->origin(\*(Aqhttp://example.com\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Origin\*(C'\fR header from
-\&\s-1RFC 6454\s0 <http://tools.ietf.org/html/rfc6454>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Origin\*(C'\fR header from \s-1RFC
+6454\s0 <https://tools.ietf.org/html/rfc6454>.
 .SS "parse"
 .IX Subsection "parse"
 .Vb 1
@@ -504,8 +493,7 @@ Parse formatted headers.
 \&  $headers         = $headers\->proxy_authenticate(\*(AqBasic "realm"\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Proxy\-Authenticate\*(C'\fR
-header.
+Get or replace current header value, shortcut for the \f(CW\*(C`Proxy\-Authenticate\*(C'\fR header.
 .SS "proxy_authorization"
 .IX Subsection "proxy_authorization"
 .Vb 2
@@ -513,8 +501,7 @@ header.
 \&  $headers          = $headers\->proxy_authorization(\*(AqBasic Zm9vOmJhcg==\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Proxy\-Authorization\*(C'\fR
-header.
+Get or replace current header value, shortcut for the \f(CW\*(C`Proxy\-Authorization\*(C'\fR header.
 .SS "range"
 .IX Subsection "range"
 .Vb 2
@@ -523,6 +510,14 @@ header.
 .Ve
 .PP
 Get or replace current header value, shortcut for the \f(CW\*(C`Range\*(C'\fR header.
+.SS "referer"
+.IX Subsection "referer"
+.Vb 2
+\&  my $referrer = $headers\->referer;
+\&  $headers     = $headers\->referer(\*(Aqhttp://example.com\*(Aq);
+.Ve
+.PP
+Alias for \*(L"referrer\*(R".
 .SS "referrer"
 .IX Subsection "referrer"
 .Vb 2
@@ -530,9 +525,8 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Range\*(C'\fR he
 \&  $headers     = $headers\->referrer(\*(Aqhttp://example.com\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Referer\*(C'\fR header, there
-was a typo in \s-1RFC 2068\s0 <http://tools.ietf.org/html/rfc2068> which resulted in
-\&\f(CW\*(C`Referer\*(C'\fR becoming an official header.
+Get or replace current header value, shortcut for the \f(CW\*(C`Referer\*(C'\fR header, there was a typo in \s-1RFC
+2068\s0 <https://tools.ietf.org/html/rfc2068> which resulted in \f(CW\*(C`Referer\*(C'\fR becoming an official header.
 .SS "remove"
 .IX Subsection "remove"
 .Vb 1
@@ -547,8 +541,8 @@ Remove a header.
 \&  $headers   = $headers\->sec_websocket_accept(\*(Aqs3pPLMBiTxaQ9kYGzzhZRbK+xOo=\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Sec\-WebSocket\-Accept\*(C'\fR
-header from \s-1RFC 6455\s0 <http://tools.ietf.org/html/rfc6455>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Sec\-WebSocket\-Accept\*(C'\fR header from \s-1RFC
+6455\s0 <https://tools.ietf.org/html/rfc6455>.
 .SS "sec_websocket_extensions"
 .IX Subsection "sec_websocket_extensions"
 .Vb 2
@@ -556,9 +550,8 @@ header from \s-1RFC 6455\s0 <http://tools.ietf.org/html/rfc6455>.
 \&  $headers       = $headers\->sec_websocket_extensions(\*(Aqfoo\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the
-\&\f(CW\*(C`Sec\-WebSocket\-Extensions\*(C'\fR header from
-\&\s-1RFC 6455\s0 <http://tools.ietf.org/html/rfc6455>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Sec\-WebSocket\-Extensions\*(C'\fR header from \s-1RFC
+6455\s0 <https://tools.ietf.org/html/rfc6455>.
 .SS "sec_websocket_key"
 .IX Subsection "sec_websocket_key"
 .Vb 2
@@ -566,8 +559,8 @@ Get or replace current header value, shortcut for the
 \&  $headers = $headers\->sec_websocket_key(\*(AqdGhlIHNhbXBsZSBub25jZQ==\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Sec\-WebSocket\-Key\*(C'\fR
-header from \s-1RFC 6455\s0 <http://tools.ietf.org/html/rfc6455>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Sec\-WebSocket\-Key\*(C'\fR header from \s-1RFC
+6455\s0 <https://tools.ietf.org/html/rfc6455>.
 .SS "sec_websocket_protocol"
 .IX Subsection "sec_websocket_protocol"
 .Vb 2
@@ -575,8 +568,8 @@ header from \s-1RFC 6455\s0 <http://tools.ietf.org/html/rfc6455>.
 \&  $headers  = $headers\->sec_websocket_protocol(\*(Aqsample\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Sec\-WebSocket\-Protocol\*(C'\fR
-header from \s-1RFC 6455\s0 <http://tools.ietf.org/html/rfc6455>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Sec\-WebSocket\-Protocol\*(C'\fR header from \s-1RFC
+6455\s0 <https://tools.ietf.org/html/rfc6455>.
 .SS "sec_websocket_version"
 .IX Subsection "sec_websocket_version"
 .Vb 2
@@ -584,8 +577,8 @@ header from \s-1RFC 6455\s0 <http://tools.ietf.org/html/rfc6455>.
 \&  $headers    = $headers\->sec_websocket_version(13);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Sec\-WebSocket\-Version\*(C'\fR
-header from \s-1RFC 6455\s0 <http://tools.ietf.org/html/rfc6455>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Sec\-WebSocket\-Version\*(C'\fR header from \s-1RFC
+6455\s0 <https://tools.ietf.org/html/rfc6455>.
 .SS "server"
 .IX Subsection "server"
 .Vb 2
@@ -601,8 +594,8 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Server\*(C'\fR h
 \&  $headers   = $headers\->server_timing(\*(Aqapp;desc=Mojolicious;dur=0.0001\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Server\-Timing\*(C'\fR header
-from Server Timing <https://www.w3.org/TR/server-timing/>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Server\-Timing\*(C'\fR header from Server
+Timing <https://www.w3.org/TR/server-timing/>.
 .SS "set_cookie"
 .IX Subsection "set_cookie"
 .Vb 2
@@ -610,8 +603,8 @@ from Server Timing <https://www.w3.org/TR/server-timing/>.
 \&  $headers   = $headers\->set_cookie(\*(Aqf=b; path=/\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Set\-Cookie\*(C'\fR header from
-\&\s-1RFC 6265\s0 <http://tools.ietf.org/html/rfc6265>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Set\-Cookie\*(C'\fR header from \s-1RFC
+6265\s0 <https://tools.ietf.org/html/rfc6265>.
 .SS "status"
 .IX Subsection "status"
 .Vb 2
@@ -619,8 +612,8 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Set\-Cookie\*(C'
 \&  $headers   = $headers\->status(\*(Aq200 OK\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Status\*(C'\fR header from
-\&\s-1RFC 3875\s0 <http://tools.ietf.org/html/rfc3875>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Status\*(C'\fR header from \s-1RFC
+3875\s0 <https://tools.ietf.org/html/rfc3875>.
 .SS "strict_transport_security"
 .IX Subsection "strict_transport_security"
 .Vb 2
@@ -628,9 +621,8 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Status\*(C'\fR h
 \&  $headers   = $headers\->strict_transport_security(\*(Aqmax\-age=31536000\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the
-\&\f(CW\*(C`Strict\-Transport\-Security\*(C'\fR header from
-\&\s-1RFC 6797\s0 <http://tools.ietf.org/html/rfc6797>.
+Get or replace current header value, shortcut for the \f(CW\*(C`Strict\-Transport\-Security\*(C'\fR header from \s-1RFC
+6797\s0 <https://tools.ietf.org/html/rfc6797>.
 .SS "te"
 .IX Subsection "te"
 .Vb 2
@@ -646,8 +638,8 @@ Get or replace current header value, shortcut for the \f(CW\*(C`TE\*(C'\fR heade
 \&  my $multi  = $headers\->to_hash(1);
 .Ve
 .PP
-Turn headers into hash reference, array references to represent multiple
-headers with the same name are disabled by default.
+Turn headers into hash reference, array references to represent multiple headers with the same name are disabled by
+default.
 .PP
 .Vb 1
 \&  say $headers\->to_hash\->{DNT};
@@ -674,8 +666,7 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Trailer\*(C'\fR 
 \&  $headers     = $headers\->transfer_encoding(\*(Aqchunked\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`Transfer\-Encoding\*(C'\fR
-header.
+Get or replace current header value, shortcut for the \f(CW\*(C`Transfer\-Encoding\*(C'\fR header.
 .SS "upgrade"
 .IX Subsection "upgrade"
 .Vb 2
@@ -707,8 +698,7 @@ Get or replace current header value, shortcut for the \f(CW\*(C`Vary\*(C'\fR hea
 \&  $headers         = $headers\->www_authenticate(\*(AqBasic realm="realm"\*(Aq);
 .Ve
 .PP
-Get or replace current header value, shortcut for the \f(CW\*(C`WWW\-Authenticate\*(C'\fR
-header.
+Get or replace current header value, shortcut for the \f(CW\*(C`WWW\-Authenticate\*(C'\fR header.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

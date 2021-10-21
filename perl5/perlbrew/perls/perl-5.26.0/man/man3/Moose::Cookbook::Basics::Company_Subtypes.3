@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Moose::Cookbook::Basics::Company_Subtypes 3"
-.TH Moose::Cookbook::Basics::Company_Subtypes 3 "2017-07-12" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Moose::Cookbook::Basics::Company_Subtypes 3 "2021-03-31" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -76,7 +76,7 @@
 Moose::Cookbook::Basics::Company_Subtypes \- Demonstrates the use of subtypes and how to model classes related to companies, people, employees, etc.
 .SH "VERSION"
 .IX Header "VERSION"
-version 2.2006
+version 2.2015
 .SH "SYNOPSIS"
 .IX Header "SYNOPSIS"
 .Vb 3
@@ -182,7 +182,7 @@ Finally, we introduce the \f(CW\*(C`required\*(C'\fR attribute option.
 .PP
 In the \f(CW\*(C`Address\*(C'\fR class we define two subtypes. The first uses the
 Locale::US module to check the validity of a state. It accepts
-either a state abbreviation of full name.
+either a state abbreviation or full name.
 .PP
 A state will be passed in as a string, so we make our \f(CW\*(C`USState\*(C'\fR type
 a subtype of Moose's builtin \f(CW\*(C`Str\*(C'\fR type. This is done using the \f(CW\*(C`as\*(C'\fR
@@ -372,13 +372,13 @@ container type, and instead you will have a new type named
 .SH "AUTHORS"
 .IX Header "AUTHORS"
 .IP "\(bu" 4
-Stevan Little <stevan.little@iinteractive.com>
+Stevan Little <stevan@cpan.org>
 .IP "\(bu" 4
 Dave Rolsky <autarch@urth.org>
 .IP "\(bu" 4
-Jesse Luehrs <doy@tozt.net>
+Jesse Luehrs <doy@cpan.org>
 .IP "\(bu" 4
-Shawn M Moore <code@sartak.org>
+Shawn M Moore <sartak@cpan.org>
 .IP "\(bu" 4
 יובל קוג'מן (Yuval Kogman) <nothingmuch@woobling.org>
 .IP "\(bu" 4
@@ -386,11 +386,11 @@ Karen Etheridge <ether@cpan.org>
 .IP "\(bu" 4
 Florian Ragwitz <rafl@debian.org>
 .IP "\(bu" 4
-Hans Dieter Pearcey <hdp@weftsoar.net>
+Hans Dieter Pearcey <hdp@cpan.org>
 .IP "\(bu" 4
 Chris Prather <chris@prather.org>
 .IP "\(bu" 4
-Matt S Trout <mst@shadowcat.co.uk>
+Matt S Trout <mstrout@cpan.org>
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
 This software is copyright (c) 2006 by Infinity Interactive, Inc.

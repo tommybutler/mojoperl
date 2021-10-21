@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Renderer 3"
-.TH Mojolicious::Renderer 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Renderer 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -106,12 +106,10 @@ Renderer cache, defaults to a Mojo::Cache object.
 \&  $renderer   = $renderer\->classes([\*(Aqmain\*(Aq]);
 .Ve
 .PP
-Classes to use for finding templates in \f(CW\*(C`DATA\*(C'\fR sections with Mojo::Loader,
-first one has the highest precedence, defaults to \f(CW\*(C`main\*(C'\fR. Only files with
-exactly two extensions will be used, like \f(CW\*(C`index.html.ep\*(C'\fR. Note that for
-templates to be detected, these classes need to have already been loaded and
-added before \*(L"warmup\*(R" is called, which usually happens automatically during
-application startup.
+Classes to use for finding templates in \f(CW\*(C`DATA\*(C'\fR sections with Mojo::Loader, first one has the highest precedence,
+defaults to \f(CW\*(C`main\*(C'\fR. Only files with exactly two extensions will be used, like \f(CW\*(C`index.html.ep\*(C'\fR. Note that for
+templates to be detected, these classes need to have already been loaded and added before \*(L"warmup\*(R" is called, which
+usually happens automatically during application startup.
 .PP
 .Vb 2
 \&  # Add another class with templates in DATA section
@@ -127,9 +125,8 @@ application startup.
 \&  $renderer = $renderer\->compress($bool);
 .Ve
 .PP
-Try to negotiate compression for dynamically generated response content and
-\&\f(CW\*(C`gzip\*(C'\fR compress it automatically, defaults to false. Note that this attribute
-is \fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
+Try to negotiate compression for dynamically generated response content and \f(CW\*(C`gzip\*(C'\fR compress it automatically, defaults
+to false.
 .SS "default_format"
 .IX Subsection "default_format"
 .Vb 2
@@ -137,9 +134,8 @@ is \fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
 \&  $renderer   = $renderer\->default_format(\*(Aqhtml\*(Aq);
 .Ve
 .PP
-The default format to render if \f(CW\*(C`format\*(C'\fR is not set in the stash, defaults to
-\&\f(CW\*(C`html\*(C'\fR. Note that changing the default away from \f(CW\*(C`html\*(C'\fR is not recommended, as
-it has the potential to break, for example, plugins with bundled templates.
+The default format to render if \f(CW\*(C`format\*(C'\fR is not set in the stash, defaults to \f(CW\*(C`html\*(C'\fR. Note that changing the default
+away from \f(CW\*(C`html\*(C'\fR is not recommended, as it has the potential to break, for example, plugins with bundled templates.
 .SS "default_handler"
 .IX Subsection "default_handler"
 .Vb 2
@@ -147,8 +143,8 @@ it has the potential to break, for example, plugins with bundled templates.
 \&  $renderer   = $renderer\->default_handler(\*(Aqep\*(Aq);
 .Ve
 .PP
-The default template handler to use for rendering in cases where auto-detection
-doesn't work, like for \f(CW\*(C`inline\*(C'\fR templates.
+The default template handler to use for rendering in cases where auto-detection doesn't work, like for \f(CW\*(C`inline\*(C'\fR
+templates.
 .SS "encoding"
 .IX Subsection "encoding"
 .Vb 2
@@ -156,9 +152,9 @@ doesn't work, like for \f(CW\*(C`inline\*(C'\fR templates.
 \&  $renderer    = $renderer\->encoding(\*(Aqkoi8\-r\*(Aq);
 .Ve
 .PP
-Will encode generated content if set, defaults to \f(CW\*(C`UTF\-8\*(C'\fR. Note that many
-renderers such as Mojolicious::Plugin::EPRenderer also use this value to
-determine if template files should be decoded before processing.
+Will encode generated content if set, defaults to \f(CW\*(C`UTF\-8\*(C'\fR. Note that many renderers such as
+Mojolicious::Plugin::EPRenderer also use this value to determine if template files should be decoded before
+processing.
 .SS "handlers"
 .IX Subsection "handlers"
 .Vb 2
@@ -182,9 +178,7 @@ Registered helpers.
 \&  $renderer = $renderer\->min_compress_size(1024);
 .Ve
 .PP
-Minimum output size in bytes required for compression to be used if enabled,
-defaults to \f(CW860\fR. Note that this attribute is \fB\s-1EXPERIMENTAL\s0\fR and might change
-without warning!
+Minimum output size in bytes required for compression to be used if enabled, defaults to \f(CW860\fR.
 .SS "paths"
 .IX Subsection "paths"
 .Vb 2
@@ -203,8 +197,7 @@ Directories to look for templates in, first one has the highest precedence.
 .Ve
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Renderer inherits all methods from Mojo::Base and implements
-the following new ones.
+Mojolicious::Renderer inherits all methods from Mojo::Base and implements the following new ones.
 .SS "accepts"
 .IX Subsection "accepts"
 .Vb 2
@@ -212,9 +205,8 @@ the following new ones.
 \&  my $best = $renderer\->accepts(Mojolicious::Controller\->new, \*(Aqhtml\*(Aq, \*(Aqjson\*(Aq);
 .Ve
 .PP
-Select best possible representation for Mojolicious::Controller object from
-\&\f(CW\*(C`format\*(C'\fR \f(CW\*(C`GET\*(C'\fR/\f(CW\*(C`POST\*(C'\fR parameter, \f(CW\*(C`format\*(C'\fR stash value, or \f(CW\*(C`Accept\*(C'\fR request
-header, defaults to returning the first extension if no preference could be
+Select best possible representation for Mojolicious::Controller object from \f(CW\*(C`format\*(C'\fR \f(CW\*(C`GET\*(C'\fR/\f(CW\*(C`POST\*(C'\fR parameter,
+\&\f(CW\*(C`format\*(C'\fR stash value, or \f(CW\*(C`Accept\*(C'\fR request header, defaults to returning the first extension if no preference could be
 detected.
 .SS "add_handler"
 .IX Subsection "add_handler"
@@ -224,9 +216,8 @@ detected.
 .PP
 Register a handler.
 .PP
-.Vb 5
-\&  $renderer\->add_handler(foo => sub {
-\&    my ($renderer, $c, $output, $options) = @_;
+.Vb 4
+\&  $renderer\->add_handler(foo => sub ($renderer, $c, $output, $options) {
 \&    ...
 \&    $$output = \*(AqHello World!\*(Aq;
 \&  });
@@ -239,9 +230,8 @@ Register a handler.
 .PP
 Register a helper.
 .PP
-.Vb 4
-\&  $renderer\->add_helper(foo => sub {
-\&    my ($c, @args) = @_;
+.Vb 3
+\&  $renderer\->add_helper(foo => sub ($c, @args) {
 \&    ...
 \&  });
 .Ve
@@ -255,30 +245,24 @@ Register a helper.
 \&  });
 .Ve
 .PP
-Return a \f(CW\*(C`DATA\*(C'\fR section template from \*(L"classes\*(R" for an options hash
-reference with \f(CW\*(C`template\*(C'\fR, \f(CW\*(C`format\*(C'\fR, \f(CW\*(C`variant\*(C'\fR and \f(CW\*(C`handler\*(C'\fR values, or
-\&\f(CW\*(C`undef\*(C'\fR if no template could be found, usually used by handlers.
+Return a \f(CW\*(C`DATA\*(C'\fR section template from \*(L"classes\*(R" for an options hash reference with \f(CW\*(C`template\*(C'\fR, \f(CW\*(C`format\*(C'\fR,
+\&\f(CW\*(C`variant\*(C'\fR and \f(CW\*(C`handler\*(C'\fR values, or \f(CW\*(C`undef\*(C'\fR if no template could be found, usually used by handlers.
 .SS "get_helper"
 .IX Subsection "get_helper"
 .Vb 1
 \&  my $helper = $renderer\->get_helper(\*(Aqurl_for\*(Aq);
 .Ve
 .PP
-Get a helper by full name, generate a helper dynamically for a prefix, or return
-\&\f(CW\*(C`undef\*(C'\fR if no helper or prefix could be found. Generated helpers return a
-proxy object containing the current controller object and on which nested
-helpers can be called.
+Get a helper by full name, generate a helper dynamically for a prefix, or return \f(CW\*(C`undef\*(C'\fR if no helper or prefix could
+be found. Generated helpers return a proxy object containing the current controller object and on which nested helpers
+can be called.
 .SS "render"
 .IX Subsection "render"
-.Vb 4
-\&  my ($output, $format) = $renderer\->render(Mojolicious::Controller\->new, {
-\&    template => \*(Aqfoo/bar\*(Aq,
-\&    foo      => \*(Aqbar\*(Aq
-\&  });
+.Vb 1
+\&  my ($output, $format) = $renderer\->render(Mojolicious::Controller\->new);
 .Ve
 .PP
-Render output through one of the renderers. See
-\&\*(L"render\*(R" in Mojolicious::Controller for a more user-friendly interface.
+Render output through one of the renderers. See \*(L"render\*(R" in Mojolicious::Controller for a more user-friendly interface.
 .SS "respond"
 .IX Subsection "respond"
 .Vb 3
@@ -287,17 +271,14 @@ Render output through one of the renderers. See
 \&    Mojolicious::Controller\->new, $output, $format, $status);
 .Ve
 .PP
-Finalize dynamically generated response content and \*(L"compress\*(R" it if
-possible. Note that this method is \fB\s-1EXPERIMENTAL\s0\fR and might change without
-warning!
+Finalize dynamically generated response content and \*(L"compress\*(R" it if possible.
 .SS "template_for"
 .IX Subsection "template_for"
 .Vb 1
 \&  my $name = $renderer\->template_for(Mojolicious::Controller\->new);
 .Ve
 .PP
-Return default template name for Mojolicious::Controller object, or \f(CW\*(C`undef\*(C'\fR
-if no name could be generated.
+Return default template name for Mojolicious::Controller object, or \f(CW\*(C`undef\*(C'\fR if no name could be generated.
 .SS "template_handler"
 .IX Subsection "template_handler"
 .Vb 4
@@ -307,8 +288,8 @@ if no name could be generated.
 \&  });
 .Ve
 .PP
-Return handler for an options hash reference with \f(CW\*(C`template\*(C'\fR, \f(CW\*(C`format\*(C'\fR and
-\&\f(CW\*(C`variant\*(C'\fR values, or \f(CW\*(C`undef\*(C'\fR if no handler could be found.
+Return handler for an options hash reference with \f(CW\*(C`template\*(C'\fR, \f(CW\*(C`format\*(C'\fR and \f(CW\*(C`variant\*(C'\fR values, or \f(CW\*(C`undef\*(C'\fR if no
+handler could be found.
 .SS "template_name"
 .IX Subsection "template_name"
 .Vb 5
@@ -319,9 +300,8 @@ Return handler for an options hash reference with \f(CW\*(C`template\*(C'\fR, \f
 \&  });
 .Ve
 .PP
-Return a template name for an options hash reference with \f(CW\*(C`template\*(C'\fR,
-\&\f(CW\*(C`format\*(C'\fR, \f(CW\*(C`variant\*(C'\fR and \f(CW\*(C`handler\*(C'\fR values, or \f(CW\*(C`undef\*(C'\fR if no template could be
-found, usually used by handlers.
+Return a template name for an options hash reference with \f(CW\*(C`template\*(C'\fR, \f(CW\*(C`format\*(C'\fR, \f(CW\*(C`variant\*(C'\fR and \f(CW\*(C`handler\*(C'\fR values, or
+\&\f(CW\*(C`undef\*(C'\fR if no template could be found, usually used by handlers.
 .SS "template_path"
 .IX Subsection "template_path"
 .Vb 5
@@ -332,9 +312,8 @@ found, usually used by handlers.
 \&  });
 .Ve
 .PP
-Return the full template path for an options hash reference with \f(CW\*(C`template\*(C'\fR,
-\&\f(CW\*(C`format\*(C'\fR, \f(CW\*(C`variant\*(C'\fR and \f(CW\*(C`handler\*(C'\fR values, or \f(CW\*(C`undef\*(C'\fR if the file does not
-exist in \*(L"paths\*(R", usually used by handlers.
+Return the full template path for an options hash reference with \f(CW\*(C`template\*(C'\fR, \f(CW\*(C`format\*(C'\fR, \f(CW\*(C`variant\*(C'\fR and \f(CW\*(C`handler\*(C'\fR
+values, or \f(CW\*(C`undef\*(C'\fR if the file does not exist in \*(L"paths\*(R", usually used by handlers.
 .SS "warmup"
 .IX Subsection "warmup"
 .Vb 1

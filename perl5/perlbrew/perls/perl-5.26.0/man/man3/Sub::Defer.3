@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Sub::Defer 3"
-.TH Sub::Defer 3 "2017-06-07" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Sub::Defer 3 "2019-10-01" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -96,7 +96,7 @@ subroutines and methods until they are first called.
 .SS "defer_sub"
 .IX Subsection "defer_sub"
 .Vb 1
-\& my $coderef = defer_sub $name => sub { ... };
+\& my $coderef = defer_sub $name => sub { ... }, \e%options;
 .Ve
 .PP
 This subroutine returns a coderef that encapsulates the provided sub \- when
@@ -107,6 +107,19 @@ If a name is provided, this also installs the sub as that name \- and when
 the subroutine is undeferred will re-install the final version for speed.
 .PP
 Exported by default.
+.PP
+\fIOptions\fR
+.IX Subsection "Options"
+.PP
+A hashref of options can optionally be specified.
+.IP "package" 4
+.IX Item "package"
+The package to generate the sub in.  Will be overridden by a fully qualified
+\&\f(CW$name\fR option.  If not specified, will default to the caller's package.
+.IP "attributes" 4
+.IX Item "attributes"
+The \*(L"Subroutine Attributes\*(R" in perlsub to apply to the sub generated.  Should be
+specified as an array reference.
 .SS "undefer_sub"
 .IX Subsection "undefer_sub"
 .Vb 1
@@ -119,6 +132,20 @@ If the passed coderef has not been deferred, this will just return it.
 If this is confusing, take a look at the example in the \*(L"\s-1SYNOPSIS\*(R"\s0.
 .PP
 Exported by default.
+.SS "defer_info"
+.IX Subsection "defer_info"
+.Vb 2
+\& my $data = defer_info $sub;
+\& my ($name, $generator, $options, $undeferred_sub) = @$data;
+.Ve
+.PP
+Returns original arguments to defer_sub, plus the undeferred version if this
+sub has already been undeferred.
+.PP
+Note that \f(CW$sub\fR can be either the original deferred version or the undeferred
+version for convenience.
+.PP
+Not exported by default.
 .SS "undefer_all"
 .IX Subsection "undefer_all"
 .Vb 1

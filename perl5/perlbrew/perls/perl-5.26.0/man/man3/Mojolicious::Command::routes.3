@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Command::routes 3"
-.TH Mojolicious::Command::routes 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Command::routes 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -89,21 +89,20 @@ Mojolicious::Command::routes \- Routes command
 \&    \-m, \-\-mode <name>   Operating mode for your application, defaults to the
 \&                        value of MOJO_MODE/PLACK_ENV or "development"
 \&    \-v, \-\-verbose       Print additional details about routes, flags indicate
-\&                        C=Conditions, D=Detour, U=Under and W=WebSocket
+\&                        C=Conditions, P=Partial, U=Under and W=WebSocket
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
 Mojolicious::Command::routes lists all your application routes.
 .PP
-This is a core command, that means it is always enabled and its code a good
-example for learning to build new commands, you're welcome to fork it.
+This is a core command, that means it is always enabled and its code a good example for learning to build new commands,
+you're welcome to fork it.
 .PP
-See \*(L"\s-1COMMANDS\*(R"\s0 in Mojolicious::Commands for a list of commands that are
-available by default.
+See \*(L"\s-1COMMANDS\*(R"\s0 in Mojolicious::Commands for a list of commands that are available by default.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojolicious::Command::routes inherits all attributes from
-Mojolicious::Command and implements the following new ones.
+Mojolicious::Command::routes inherits all attributes from Mojolicious::Command and implements the following new
+ones.
 .SS "description"
 .IX Subsection "description"
 .Vb 2
@@ -122,8 +121,8 @@ Short description of this command, used for the command list.
 Usage information for this command, used for the help screen.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Command::routes inherits all methods from
-Mojolicious::Command and implements the following new ones.
+Mojolicious::Command::routes inherits all methods from Mojolicious::Command and implements the following new
+ones.
 .SS "run"
 .IX Subsection "run"
 .Vb 1

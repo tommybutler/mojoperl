@@ -12,27 +12,117 @@ use Carp qw(croak);
 BEGIN { our @CARP_NOT = qw(Sub::Defer) }
 use B ();
 BEGIN {
+  *_HAVE_IS_UTF8 = defined &utf8::is_utf8 ? sub(){1} : sub(){0};
   *_HAVE_PERLSTRING = defined &B::perlstring ? sub(){1} : sub(){0};
+  *_BAD_BACKSLASH_ESCAPE = _HAVE_PERLSTRING() && "$]" == 5.010_000 ? sub(){1} : sub(){0};
+  *_HAVE_HEX_FLOAT = !$ENV{SUB_QUOTE_NO_HEX_FLOAT} && "$]" >= 5.022 ? sub(){1} : sub(){0};
+
+  # This may not be perfect, as we can't tell the format purely from the size
+  # but it should cover the common cases, and other formats are more likely to
+  # be less precise.
+  my $nvsize = 8 * length pack 'F', 0;
+  my $nvmantbits
+    = $nvsize == 16   ? 11
+    : $nvsize == 32   ? 24
+    : $nvsize == 64   ? 53
+    : $nvsize == 80   ? 64
+    : $nvsize == 128  ? 113
+    : $nvsize == 256  ? 237
+                      : 237 # unknown float format
+    ;
+  my $precision = int( log(2)/log(10)*$nvmantbits );
+
+  *_NVSIZE = sub(){$nvsize};
+  *_NVMANTBITS = sub(){$nvmantbits};
+  *_FLOAT_PRECISION = sub(){$precision};
 }
 
-our $VERSION = '2.004000';
-$VERSION = eval $VERSION;
+our $VERSION = '2.006006';
+$VERSION =~ tr/_//d;
 
 our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub qsub);
 our @EXPORT_OK = qw(quotify capture_unroll inlinify sanitize_identifier);
 
 our %QUOTED;
 
+my %escape;
+if (_BAD_BACKSLASH_ESCAPE) {
+  %escape = (
+    (map +(chr($_) => sprintf '\x%02x', $_), 0 .. 0x31, 0x7f),
+    "\t" => "\\t",
+    "\n" => "\\n",
+    "\r" => "\\r",
+    "\f" => "\\f",
+    "\b" => "\\b",
+    "\a" => "\\a",
+    "\e" => "\\e",
+    (map +($_ => "\\$_"), qw(" \ $ @)),
+  );
+}
+
 sub quotify {
   my $value = $_[0];
   no warnings 'numeric';
   ! defined $value     ? 'undef()'
   # numeric detection
-  : (length( (my $dummy = '') & $value )
+  : (!(_HAVE_IS_UTF8 && utf8::is_utf8($value))
+    && length( (my $dummy = '') & $value )
     && 0 + $value eq $value
-    && $value * 0 == 0
-  ) ? $value
-  : _HAVE_PERLSTRING  ? B::perlstring($value)
+  ) ? (
+    $value != $value ? (
+      $value eq (9**9**9*0)
+        ? '(9**9**9*0)'    # nan
+        : '(-(9**9**9*0))' # -nan
+    )
+    : $value == 9**9**9  ? '(9**9**9)'     # inf
+    : $value == -9**9**9 ? '(-9**9**9)'    # -inf
+    : $value == 0 ? (
+      sprintf('%g', $value) eq '-0' ? '-0.0' : '0',
+    )
+    : $value !~ /[e.]/i ? (
+      $value > 0 ? (sprintf '%u', $value)
+                 : (sprintf '%d', $value)
+    )
+    : do {
+      my $float = $value;
+      my $max_factor = int( log( abs($value) ) / log(2) ) - _NVMANTBITS;
+      my $ex_sign = $max_factor > 0 ? 1 : -1;
+      FACTOR: for my $ex (0 .. abs($max_factor)) {
+        my $num = $value / 2**($ex_sign * $ex);
+        for my $precision (_FLOAT_PRECISION .. _FLOAT_PRECISION+2) {
+          my $formatted = sprintf '%.'.$precision.'g', $num;
+          $float = $formatted
+            if $ex == 0;
+          if ($formatted == $num) {
+            if ($ex) {
+              $float
+                = $formatted
+                . ($ex_sign == 1 ? '*' : '/')
+                . (
+                  $ex > _NVMANTBITS
+                    ? "2**$ex"
+                    : sprintf('%u', 2**$ex)
+                );
+            }
+            last FACTOR;
+          }
+        }
+        if (_HAVE_HEX_FLOAT) {
+          $float = sprintf '%a', $value;
+          last FACTOR;
+        }
+      }
+      "$float";
+    }
+  )
+  : !length($value) && length( (my $dummy2 = '') & $value ) ? '(!1)' # false
+  : _BAD_BACKSLASH_ESCAPE && _HAVE_IS_UTF8 && utf8::is_utf8($value) ? do {
+    $value =~ s/(["\$\@\\[:cntrl:]]|[^\x00-\x7f])/
+      $escape{$1} || sprintf('\x{%x}', ord($1))
+    /ge;
+    qq["$value"];
+  }
+  : _HAVE_PERLSTRING ? B::perlstring($value)
   : qq["\Q$value\E"];
 }
 
@@ -56,6 +146,8 @@ sub capture_unroll {
 
 sub inlinify {
   my ($code, $args, $extra, $local) = @_;
+  $args = '()'
+    if !defined $args;
   my $do = 'do { '.($extra||'');
   if ($code =~ s/^(\s*package\s+([a-zA-Z0-9:]+);)//) {
     $do .= $1;
@@ -105,7 +197,7 @@ sub quote_sub {
       unless $subname =~ /^[^\d\W]\w*$/;
   }
   my @caller = caller(0);
-  my $attributes = $options->{attributes};
+  my ($attributes, $file, $line) = @{$options}{qw(attributes file line)};
   if ($attributes) {
     /\A\w+(?:\(.*\))?\z/s || croak "invalid attribute $_"
       for @$attributes;
@@ -119,6 +211,8 @@ sub quote_sub {
     warning_bits => (exists $options->{warning_bits} ? $options->{warning_bits} : $caller[9]),
     hintshash    => (exists $options->{hintshash}    ? $options->{hintshash}    : $caller[10]),
     ($attributes ? (attributes => $attributes) : ()),
+    ($file       ? (file => $file) : ()),
+    ($line       ? (line => $line) : ()),
   };
   my $unquoted;
   weaken($quoted_info->{unquoted} = \$unquoted);
@@ -150,8 +244,20 @@ sub quote_sub {
 sub _context {
   my $info = shift;
   $info->{context} ||= do {
-    my ($package, $hints, $warning_bits, $hintshash)
-      = @{$info}{qw(package hints warning_bits hintshash)};
+    my ($package, $hints, $warning_bits, $hintshash, $file, $line)
+      = @{$info}{qw(package hints warning_bits hintshash file line)};
+
+    $line ||= 1
+      if $file;
+
+    my $line_mark = '';
+    if ($line) {
+      $line_mark = "#line ".($line-1);
+      if ($file) {
+        $line_mark .= qq{ "$file"};
+      }
+      $line_mark .= "\n";
+    }
 
     $info->{context}
       ="# BEGIN quote_sub PRELUDE\n"
@@ -162,9 +268,11 @@ sub _context {
       ."  \%^H = (\n"
       . join('', map
       "    ".quotify($_)." => ".quotify($hintshash->{$_}).",\n",
+        grep !(ref $hintshash->{$_} && $hintshash->{$_} =~ /\A(?:\w+(?:::\w+)*=)?[A-Z]+\(0x[[0-9a-fA-F]+\)\z/),
         keys %$hintshash)
       ."  );\n"
       ."}\n"
+      .$line_mark
       ."# END quote_sub PRELUDE\n";
   };
 }
@@ -217,7 +325,25 @@ sub unquote_sub {
       . "  }".($name ? "\n  \$\$_UNQUOTED = \\&${name}" : '') . ";\n"
       . "}\n"
       . "1;\n";
-    $ENV{SUB_QUOTE_DEBUG} && warn $make_sub;
+    if (my $debug = $ENV{SUB_QUOTE_DEBUG}) {
+      if ($debug =~ m{^([^\W\d]\w*(?:::\w+)*(?:::)?)$}) {
+        my $filter = $1;
+        my $match
+          = $filter =~ /::$/ ? $package.'::'
+          : $filter =~ /::/  ? $package.'::'.($name||'__ANON__')
+          : ($name||'__ANON__');
+        warn $make_sub
+          if $match eq $filter;
+      }
+      elsif ($debug =~ m{\A/(.*)/\z}s) {
+        my $filter = $1;
+        warn $make_sub
+          if $code =~ $filter;
+      }
+      else {
+        warn $make_sub;
+      }
+    }
     {
       no strict 'refs';
       local *{"${package}::${name}"} if $name;
@@ -244,10 +370,11 @@ sub qsub ($) {
 }
 
 sub CLONE {
-  %QUOTED = map { defined $_ ? (
+  my @quoted = map { defined $_ ? (
     $_->{unquoted} && ${$_->{unquoted}} ? (${ $_->{unquoted} } => $_) : (),
     $_->{deferred} ? ($_->{deferred} => $_) : (),
   ) : () } values %QUOTED;
+  %QUOTED = @quoted;
   weaken($_) for values %QUOTED;
 }
 
@@ -326,7 +453,40 @@ good idea.  For a sub that will most likely be inlined, it is not recommended.
 =item C<package>
 
 The package that the quoted sub will be evaluated in.  If not specified, the
-sub calling C<quote_sub> will be used.
+package from sub calling C<quote_sub> will be used.
+
+=item C<hints>
+
+The value of L<< C<$^H> | perlvar/$^H >> to use for the code being evaluated.
+This captures the settings of the L<strict> pragma.  If not specified, the value
+from the calling code will be used.
+
+=item C<warning_bits>
+
+The value of L<< C<${^WARNING_BITS}> | perlvar/${^WARNING_BITS} >> to use for
+the code being evaluated.  This captures the L<warnings> set.  If not specified,
+the warnings from the calling code will be used.
+
+=item C<%^H>
+
+The value of L<< C<%^H> | perlvar/%^H >> to use for the code being evaluated.
+This captures additional pragma settings.  If not specified, the value from the
+calling code will be used if possible (on perl 5.10+).
+
+=item C<attributes>
+
+The L<perlsub/Subroutine Attributes> to apply to the sub generated.  Should be
+specified as an array reference.  The attributes will be applied to both the
+generated sub and the deferred wrapper, if one is used.
+
+=item C<file>
+
+The apparent filename to use for the code being evaluated.
+
+=item C<line>
+
+The apparent line number
+to use for the code being evaluated.
 
 =back
 
@@ -375,9 +535,12 @@ arguments.
 
  my $quoted_value = quotify $value;
 
-Quotes a single (non-reference) scalar value for use in a code string.  Numbers
-aren't treated specially and will be quoted as strings, but undef will quoted as
-C<undef()>.
+Quotes a single (non-reference) scalar value for use in a code string.  The
+result should reproduce the original value, including strings, undef, integers,
+and floating point numbers.  The resulting floating point numbers (including
+infinites and not a number) should be precisely equal to the original, if
+possible.  The exact format of the resulting number should not be relied on, as
+it may include hex floats or math expressions.
 
 =head2 capture_unroll
 
@@ -415,6 +578,37 @@ Exported by default.
 Arguments: $identifier
 
 Sanitizes a value so that it can be used in an identifier.
+
+=head1 ENVIRONMENT
+
+=head2 SUB_QUOTE_DEBUG
+
+Causes code to be output to C<STDERR> before being evaled.  Several forms are
+supported:
+
+=over 4
+
+=item C<1>
+
+All subs will be output.
+
+=item C</foo/>
+
+Subs will be output if their code matches the given regular expression.
+
+=item C<simple_identifier>
+
+Any sub with the given name will be output.
+
+=item C<Full::identifier>
+
+A sub matching the full name will be output.
+
+=item C<Package::Name::>
+
+Any sub in the given package (including anonymous subs) will be output.
+
+=back
 
 =head1 CAVEATS
 

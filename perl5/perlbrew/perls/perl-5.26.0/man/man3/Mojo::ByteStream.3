@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::ByteStream 3"
-.TH Mojo::ByteStream 3 "2020-02-11" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::ByteStream 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -89,13 +89,13 @@ Mojo::ByteStream \- ByteStream
 \&  say "$stream";
 \&
 \&  # Use the alternative constructor
-\&  use Mojo::ByteStream \*(Aqb\*(Aq;
+\&  use Mojo::ByteStream qw(b);
 \&  my $stream = b(\*(Aqfoobarbaz\*(Aq)\->b64_encode(\*(Aq\*(Aq)\->say;
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::ByteStream is a scalar-based container for bytestreams that provides a
-more friendly \s-1API\s0 for many of the functions in Mojo::Util.
+Mojo::ByteStream is a scalar-based container for bytestreams that provides a more friendly \s-1API\s0 for many of the
+functions in Mojo::Util.
 .PP
 .Vb 3
 \&  # Access scalar directly to manipulate bytestream
@@ -104,8 +104,7 @@ more friendly \s-1API\s0 for many of the functions in Mojo::Util.
 .Ve
 .SH "FUNCTIONS"
 .IX Header "FUNCTIONS"
-Mojo::ByteStream implements the following functions, which can be imported
-individually.
+Mojo::ByteStream implements the following functions, which can be imported individually.
 .SS "b"
 .IX Subsection "b"
 .Vb 1
@@ -227,9 +226,7 @@ Unescape all \s-1HTML\s0 entities in bytestream with \*(L"html_unescape\*(R" in 
 \&  $stream = $stream\->humanize_bytes;
 .Ve
 .PP
-Turn number of bytes into a simplified human readable format for bytestream with
-\&\*(L"humanize_bytes\*(R" in Mojo::Util. Note that this method is \fB\s-1EXPERIMENTAL\s0\fR and
-might change without warning!
+Turn number of bytes into a simplified human readable format for bytestream with \*(L"humanize_bytes\*(R" in Mojo::Util.
 .SS "md5_bytes"
 .IX Subsection "md5_bytes"
 .Vb 1
@@ -323,8 +320,7 @@ Generate \s-1URL\s0 slug for bytestream with \*(L"slugify\*(R" in Mojo::Util.
 \&  my $collection = $stream\->split(\*(Aq,\*(Aq, \-1);
 .Ve
 .PP
-Turn bytestream into Mojo::Collection object containing Mojo::ByteStream
-objects.
+Turn bytestream into Mojo::Collection object containing Mojo::ByteStream objects.
 .PP
 .Vb 2
 \&  # "One,Two,Three"
@@ -365,8 +361,7 @@ Stringify bytestream.
 \&  $stream = $stream\->trim;
 .Ve
 .PP
-Trim whitespace characters from both ends of bytestream with
-\&\*(L"trim\*(R" in Mojo::Util.
+Trim whitespace characters from both ends of bytestream with \*(L"trim\*(R" in Mojo::Util.
 .SS "unindent"
 .IX Subsection "unindent"
 .Vb 1
@@ -388,8 +383,7 @@ Unquote bytestream with \*(L"unquote\*(R" in Mojo::Util.
 \&  $stream = $stream\->url_escape(\*(Aq^A\-Za\-z0\-9\e\-._~\*(Aq);
 .Ve
 .PP
-Percent encode all unsafe characters in bytestream with
-\&\*(L"url_escape\*(R" in Mojo::Util.
+Percent encode all unsafe characters in bytestream with \*(L"url_escape\*(R" in Mojo::Util.
 .PP
 .Vb 2
 \&  # "%E2%98%83"
@@ -401,8 +395,7 @@ Percent encode all unsafe characters in bytestream with
 \&  $stream = $stream\->url_unescape;
 .Ve
 .PP
-Decode percent encoded characters in bytestream with
-\&\*(L"url_unescape\*(R" in Mojo::Util.
+Decode percent encoded characters in bytestream with \*(L"url_unescape\*(R" in Mojo::Util.
 .PP
 .Vb 2
 \&  # "&lt;html&gt;"
@@ -423,8 +416,7 @@ Alias for \*(L"with_roles\*(R" in Mojo::Base.
 \&  $stream = $stream\->xml_escape;
 .Ve
 .PP
-Escape only the characters \f(CW\*(C`&\*(C'\fR, \f(CW\*(C`<\*(C'\fR, \f(CW\*(C`>\*(C'\fR, \f(CW\*(C`"\*(C'\fR and \f(CW\*(C`\*(Aq\*(C'\fR in
-bytestream with \*(L"xml_escape\*(R" in Mojo::Util.
+Escape only the characters \f(CW\*(C`&\*(C'\fR, \f(CW\*(C`<\*(C'\fR, \f(CW\*(C`>\*(C'\fR, \f(CW\*(C`"\*(C'\fR and \f(CW\*(C`\*(Aq\*(C'\fR in bytestream with \*(L"xml_escape\*(R" in Mojo::Util.
 .SS "xor_encode"
 .IX Subsection "xor_encode"
 .Vb 1

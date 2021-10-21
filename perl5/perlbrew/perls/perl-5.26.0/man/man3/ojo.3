@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "ojo 3"
-.TH ojo 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH ojo 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -81,23 +81,20 @@ ojo \- Fun one\-liners with Mojo
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-A collection of automatically exported functions for fun Perl one-liners. Ten
-redirects will be followed by default, you can change this behavior with the
-\&\f(CW\*(C`MOJO_MAX_REDIRECTS\*(C'\fR environment variable.
+A collection of automatically exported functions for fun Perl one-liners. Ten redirects will be followed by default,
+you can change this behavior with the \f(CW\*(C`MOJO_MAX_REDIRECTS\*(C'\fR environment variable.
 .PP
 .Vb 1
 \&  $ MOJO_MAX_REDIRECTS=0 perl \-Mojo \-E \*(Aqsay g("example.com")\->code\*(Aq
 .Ve
 .PP
-Proxy detection is enabled by default, but you can disable it with the
-\&\f(CW\*(C`MOJO_PROXY\*(C'\fR environment variable.
+Proxy detection is enabled by default, but you can disable it with the \f(CW\*(C`MOJO_PROXY\*(C'\fR environment variable.
 .PP
 .Vb 1
 \&  $ MOJO_PROXY=0 perl \-Mojo \-E \*(Aqsay g("example.com")\->body\*(Aq
 .Ve
 .PP
-\&\s-1TLS\s0 certificate verification can be disabled with the \f(CW\*(C`MOJO_INSECURE\*(C'\fR
-environment variable.
+\&\s-1TLS\s0 certificate verification can be disabled with the \f(CW\*(C`MOJO_INSECURE\*(C'\fR environment variable.
 .PP
 .Vb 1
 \&  $ MOJO_INSECURE=1 perl \-Mojo \-E \*(Aqsay g("https://127.0.0.1:3000")\->body\*(Aq
@@ -109,15 +106,13 @@ Every ojo one-liner is also a Mojolicious::Lite application.
 \&  $ perl \-Mojo \-E \*(Aqget "/" => {inline => "%= time"}; app\->start\*(Aq get /
 .Ve
 .PP
-On Perl 5.20+ subroutine signatures will be enabled
-automatically.
+On Perl 5.20+ subroutine signatures will be enabled automatically.
 .PP
 .Vb 1
-\&  $ perl \-Mojo \-E \*(Aqa(sub ($c) { $c\->render(text => \*(AqHello!\*(Aq) })\->start\*(Aq get /
+\&  $ perl \-Mojo \-E \*(Aqa(sub ($c) { $c\->render(text => "Hello!") })\->start\*(Aq get /
 .Ve
 .PP
-If it is not already defined, the \f(CW\*(C`MOJO_LOG_LEVEL\*(C'\fR environment variable will
-be set to \f(CW\*(C`fatal\*(C'\fR.
+If it is not already defined, the \f(CW\*(C`MOJO_LOG_LEVEL\*(C'\fR environment variable will be set to \f(CW\*(C`fatal\*(C'\fR.
 .SH "FUNCTIONS"
 .IX Header "FUNCTIONS"
 ojo implements the following functions, which are automatically exported.
@@ -127,9 +122,8 @@ ojo implements the following functions, which are automatically exported.
 \&  my $app = a(\*(Aq/hello\*(Aq => sub { $_\->render(json => {hello => \*(Aqworld\*(Aq}) });
 .Ve
 .PP
-Create a route with \*(L"any\*(R" in Mojolicious::Lite and return the current
-Mojolicious::Lite object. The current controller object is also available to
-actions as \f(CW$_\fR. See also Mojolicious::Guides::Tutorial for more argument
+Create a route with \*(L"any\*(R" in Mojolicious::Lite and return the current Mojolicious::Lite object. The current
+controller object is also available to actions as \f(CW$_\fR. See also Mojolicious::Guides::Tutorial for more argument
 variations.
 .PP
 .Vb 1
@@ -162,8 +156,7 @@ Turn list into a Mojo::Collection object.
 \&  my $res = d(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform \f(CW\*(C`DELETE\*(C'\fR request with \*(L"delete\*(R" in Mojo::UserAgent and return resulting
-Mojo::Message::Response object.
+Perform \f(CW\*(C`DELETE\*(C'\fR request with \*(L"delete\*(R" in Mojo::UserAgent and return resulting Mojo::Message::Response object.
 .SS "f"
 .IX Subsection "f"
 .Vb 1
@@ -184,8 +177,7 @@ Turn string into a Mojo::File object.
 \&  my $res = g(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform \f(CW\*(C`GET\*(C'\fR request with \*(L"get\*(R" in Mojo::UserAgent and return resulting
-Mojo::Message::Response object.
+Perform \f(CW\*(C`GET\*(C'\fR request with \*(L"get\*(R" in Mojo::UserAgent and return resulting Mojo::Message::Response object.
 .PP
 .Vb 1
 \&  $ perl \-Mojo \-E \*(Aqsay g("mojolicious.org")\->dom("h1")\->map("text")\->join("\en")\*(Aq
@@ -199,8 +191,7 @@ Mojo::Message::Response object.
 \&  my $res = h(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform \f(CW\*(C`HEAD\*(C'\fR request with \*(L"head\*(R" in Mojo::UserAgent and return resulting
-Mojo::Message::Response object.
+Perform \f(CW\*(C`HEAD\*(C'\fR request with \*(L"head\*(R" in Mojo::UserAgent and return resulting Mojo::Message::Response object.
 .SS "j"
 .IX Subsection "j"
 .Vb 3
@@ -214,6 +205,17 @@ Encode Perl data structure or decode \s-1JSON\s0 with \*(L"j\*(R" in Mojo::JSON.
 .Vb 1
 \&  $ perl \-Mojo \-E \*(Aqf("hello.json")\->spurt(j {hello => "world!"})\*(Aq
 .Ve
+.SS "l"
+.IX Subsection "l"
+.Vb 1
+\&  my $url = l(\*(Aqhttps://mojolicious.org\*(Aq);
+.Ve
+.PP
+Turn a string into a Mojo::URL object.
+.PP
+.Vb 1
+\&  $ perl \-Mojo \-E \*(Aqsay l("/perldoc")\->to_abs(l("https://mojolicious.org"))\*(Aq
+.Ve
 .SS "n"
 .IX Subsection "n"
 .Vb 2
@@ -221,8 +223,7 @@ Encode Perl data structure or decode \s-1JSON\s0 with \*(L"j\*(R" in Mojo::JSON.
 \&  n {...} 100;
 .Ve
 .PP
-Benchmark block and print the results to \f(CW\*(C`STDERR\*(C'\fR, with an optional number of
-iterations, which defaults to \f(CW1\fR.
+Benchmark block and print the results to \f(CW\*(C`STDERR\*(C'\fR, with an optional number of iterations, which defaults to \f(CW1\fR.
 .PP
 .Vb 1
 \&  $ perl \-Mojo \-E \*(Aqn { say g("mojolicious.org")\->code }\*(Aq
@@ -236,8 +237,7 @@ iterations, which defaults to \f(CW1\fR.
 \&  my $res = o(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform \f(CW\*(C`OPTIONS\*(C'\fR request with \*(L"options\*(R" in Mojo::UserAgent and return
-resulting Mojo::Message::Response object.
+Perform \f(CW\*(C`OPTIONS\*(C'\fR request with \*(L"options\*(R" in Mojo::UserAgent and return resulting Mojo::Message::Response object.
 .SS "p"
 .IX Subsection "p"
 .Vb 4
@@ -247,8 +247,7 @@ resulting Mojo::Message::Response object.
 \&  my $res = p(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform \f(CW\*(C`POST\*(C'\fR request with \*(L"post\*(R" in Mojo::UserAgent and return resulting
-Mojo::Message::Response object.
+Perform \f(CW\*(C`POST\*(C'\fR request with \*(L"post\*(R" in Mojo::UserAgent and return resulting Mojo::Message::Response object.
 .SS "r"
 .IX Subsection "r"
 .Vb 1
@@ -269,8 +268,7 @@ Dump a Perl data structure with \*(L"dumper\*(R" in Mojo::Util.
 \&  my $res = t(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform \f(CW\*(C`PATCH\*(C'\fR request with \*(L"patch\*(R" in Mojo::UserAgent and return resulting
-Mojo::Message::Response object.
+Perform \f(CW\*(C`PATCH\*(C'\fR request with \*(L"patch\*(R" in Mojo::UserAgent and return resulting Mojo::Message::Response object.
 .SS "u"
 .IX Subsection "u"
 .Vb 4
@@ -280,8 +278,7 @@ Mojo::Message::Response object.
 \&  my $res = u(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform \f(CW\*(C`PUT\*(C'\fR request with \*(L"put\*(R" in Mojo::UserAgent and return resulting
-Mojo::Message::Response object.
+Perform \f(CW\*(C`PUT\*(C'\fR request with \*(L"put\*(R" in Mojo::UserAgent and return resulting Mojo::Message::Response object.
 .SS "x"
 .IX Subsection "x"
 .Vb 1

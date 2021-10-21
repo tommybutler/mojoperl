@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Server::PSGI 3"
-.TH Mojo::Server::PSGI 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Server::PSGI 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -80,8 +80,7 @@ Mojo::Server::PSGI \- PSGI server
 \&  use Mojo::Server::PSGI;
 \&
 \&  my $psgi = Mojo::Server::PSGI\->new;
-\&  $psgi\->unsubscribe(\*(Aqrequest\*(Aq)\->on(request => sub {
-\&    my ($psgi, $tx) = @_;
+\&  $psgi\->unsubscribe(\*(Aqrequest\*(Aq)\->on(request => sub ($psgi, $tx) {
 \&
 \&    # Request
 \&    my $method = $tx\->req\->method;
@@ -99,8 +98,7 @@ Mojo::Server::PSGI \- PSGI server
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Server::PSGI allows Mojolicious applications to run on all \s-1PSGI\s0
-compatible servers.
+Mojo::Server::PSGI allows Mojolicious applications to run on all \s-1PSGI\s0 compatible servers.
 .PP
 See \*(L"\s-1DEPLOYMENT\*(R"\s0 in Mojolicious::Guides::Cookbook for more.
 .SH "EVENTS"
@@ -111,8 +109,7 @@ Mojo::Server::PSGI inherits all events from Mojo::Server.
 Mojo::Server::PSGI inherits all attributes from Mojo::Server.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Server::PSGI inherits all methods from Mojo::Server and implements
-the following new ones.
+Mojo::Server::PSGI inherits all methods from Mojo::Server and implements the following new ones.
 .SS "run"
 .IX Subsection "run"
 .Vb 1

@@ -5,24 +5,24 @@ use Carp qw(carp croak);
 use Data::Dumper ();
 use Digest::MD5 qw(md5 md5_hex);
 use Digest::SHA qw(hmac_sha1_hex sha1 sha1_hex);
-use Encode 'find_encoding';
-use Exporter 'import';
-use File::Basename 'dirname';
-use Getopt::Long 'GetOptionsFromArray';
+use Encode qw(find_encoding);
+use Exporter qw(import);
+use File::Basename qw(dirname);
+use Getopt::Long qw(GetOptionsFromArray);
 use IO::Compress::Gzip;
 use IO::Poll qw(POLLIN POLLPRI);
 use IO::Uncompress::Gunzip;
-use List::Util 'min';
+use List::Util qw(min);
 use MIME::Base64 qw(decode_base64 encode_base64);
-use Pod::Usage 'pod2usage';
-use Sub::Util 'set_subname';
-use Symbol 'delete_package';
+use Pod::Usage qw(pod2usage);
+use Socket qw(inet_pton AF_INET6 AF_INET);
+use Sub::Util qw(set_subname);
+use Symbol qw(delete_package);
 use Time::HiRes        ();
 use Unicode::Normalize ();
 
 # Check for monotonic clock support
-use constant MONOTONIC =>
-  eval { !!Time::HiRes::clock_gettime(Time::HiRes::CLOCK_MONOTONIC()) };
+use constant MONOTONIC => eval { !!Time::HiRes::clock_gettime(Time::HiRes::CLOCK_MONOTONIC()) };
 
 # Punycode bootstring parameters
 use constant {
@@ -40,27 +40,19 @@ use constant {
 my %ENTITIES;
 {
   # Don't use Mojo::File here due to circular dependencies
-  my $path
-    = File::Spec->catfile(dirname(__FILE__), 'resources', 'html_entities.txt');
+  my $path = File::Spec->catfile(dirname(__FILE__), 'resources', 'html_entities.txt');
 
-  open my $file, '<', $path
-    or croak "Unable to open html entities file ($path): $!";
+  open my $file, '<', $path or croak "Unable to open html entities file ($path): $!";
   my $lines = do { local $/; <$file> };
 
-  for my $line (split "\n", $lines) {
+  for my $line (split /\n/, $lines) {
     next unless $line =~ /^(\S+)\s+U\+(\S+)(?:\s+U\+(\S+))?/;
     $ENTITIES{$1} = defined $3 ? (chr(hex $2) . chr(hex $3)) : chr(hex $2);
   }
 }
 
 # Characters that should be escaped in XML
-my %XML = (
-  '&'  => '&amp;',
-  '<'  => '&lt;',
-  '>'  => '&gt;',
-  '"'  => '&quot;',
-  '\'' => '&#39;'
-);
+my %XML = ('&' => '&amp;', '<' => '&lt;', '>' => '&gt;', '"' => '&quot;', '\'' => '&#39;');
 
 # "Sun, 06 Nov 1994 08:49:37 GMT" and "Sunday, 06-Nov-94 08:49:37 GMT"
 my $EXPIRES_RE = qr/(\w+\W+\d+\W+\w+\W+\d+\W+\d+:\d+:\d+\W*\w+)/;
@@ -72,12 +64,10 @@ my $ENTITY_RE = qr/&(?:\#((?:[0-9]{1,7}|x[0-9a-fA-F]{1,6}));|(\w+[;=]?))/;
 my (%ENCODING, %PATTERN);
 
 our @EXPORT_OK = (
-  qw(b64_decode b64_encode camelize class_to_file class_to_path decamelize),
-  qw(decode deprecated dumper encode extract_usage getopt gunzip gzip),
-  qw(hmac_sha1_sum html_attr_unescape html_unescape humanize_bytes md5_bytes),
-  qw(md5_sum monkey_patch punycode_decode punycode_encode quote scope_guard),
-  qw(secure_compare sha1_bytes sha1_sum slugify split_cookie_header),
-  qw(split_header steady_time tablify term_escape trim unindent unquote),
+  qw(b64_decode b64_encode camelize class_to_file class_to_path decamelize decode deprecated dumper encode),
+  qw(extract_usage getopt gunzip gzip hmac_sha1_sum html_attr_unescape html_unescape humanize_bytes md5_bytes md5_sum),
+  qw(monkey_patch network_contains punycode_decode punycode_encode quote scope_guard secure_compare sha1_bytes),
+  qw(sha1_sum slugify split_cookie_header split_header steady_time tablify term_escape trim unindent unquote),
   qw(url_escape url_unescape xml_escape xor_encode)
 );
 
@@ -92,9 +82,7 @@ monkey_patch(__PACKAGE__, 'sha1_sum',      \&sha1_hex);
 
 # Use a monotonic clock if possible
 monkey_patch(__PACKAGE__, 'steady_time',
-  MONOTONIC
-  ? sub () { Time::HiRes::clock_gettime(Time::HiRes::CLOCK_MONOTONIC()) }
-  : \&Time::HiRes::time);
+  MONOTONIC ? sub () { Time::HiRes::clock_gettime(Time::HiRes::CLOCK_MONOTONIC()) } : \&Time::HiRes::time);
 
 sub camelize {
   my $str = shift;
@@ -102,8 +90,8 @@ sub camelize {
 
   # CamelCase words
   return join '::', map {
-    join('', map { ucfirst lc } split '_')
-  } split '-', $str;
+    join('', map { ucfirst lc } split /_/)
+  } split /-/, $str;
 }
 
 sub class_to_file {
@@ -122,13 +110,12 @@ sub decamelize {
   # snake_case words
   return join '-', map {
     join('_', map {lc} grep {length} split /([A-Z]{1}[^A-Z]*)/)
-  } split '::', $str;
+  } split /::/, $str;
 }
 
 sub decode {
   my ($encoding, $bytes) = @_;
-  return undef
-    unless eval { $bytes = _encoding($encoding)->decode("$bytes", 1); 1 };
+  return undef unless eval { $bytes = _encoding($encoding)->decode("$bytes", 1); 1 };
   return $bytes;
 }
 
@@ -137,9 +124,7 @@ sub deprecated {
   $ENV{MOJO_FATAL_DEPRECATIONS} ? croak @_ : carp @_;
 }
 
-sub dumper {
-  Data::Dumper->new([@_])->Indent(1)->Sortkeys(1)->Terse(1)->Useqq(1)->Dump;
-}
+sub dumper { Data::Dumper->new([@_])->Indent(1)->Sortkeys(1)->Terse(1)->Useqq(1)->Dump }
 
 sub encode { _encoding($_[0])->encode("$_[1]", 0) }
 
@@ -157,8 +142,7 @@ sub extract_usage {
 sub getopt {
   my ($array, $opts) = map { ref $_[0] eq 'ARRAY' ? shift : $_ } \@ARGV, [];
 
-  my $save = Getopt::Long::Configure(qw(default no_auto_abbrev no_ignore_case),
-    @$opts);
+  my $save   = Getopt::Long::Configure(qw(default no_auto_abbrev no_ignore_case), @$opts);
   my $result = GetOptionsFromArray $array, @_;
   Getopt::Long::Configure($save);
 
@@ -174,8 +158,7 @@ sub gunzip {
 
 sub gzip {
   my $uncompressed = shift;
-  IO::Compress::Gzip::gzip \$uncompressed, \my $compressed
-    or croak "Couldn't gzip: $IO::Compress::Gzip::GzipError";
+  IO::Compress::Gzip::gzip \$uncompressed, \my $compressed or croak "Couldn't gzip: $IO::Compress::Gzip::GzipError";
   return $compressed;
 }
 
@@ -187,7 +170,7 @@ sub humanize_bytes {
 
   my $prefix = $size < 0 ? '-' : '';
 
-  return "$prefix${size}B" if ($size = abs $size) < 1024;
+  return "$prefix${size}B"               if ($size = abs $size) < 1024;
   return $prefix . _round($size) . 'KiB' if ($size /= 1024) < 1024;
   return $prefix . _round($size) . 'MiB' if ($size /= 1024) < 1024;
   return $prefix . _round($size) . 'GiB' if ($size /= 1024) < 1024;
@@ -201,6 +184,27 @@ sub monkey_patch {
   *{"${class}::$_"} = set_subname("${class}::$_", $patch{$_}) for keys %patch;
 }
 
+sub network_contains {
+  my ($cidr, $addr) = @_;
+  return undef unless length $cidr && length $addr;
+
+  # Parse inputs
+  my ($net, $mask) = split m!/!, $cidr, 2;
+  my $v6 = $net =~ /:/;
+  return undef if $v6 xor $addr =~ /:/;
+
+  # Convert addresses to binary
+  return undef unless $net  = inet_pton($v6 ? AF_INET6 : AF_INET, $net);
+  return undef unless $addr = inet_pton($v6 ? AF_INET6 : AF_INET, $addr);
+  my $length = $v6 ? 128 : 32;
+
+  # Apply mask if given
+  $addr &= pack "B$length", '1' x $mask if defined $mask;
+
+  # Compare
+  return 0 == unpack "B$length", ($net ^ $addr);
+}
+
 # Direct translation of RFC 3492
 sub punycode_decode {
   my $input = shift;
@@ -209,7 +213,7 @@ sub punycode_decode {
   my ($n, $i, $bias, @output) = (PC_INITIAL_N, 0, PC_INITIAL_BIAS);
 
   # Consume all code points before the last delimiter
-  push @output, split('', $1) if $input =~ s/(.*)\x2d//s;
+  push @output, split(//, $1) if $input =~ s/(.*)\x2d//s;
 
   while (length $input) {
     my ($oldi, $w) = ($i, 1);
@@ -242,7 +246,7 @@ sub punycode_encode {
   my ($n, $delta, $bias) = (PC_INITIAL_N, 0, PC_INITIAL_BIAS);
 
   # Extract basic code points
-  my @input = map {ord} split '', $output;
+  my @input = map {ord} split //, $output;
   $output =~ s/[^\x00-\x7f]+//gs;
   my $h = my $basic = length $output;
   $output .= "\x2d" if $basic > 0;
@@ -254,7 +258,7 @@ sub punycode_encode {
 
     for my $c (@input) {
 
-      if ($c < $n) { $delta++ }
+      if    ($c < $n) { $delta++ }
       elsif ($c == $n) {
         my $q = $delta;
 
@@ -292,8 +296,8 @@ sub scope_guard { Mojo::Util::_Guard->new(cb => shift) }
 
 sub secure_compare {
   my ($one, $two) = @_;
-  return undef if length $one != length $two;
-  my $r = 0;
+  my $r = length $one != length $two;
+  $two = $one if $r;
   $r |= ord(substr $one, $_) ^ ord(substr $two, $_) for 0 .. length($one) - 1;
   return $r == 0;
 }
@@ -350,7 +354,7 @@ sub trim {
 
 sub unindent {
   my $str = shift;
-  my $min = min map { m/^([ \t]*)/; length $1 || () } split "\n", $str;
+  my $min = min map { m/^([ \t]*)/; length $1 || () } split /\n/, $str;
   $str =~ s/^[ \t]{0,$min}//gm if $min;
   return $str;
 }
@@ -369,9 +373,7 @@ sub url_escape {
   if ($pattern) {
     unless (exists $PATTERN{$pattern}) {
       (my $quoted = $pattern) =~ s!([/\$\[])!\\$1!g;
-      $PATTERN{$pattern}
-        = eval "sub { \$_[0] =~ s/([$quoted])/sprintf '%%%02X', ord \$1/ge }"
-        or croak $@;
+      $PATTERN{$pattern} = eval "sub { \$_[0] =~ s/([$quoted])/sprintf '%%%02X', ord \$1/ge }" or croak $@;
     }
     $PATTERN{$pattern}->($str);
   }
@@ -399,8 +401,7 @@ sub xor_encode {
   # Encode with variable key length
   my $len    = length $key;
   my $buffer = my $output = '';
-  $output .= $buffer ^ $key
-    while length($buffer = substr($input, 0, $len, '')) == $len;
+  $output .= $buffer ^ $key while length($buffer = substr($input, 0, $len, '')) == $len;
   return $output .= $buffer ^ substr($key, 0, length $buffer, '');
 }
 
@@ -419,9 +420,7 @@ sub _adapt {
   return $k + (((PC_BASE - PC_TMIN + 1) * $delta) / ($delta + PC_SKEW));
 }
 
-sub _encoding {
-  $ENCODING{$_[0]} //= find_encoding($_[0]) // croak "Unknown encoding '$_[0]'";
-}
+sub _encoding { $ENCODING{$_[0]} //= find_encoding($_[0]) // croak "Unknown encoding '$_[0]'" }
 
 sub _entity {
   my ($point, $name, $attr) = @_;
@@ -433,16 +432,10 @@ sub _entity {
   my $rest = my $last = '';
   while (length $name) {
     return $ENTITIES{$name} . reverse $rest
-      if exists $ENTITIES{$name}
-      && (!$attr || $name =~ /;$/ || $last !~ /[A-Za-z0-9=]/);
+      if exists $ENTITIES{$name} && (!$attr || $name =~ /;$/ || $last !~ /[A-Za-z0-9=]/);
     $rest .= $last = chop $name;
   }
   return '&' . reverse $rest;
-}
-
-# Supported on Perl 5.14+
-sub _global_destruction {
-  defined ${^GLOBAL_PHASE} && ${^GLOBAL_PHASE} eq 'DESTRUCT';
 }
 
 sub _header {
@@ -499,7 +492,7 @@ sub _stash {
   my ($name, $object) = (shift, shift);
 
   # Hash
-  return $object->{$name} ||= {} unless @_;
+  return $object->{$name} //= {} unless @_;
 
   # Get
   return $object->{$name}{$_[0]} unless @_ > 1 || ref $_[0];
@@ -548,8 +541,7 @@ L<Mojo::Util> provides portable utility functions for L<Mojo>.
 
 =head1 FUNCTIONS
 
-L<Mojo::Util> implements the following functions, which can be imported
-individually.
+L<Mojo::Util> implements the following functions, which can be imported individually.
 
 =head2 b64_decode
 
@@ -628,16 +620,14 @@ Convert C<CamelCase> string to C<snake_case> and replace C<::> with C<->.
 
   my $chars = decode 'UTF-8', $bytes;
 
-Decode bytes to characters with L<Encode>, or return C<undef> if decoding
-failed.
+Decode bytes to characters with L<Encode>, or return C<undef> if decoding failed.
 
 =head2 deprecated
 
   deprecated 'foo is DEPRECATED in favor of bar';
 
-Warn about deprecated feature from perspective of caller. You can also set the
-C<MOJO_FATAL_DEPRECATIONS> environment variable to make them die instead with
-L<Carp>.
+Warn about deprecated feature from perspective of caller. You can also set the C<MOJO_FATAL_DEPRECATIONS> environment
+variable to make them die instead with L<Carp>.
 
 =head2 dumper
 
@@ -656,8 +646,8 @@ Encode characters to bytes with L<Encode>.
   my $usage = extract_usage;
   my $usage = extract_usage '/home/sri/foo.pod';
 
-Extract usage message from the SYNOPSIS section of a file containing POD
-documentation, defaults to using the file this function was called from.
+Extract usage message from the SYNOPSIS section of a file containing POD documentation, defaults to using the file this
+function was called from.
 
   # "Usage: APPLICATION test [OPTIONS]\n"
   extract_usage;
@@ -683,9 +673,8 @@ documentation, defaults to using the file this function was called from.
     't|timeout=i' => \my $timeout,
     'v|verbose'   => \my $verbose;
 
-Extract options from an array reference with L<Getopt::Long>, but without
-changing its global configuration, defaults to using C<@ARGV>. The configuration
-options C<no_auto_abbrev> and C<no_ignore_case> are enabled by default.
+Extract options from an array reference with L<Getopt::Long>, but without changing its global configuration, defaults
+to using C<@ARGV>. The configuration options C<no_auto_abbrev> and C<no_ignore_case> are enabled by default.
 
   # Extract "charset" option
   getopt ['--charset', 'UTF-8'], 'charset=s' => \my $charset;
@@ -716,8 +705,8 @@ Generate HMAC-SHA1 checksum for bytes with L<Digest::SHA>.
 
   my $str = html_attr_unescape $escaped;
 
-Same as L</"html_unescape">, but handles special rules from the
-L<HTML Living Standard|https://html.spec.whatwg.org> for HTML attributes.
+Same as L</"html_unescape">, but handles special rules from the L<HTML Living Standard|https://html.spec.whatwg.org>
+for HTML attributes.
 
   # "foo=bar&ltest=baz"
   html_attr_unescape 'foo=bar&ltest=baz';
@@ -738,8 +727,7 @@ Unescape all HTML entities in string.
 
   my $str = humanize_bytes 1234;
 
-Turn number of bytes into a simplified human readable format. Note that this
-function is B<EXPERIMENTAL> and might change without warning!
+Turn number of bytes into a simplified human readable format.
 
   # "1B"
   humanize_bytes 1;
@@ -784,18 +772,33 @@ Monkey patch functions into package.
 
   my $str = punycode_decode $punycode;
 
-Punycode decode string as described in
-L<RFC 3492|http://tools.ietf.org/html/rfc3492>.
+Punycode decode string as described in L<RFC 3492|https://tools.ietf.org/html/rfc3492>.
 
   # "bücher"
   punycode_decode 'bcher-kva';
+
+=head2 network_contains
+
+  my $bool = network_contains $network, $address;
+
+Check that a given address is contained within a network in CIDR form. If the network is a single address, the
+addresses must be equivalent.
+
+  # True
+  network_contains('10.0.0.0/8', '10.10.10.10');
+  network_contains('10.10.10.10', '10.10.10.10');
+  network_contains('fc00::/7', 'fc::c0:ff:ee');
+
+  # False
+  network_contains('10.0.0.0/29', '10.10.10.10');
+  network_contains('10.10.10.12', '10.10.10.10');
+  network_contains('fc00::/7', '::1');
 
 =head2 punycode_encode
 
   my $punycode = punycode_encode $str;
 
-Punycode encode string as described in
-L<RFC 3492|http://tools.ietf.org/html/rfc3492>.
+Punycode encode string as described in L<RFC 3492|https://tools.ietf.org/html/rfc3492>.
 
   # "bcher-kva"
   punycode_encode 'bücher';
@@ -810,9 +813,7 @@ Quote string.
 
   my $guard = scope_guard sub {...};
 
-Create anonymous scope guard object that will execute the passed callback when
-the object is destroyed. Note that this function is B<EXPERIMENTAL> and might
-change without warning!
+Create anonymous scope guard object that will execute the passed callback when the object is destroyed.
 
   # Execute closure at end of scope
   {
@@ -824,7 +825,8 @@ change without warning!
 
   my $bool = secure_compare $str1, $str2;
 
-Constant time comparison algorithm to prevent timing attacks.
+Constant time comparison algorithm to prevent timing attacks. The secret string should be the second argument, to avoid
+leaking information about the length of the string.
 
 =head2 sha1_bytes
 
@@ -846,12 +848,10 @@ Generate SHA1 checksum for bytes with L<Digest::SHA>.
   my $slug = slugify $string;
   my $slug = slugify $string, $bool;
 
-Returns a URL slug generated from the input string. Non-word characters are
-removed, the string is trimmed and lowercased, and whitespace characters are
-replaced by a dash. By default, non-ASCII characters are normalized to ASCII
-word characters or removed, but if a true value is passed as the second
-parameter, all word characters will be allowed in the result according to
-unicode semantics.
+Returns a URL slug generated from the input string. Non-word characters are removed, the string is trimmed and
+lowercased, and whitespace characters are replaced by a dash. By default, non-ASCII characters are normalized to ASCII
+word characters or removed, but if a true value is passed as the second parameter, all word characters will be allowed
+in the result according to unicode semantics.
 
   # "joel-is-a-slug"
   slugify 'Joel is a slug';
@@ -866,15 +866,14 @@ unicode semantics.
 
   my $tree = split_cookie_header 'a=b; expires=Thu, 07 Aug 2008 07:07:59 GMT';
 
-Same as L</"split_header">, but handles C<expires> values from
-L<RFC 6265|http://tools.ietf.org/html/rfc6265>.
+Same as L</"split_header">, but handles C<expires> values from L<RFC 6265|https://tools.ietf.org/html/rfc6265>.
 
 =head2 split_header
 
    my $tree = split_header 'foo="bar baz"; test=123, yada';
 
-Split HTTP header value into key/value pairs, each comma separated part gets
-its own array reference, and keys without a value get C<undef> assigned.
+Split HTTP header value into key/value pairs, each comma separated part gets its own array reference, and keys without
+a value get C<undef> assigned.
 
   # "one"
   split_header('one; two="three four", five=six')->[0][0];
@@ -895,9 +894,8 @@ its own array reference, and keys without a value get C<undef> assigned.
 
   my $time = steady_time;
 
-High resolution time elapsed from an arbitrary fixed point in the past,
-resilient to time jumps if a monotonic clock is available through
-L<Time::HiRes>.
+High resolution time elapsed from an arbitrary fixed point in the past, resilient to time jumps if a monotonic clock is
+available through L<Time::HiRes>.
 
 =head2 tablify
 
@@ -946,9 +944,8 @@ Unquote string.
   my $escaped = url_escape $str;
   my $escaped = url_escape $str, '^A-Za-z0-9\-._~';
 
-Percent encode unsafe characters in string as described in
-L<RFC 3986|http://tools.ietf.org/html/rfc3986>, the pattern used defaults to
-C<^A-Za-z0-9\-._~>.
+Percent encode unsafe characters in string as described in L<RFC 3986|https://tools.ietf.org/html/rfc3986>, the pattern
+used defaults to C<^A-Za-z0-9\-._~>.
 
   # "foo%3Bbar"
   url_escape 'foo;bar';
@@ -957,8 +954,7 @@ C<^A-Za-z0-9\-._~>.
 
   my $str = url_unescape $escaped;
 
-Decode percent encoded characters in string as described in
-L<RFC 3986|http://tools.ietf.org/html/rfc3986>.
+Decode percent encoded characters in string as described in L<RFC 3986|https://tools.ietf.org/html/rfc3986>.
 
   # "foo;bar"
   url_unescape 'foo%3Bbar';
@@ -967,14 +963,14 @@ L<RFC 3986|http://tools.ietf.org/html/rfc3986>.
 
   my $escaped = xml_escape $str;
 
-Escape unsafe characters C<&>, C<E<lt>>, C<E<gt>>, C<"> and C<'> in string, but
-do not escape L<Mojo::ByteStream> objects.
+Escape unsafe characters C<&>, C<E<lt>>, C<E<gt>>, C<"> and C<'> in string, but do not escape L<Mojo::ByteStream>
+objects.
 
   # "&lt;div&gt;"
   xml_escape '<div>';
 
   # "<div>"
-  use Mojo::ByteStream 'b';
+  use Mojo::ByteStream qw(b);
   xml_escape b('<div>');
 
 =head2 xor_encode

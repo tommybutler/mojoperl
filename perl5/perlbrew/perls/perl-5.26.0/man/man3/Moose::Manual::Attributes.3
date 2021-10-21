@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Moose::Manual::Attributes 3"
-.TH Moose::Manual::Attributes 3 "2017-07-12" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Moose::Manual::Attributes 3 "2021-03-31" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -76,7 +76,7 @@
 Moose::Manual::Attributes \- Object attributes with Moose
 .SH "VERSION"
 .IX Header "VERSION"
-version 2.2006
+version 2.2015
 .SH "INTRODUCTION"
 .IX Header "INTRODUCTION"
 Moose attributes have many properties, and attributes are probably the
@@ -115,7 +115,9 @@ The options passed to \f(CW\*(C`has\*(C'\fR define the properties of the attribu
 many options, but in the simplest form you just need to set \f(CW\*(C`is\*(C'\fR, which can
 be either \f(CW\*(C`ro\*(C'\fR (read-only) or \f(CW\*(C`rw\*(C'\fR (read-write). When an attribute is \f(CW\*(C`rw\*(C'\fR,
 you can change it by passing a value to its accessor. When an attribute is
-\&\f(CW\*(C`ro\*(C'\fR, you may only read the current value of the attribute.
+\&\f(CW\*(C`ro\*(C'\fR, you may only read the current value of the attribute through its
+accessor. You can, however, set the attribute when creating the object by
+passing it to the constructor.
 .PP
 In fact, you could even omit \f(CW\*(C`is\*(C'\fR, but that gives you an attribute
 that has no accessor. This can be useful with other attribute options,
@@ -245,8 +247,8 @@ There are a couple caveats worth mentioning in regards to what
 \&\*(L"required\*(R" actually means.
 .PP
 Basically, all it says is that this attribute (\f(CW\*(C`name\*(C'\fR) must be provided to
-the constructor, or be lazy with either a default or a builder. It does not
-say anything about its value, so it could be \f(CW\*(C`undef\*(C'\fR.
+the constructor or it must have either a default or a builder. It does not say
+anything about its value, so it could be \f(CW\*(C`undef\*(C'\fR.
 .PP
 If you define a clearer method on a required attribute, the clearer
 \&\fIwill\fR work, so even a required attribute can be unset after object
@@ -756,13 +758,13 @@ value before it is set.
 .SH "AUTHORS"
 .IX Header "AUTHORS"
 .IP "\(bu" 4
-Stevan Little <stevan.little@iinteractive.com>
+Stevan Little <stevan@cpan.org>
 .IP "\(bu" 4
 Dave Rolsky <autarch@urth.org>
 .IP "\(bu" 4
-Jesse Luehrs <doy@tozt.net>
+Jesse Luehrs <doy@cpan.org>
 .IP "\(bu" 4
-Shawn M Moore <code@sartak.org>
+Shawn M Moore <sartak@cpan.org>
 .IP "\(bu" 4
 יובל קוג'מן (Yuval Kogman) <nothingmuch@woobling.org>
 .IP "\(bu" 4
@@ -770,11 +772,11 @@ Karen Etheridge <ether@cpan.org>
 .IP "\(bu" 4
 Florian Ragwitz <rafl@debian.org>
 .IP "\(bu" 4
-Hans Dieter Pearcey <hdp@weftsoar.net>
+Hans Dieter Pearcey <hdp@cpan.org>
 .IP "\(bu" 4
 Chris Prather <chris@prather.org>
 .IP "\(bu" 4
-Matt S Trout <mst@shadowcat.co.uk>
+Matt S Trout <mstrout@cpan.org>
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
 This software is copyright (c) 2006 by Infinity Interactive, Inc.

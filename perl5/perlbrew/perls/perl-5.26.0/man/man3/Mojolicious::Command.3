@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Command 3"
-.TH Mojolicious::Command 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Command 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -79,21 +79,18 @@ Mojolicious::Command \- Command base class
 .Vb 3
 \&  # Lowercase command name
 \&  package Mojolicious::Command::mycommand;
-\&  use Mojo::Base \*(AqMojolicious::Command\*(Aq;
+\&  use Mojo::Base \*(AqMojolicious::Command\*(Aq, \-signatures;
 \&
 \&  # Short description
 \&  has description => \*(AqMy first Mojo command\*(Aq;
 \&
 \&  # Usage message from SYNOPSIS
-\&  has usage => sub { shift\->extract_usage };
+\&  has usage => sub ($self) { $self\->extract_usage };
 \&
-\&  sub run {
-\&    my ($self, @args) = @_;
+\&  sub run ($self, @args) {
 \&
 \&    # Magic here! :)
 \&  }
-\&
-\&  1;
 \&
 \&  =head1 SYNOPSIS
 \&
@@ -108,8 +105,7 @@ Mojolicious::Command \- Command base class
 .IX Header "DESCRIPTION"
 Mojolicious::Command is an abstract base class for Mojolicious commands.
 .PP
-See \*(L"\s-1COMMANDS\*(R"\s0 in Mojolicious::Commands for a list of commands that are
-available by default.
+See \*(L"\s-1COMMANDS\*(R"\s0 in Mojolicious::Commands for a list of commands that are available by default.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojolicious::Command implements the following attributes.
@@ -120,8 +116,7 @@ Mojolicious::Command implements the following attributes.
 \&  $command = $command\->app(Mojolicious\->new);
 .Ve
 .PP
-Application for command, defaults to a Mojo::HelloWorld object. Note that
-this attribute is weakened.
+Application for command, defaults to a Mojo::HelloWorld object. Note that this attribute is weakened.
 .PP
 .Vb 2
 \&  # Introspect
@@ -150,8 +145,8 @@ Limited command output.
 \&  $command     = $command\->template({vars => 1});
 .Ve
 .PP
-Attribute values passed to Mojo::Template objects used to render templates
-with \*(L"render_data\*(R", defaults to activating \f(CW\*(C`vars\*(C'\fR.
+Attribute values passed to Mojo::Template objects used to render templates with \*(L"render_data\*(R", defaults to
+activating \f(CW\*(C`vars\*(C'\fR.
 .SS "usage"
 .IX Subsection "usage"
 .Vb 2
@@ -162,8 +157,7 @@ with \*(L"render_data\*(R", defaults to activating \f(CW\*(C`vars\*(C'\fR.
 Usage information for command, used for the help screen.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Command inherits all methods from Mojo::Base and implements
-the following new ones.
+Mojolicious::Command inherits all methods from Mojo::Base and implements the following new ones.
 .SS "chmod_file"
 .IX Subsection "chmod_file"
 .Vb 1
@@ -191,16 +185,15 @@ Create a directory if it does not exist already.
 \&  $command = $command\->create_rel_dir(\*(Aqfoo/bar/baz\*(Aq);
 .Ve
 .PP
-Portably create a directory relative to the current working directory if it does
-not exist already.
+Portably create a directory relative to the current working directory if it does not exist already.
 .SS "extract_usage"
 .IX Subsection "extract_usage"
 .Vb 1
 \&  my $usage = $command\->extract_usage;
 .Ve
 .PP
-Extract usage message from the \s-1SYNOPSIS\s0 section of the file this method was
-called from with \*(L"extract_usage\*(R" in Mojo::Util.
+Extract usage message from the \s-1SYNOPSIS\s0 section of the file this method was called from with
+\&\*(L"extract_usage\*(R" in Mojo::Util.
 .SS "help"
 .IX Subsection "help"
 .Vb 1
@@ -223,9 +216,8 @@ Return a Mojo::File object relative to the current working directory.
 \&  my $data = $command\->render_data(\*(Aqfoo_bar\*(Aq, {foo => \*(Aqbar\*(Aq});
 .Ve
 .PP
-Render a template from the \f(CW\*(C`DATA\*(C'\fR section of the command class with
-Mojo::Loader and Mojo::Template. The template can be configured with
-\&\*(L"template\*(R".
+Render a template from the \f(CW\*(C`DATA\*(C'\fR section of the command class with Mojo::Loader and Mojo::Template. The
+template can be configured with \*(L"template\*(R".
 .SS "render_to_file"
 .IX Subsection "render_to_file"
 .Vb 4
@@ -235,8 +227,7 @@ Mojo::Loader and Mojo::Template. The template can be configured with
 \&    \*(Aqfoo_bar\*(Aq, \*(Aq/home/sri/foo.txt\*(Aq, {foo => \*(Aqbar\*(Aq});
 .Ve
 .PP
-Render a template with \*(L"render_data\*(R" to a file if it does not exist already,
-and create the directory if necessary.
+Render a template with \*(L"render_data\*(R" to a file if it does not exist already, and create the directory if necessary.
 .SS "render_to_rel_file"
 .IX Subsection "render_to_rel_file"
 .Vb 4
@@ -246,9 +237,8 @@ and create the directory if necessary.
 \&    \*(Aqfoo_bar\*(Aq, \*(Aqfoo/bar.txt\*(Aq, {foo => \*(Aqbar\*(Aq});
 .Ve
 .PP
-Portably render a template with \*(L"render_data\*(R" to a file relative to the
-current working directory if it does not exist already, and create the directory
-if necessary.
+Portably render a template with \*(L"render_data\*(R" to a file relative to the current working directory if it does not
+exist already, and create the directory if necessary.
 .SS "run"
 .IX Subsection "run"
 .Vb 2
@@ -263,16 +253,15 @@ Run command. Meant to be overloaded in a subclass.
 \&  $command = $command\->write_file(\*(Aq/home/sri/foo.txt\*(Aq, \*(AqHello World!\*(Aq);
 .Ve
 .PP
-Write text to a file if it does not exist already, and create the directory if
-necessary.
+Write text to a file if it does not exist already, and create the directory if necessary.
 .SS "write_rel_file"
 .IX Subsection "write_rel_file"
 .Vb 1
 \&  $command = $command\->write_rel_file(\*(Aqfoo/bar.txt\*(Aq, \*(AqHello World!\*(Aq);
 .Ve
 .PP
-Portably write text to a file relative to the current working directory if it
-does not exist already, and create the directory if necessary.
+Portably write text to a file relative to the current working directory if it does not exist already, and create the
+directory if necessary.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

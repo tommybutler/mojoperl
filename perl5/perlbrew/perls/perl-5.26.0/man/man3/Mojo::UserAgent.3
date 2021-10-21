@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::UserAgent 3"
-.TH Mojo::UserAgent 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::UserAgent 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -81,7 +81,7 @@ Mojo::UserAgent \- Non\-blocking I/O HTTP and WebSocket user agent
 \&
 \&  # Fine grained response handling (dies on connection errors)
 \&  my $ua  = Mojo::UserAgent\->new;
-\&  my $res = $ua\->get(\*(Aqmojolicious.org/perldoc\*(Aq)\->result;
+\&  my $res = $ua\->get(\*(Aqdocs.mojolicious.org\*(Aq)\->result;
 \&  if    ($res\->is_success)  { say $res\->body }
 \&  elsif ($res\->is_error)    { say $res\->message }
 \&  elsif ($res\->code == 301) { say $res\->headers\->location }
@@ -94,8 +94,7 @@ Mojo::UserAgent \- Non\-blocking I/O HTTP and WebSocket user agent
 \&  say $ua\->get(\*(Aqwww.perl.org\*(Aq)\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
 \&
 \&  # Scrape the latest headlines from a news site
-\&  say $ua\->get(\*(Aqblogs.perl.org\*(Aq)
-\&    \->result\->dom\->find(\*(Aqh2 > a\*(Aq)\->map(\*(Aqtext\*(Aq)\->join("\en");
+\&  say $ua\->get(\*(Aqblogs.perl.org\*(Aq)\->result\->dom\->find(\*(Aqh2 > a\*(Aq)\->map(\*(Aqtext\*(Aq)\->join("\en");
 \&
 \&  # IPv6 PUT request with Content\-Type header and content
 \&  my $tx = $ua\->put(\*(Aq[::1]:3000\*(Aq => {\*(AqContent\-Type\*(Aq => \*(Aqtext/plain\*(Aq} => \*(AqHi!\*(Aq);
@@ -105,47 +104,39 @@ Mojo::UserAgent \- Non\-blocking I/O HTTP and WebSocket user agent
 \&  my $value = $ua\->get($url)\->result\->json;
 \&
 \&  # JSON POST (application/json) with TLS certificate authentication
-\&  my $tx = $ua\->cert(\*(Aqtls.crt\*(Aq)\->key(\*(Aqtls.key\*(Aq)
-\&    \->post(\*(Aqhttps://example.com\*(Aq => json => {top => \*(Aqsecret\*(Aq});
+\&  my $tx = $ua\->cert(\*(Aqtls.crt\*(Aq)\->key(\*(Aqtls.key\*(Aq)\->post(\*(Aqhttps://example.com\*(Aq => json => {top => \*(Aqsecret\*(Aq});
 \&
 \&  # Form POST (application/x\-www\-form\-urlencoded)
 \&  my $tx = $ua\->post(\*(Aqhttps://metacpan.org/search\*(Aq => form => {q => \*(Aqmojo\*(Aq});
 \&
 \&  # Search DuckDuckGo anonymously through Tor
 \&  $ua\->proxy\->http(\*(Aqsocks://127.0.0.1:9050\*(Aq);
-\&  say $ua\->get(\*(Aqapi.3g2upl4pq6kufc4m.onion/?q=mojolicious&format=json\*(Aq)
-\&    \->result\->json(\*(Aq/Abstract\*(Aq);
+\&  say $ua\->get(\*(Aqapi.3g2upl4pq6kufc4m.onion/?q=mojolicious&format=json\*(Aq)\->result\->json(\*(Aq/Abstract\*(Aq);
 \&
 \&  # GET request via UNIX domain socket "/tmp/myapp.sock" (percent encoded slash)
-\&  say $ua\->get(\*(Aqhttp+unix://%2Ftmp%2Fmyapp.sock/perldoc\*(Aq)\->result\->body;
+\&  say $ua\->get(\*(Aqhttp+unix://%2Ftmp%2Fmyapp.sock/test\*(Aq)\->result\->body;
 \&
 \&  # Follow redirects to download Mojolicious from GitHub
 \&  $ua\->max_redirects(5)
-\&    \->get(\*(Aqhttps://www.github.com/mojolicious/mojo/tarball/master\*(Aq)
+\&    \->get(\*(Aqhttps://www.github.com/mojolicious/mojo/tarball/main\*(Aq)
 \&    \->result\->save_to(\*(Aq/home/sri/mojo.tar.gz\*(Aq);
 \&
 \&  # Non\-blocking request
-\&  $ua\->get(\*(Aqmojolicious.org\*(Aq => sub {
-\&    my ($ua, $tx) = @_;
-\&    say $tx\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
-\&  });
+\&  $ua\->get(\*(Aqmojolicious.org\*(Aq => sub ($ua, $tx) { say $tx\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text });
 \&  Mojo::IOLoop\->start unless Mojo::IOLoop\->is_running;
 \&
 \&  # Concurrent non\-blocking requests (synchronized with promises)
-\&  my $mojo = $ua\->get_p(\*(Aqmojolicious.org\*(Aq);
-\&  my $cpan = $ua\->get_p(\*(Aqcpan.org\*(Aq);
-\&  Mojo::Promise\->all($mojo, $cpan)\->then(sub {
-\&    my ($mojo, $cpan) = @_;
+\&  my $mojo_promise = $ua\->get_p(\*(Aqmojolicious.org\*(Aq);
+\&  my $cpan_promise = $ua\->get_p(\*(Aqcpan.org\*(Aq);
+\&  Mojo::Promise\->all($mojo_promise, $cpan_promise)\->then(sub ($mojo, $cpan) {
 \&    say $mojo\->[0]\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
 \&    say $cpan\->[0]\->result\->dom\->at(\*(Aqtitle\*(Aq)\->text;
 \&  })\->wait;
 \&
 \&  # WebSocket connection sending and receiving JSON via UNIX domain socket
-\&  $ua\->websocket(\*(Aqws+unix://%2Ftmp%2Fmyapp.sock/echo.json\*(Aq => sub {
-\&    my ($ua, $tx) = @_;
+\&  $ua\->websocket(\*(Aqws+unix://%2Ftmp%2Fmyapp.sock/echo.json\*(Aq => sub ($ua, $tx) {
 \&    say \*(AqWebSocket handshake failed!\*(Aq and return unless $tx\->is_websocket;
-\&    $tx\->on(json => sub {
-\&      my ($tx, $hash) = @_;
+\&    $tx\->on(json => sub ($tx, $hash) {
 \&      say "WebSocket message via JSON: $hash\->{msg}";
 \&      $tx\->finish;
 \&    });
@@ -155,62 +146,47 @@ Mojo::UserAgent \- Non\-blocking I/O HTTP and WebSocket user agent
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::UserAgent is a full featured non-blocking I/O \s-1HTTP\s0 and WebSocket user
-agent, with IPv6, \s-1TLS, SNI, IDNA, HTTP/SOCKS5\s0 proxy, \s-1UNIX\s0 domain socket, Comet
-(long polling), Promises/A+, keep-alive, connection pooling, timeout, cookie,
-multipart, gzip compression and multiple event loop support.
+Mojo::UserAgent is a full featured non-blocking I/O \s-1HTTP\s0 and WebSocket user agent, with IPv6, \s-1TLS, SNI, IDNA,
+HTTP/SOCKS5\s0 proxy, \s-1UNIX\s0 domain socket, Comet (long polling), Promises/A+, keep-alive, connection pooling, timeout,
+cookie, multipart, gzip compression and multiple event loop support.
 .PP
-All connections will be reset automatically if a new process has been forked,
-this allows multiple processes to share the same Mojo::UserAgent object
-safely.
+All connections will be reset automatically if a new process has been forked, this allows multiple processes to share
+the same Mojo::UserAgent object safely.
 .PP
-For better scalability (epoll, kqueue) and to provide non-blocking name
-resolution, \s-1SOCKS5\s0 as well as \s-1TLS\s0 support, the optional modules \s-1EV\s0 (4.0+),
-Net::DNS::Native (0.15+), IO::Socket::Socks (0.64+) and
-IO::Socket::SSL (2.009+) will be used automatically if possible. Individual
-features can also be disabled with the \f(CW\*(C`MOJO_NO_NNR\*(C'\fR, \f(CW\*(C`MOJO_NO_SOCKS\*(C'\fR and
-\&\f(CW\*(C`MOJO_NO_TLS\*(C'\fR environment variables.
+For better scalability (epoll, kqueue) and to provide non-blocking name resolution, \s-1SOCKS5\s0 as well as \s-1TLS\s0 support, the
+optional modules \s-1EV\s0 (4.32+), Net::DNS::Native (0.15+), IO::Socket::Socks (0.64+) and IO::Socket::SSL
+(2.009+) will be used automatically if possible. Individual features can also be disabled with the \f(CW\*(C`MOJO_NO_NNR\*(C'\fR,
+\&\f(CW\*(C`MOJO_NO_SOCKS\*(C'\fR and \f(CW\*(C`MOJO_NO_TLS\*(C'\fR environment variables.
 .PP
 See \*(L"\s-1USER AGENT\*(R"\s0 in Mojolicious::Guides::Cookbook for more.
 .SH "EVENTS"
 .IX Header "EVENTS"
-Mojo::UserAgent inherits all events from Mojo::EventEmitter and can emit
-the following new ones.
+Mojo::UserAgent inherits all events from Mojo::EventEmitter and can emit the following new ones.
 .SS "prepare"
 .IX Subsection "prepare"
-.Vb 4
-\&  $ua\->on(prepare => sub {
-\&    my ($ua, $tx) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $ua\->on(prepare => sub ($ua, $tx) {...});
 .Ve
 .PP
-Emitted whenever a new transaction is being prepared, before relative URLs are
-rewritten and cookies added. This includes automatically prepared proxy
-\&\f(CW\*(C`CONNECT\*(C'\fR requests and followed redirects.
+Emitted whenever a new transaction is being prepared, before relative URLs are rewritten and cookies added. This
+includes automatically prepared proxy \f(CW\*(C`CONNECT\*(C'\fR requests and followed redirects.
 .PP
-.Vb 5
-\&  $ua\->on(prepare => sub {
-\&    my ($ua, $tx) = @_;
-\&    $tx\->req\->url(Mojo::URL\->new(\*(Aq/mock\-mojolicious\*(Aq))
-\&      if $tx\->req\->url\->host eq \*(Aqmojolicious.org\*(Aq;
+.Vb 3
+\&  $ua\->on(prepare => sub ($ua, $tx) {
+\&    $tx\->req\->url(Mojo::URL\->new(\*(Aq/mock\-mojolicious\*(Aq)) if $tx\->req\->url\->host eq \*(Aqmojolicious.org\*(Aq;
 \&  });
 .Ve
 .SS "start"
 .IX Subsection "start"
-.Vb 4
-\&  $ua\->on(start => sub {
-\&    my ($ua, $tx) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $ua\->on(start => sub ($ua, $tx) {...});
 .Ve
 .PP
-Emitted whenever a new transaction is about to start. This includes
-automatically prepared proxy \f(CW\*(C`CONNECT\*(C'\fR requests and followed redirects.
+Emitted whenever a new transaction is about to start. This includes automatically prepared proxy \f(CW\*(C`CONNECT\*(C'\fR requests
+and followed redirects.
 .PP
-.Vb 4
-\&  $ua\->on(start => sub {
-\&    my ($ua, $tx) = @_;
+.Vb 3
+\&  $ua\->on(start => sub ($ua, $tx) {
 \&    $tx\->req\->headers\->header(\*(AqX\-Bender\*(Aq => \*(AqBite my shiny metal ass!\*(Aq);
 \&  });
 .Ve
@@ -224,13 +200,12 @@ Mojo::UserAgent implements the following attributes.
 \&  $ua    = $ua\->ca(\*(Aq/etc/tls/ca.crt\*(Aq);
 .Ve
 .PP
-Path to \s-1TLS\s0 certificate authority file used to verify the peer certificate,
-defaults to the value of the \f(CW\*(C`MOJO_CA_FILE\*(C'\fR environment variable.
+Path to \s-1TLS\s0 certificate authority file used to verify the peer certificate, defaults to the value of the
+\&\f(CW\*(C`MOJO_CA_FILE\*(C'\fR environment variable.
 .PP
-.Vb 3
+.Vb 2
 \&  # Show certificate authorities for debugging
-\&  IO::Socket::SSL::set_defaults(
-\&    SSL_verify_callback => sub { say "Authority: $_[2]" and return $_[0] });
+\&  IO::Socket::SSL::set_defaults(SSL_verify_callback => sub { say "Authority: $_[2]" and return $_[0] });
 .Ve
 .SS "cert"
 .IX Subsection "cert"
@@ -239,8 +214,7 @@ defaults to the value of the \f(CW\*(C`MOJO_CA_FILE\*(C'\fR environment variable
 \&  $ua      = $ua\->cert(\*(Aq/etc/tls/client.crt\*(Aq);
 .Ve
 .PP
-Path to \s-1TLS\s0 certificate file, defaults to the value of the \f(CW\*(C`MOJO_CERT_FILE\*(C'\fR
-environment variable.
+Path to \s-1TLS\s0 certificate file, defaults to the value of the \f(CW\*(C`MOJO_CERT_FILE\*(C'\fR environment variable.
 .SS "connect_timeout"
 .IX Subsection "connect_timeout"
 .Vb 2
@@ -248,9 +222,8 @@ environment variable.
 \&  $ua         = $ua\->connect_timeout(5);
 .Ve
 .PP
-Maximum amount of time in seconds establishing a connection may take before
-getting canceled, defaults to the value of the \f(CW\*(C`MOJO_CONNECT_TIMEOUT\*(C'\fR
-environment variable or \f(CW10\fR.
+Maximum amount of time in seconds establishing a connection may take before getting canceled, defaults to the value of
+the \f(CW\*(C`MOJO_CONNECT_TIMEOUT\*(C'\fR environment variable or \f(CW10\fR.
 .SS "cookie_jar"
 .IX Subsection "cookie_jar"
 .Vb 2
@@ -258,8 +231,7 @@ environment variable or \f(CW10\fR.
 \&  $ua            = $ua\->cookie_jar(Mojo::UserAgent::CookieJar\->new);
 .Ve
 .PP
-Cookie jar to use for requests performed by this user agent, defaults to a
-Mojo::UserAgent::CookieJar object.
+Cookie jar to use for requests performed by this user agent, defaults to a Mojo::UserAgent::CookieJar object.
 .PP
 .Vb 2
 \&  # Ignore all cookies
@@ -267,8 +239,7 @@ Mojo::UserAgent::CookieJar object.
 \&
 \&  # Ignore cookies for public suffixes
 \&  my $ps = IO::Socket::SSL::PublicSuffix\->default;
-\&  $ua\->cookie_jar\->ignore(sub {
-\&    my $cookie = shift;
+\&  $ua\->cookie_jar\->ignore(sub ($cookie) {
 \&    return undef unless my $domain = $cookie\->domain;
 \&    return ($ps\->public_suffix($domain))[0] eq \*(Aq\*(Aq;
 \&  });
@@ -278,8 +249,8 @@ Mojo::UserAgent::CookieJar object.
 \&    Mojo::Cookie::Response\->new(
 \&      name   => \*(Aqfoo\*(Aq,
 \&      value  => \*(Aqbar\*(Aq,
-\&      domain => \*(Aqmojolicious.org\*(Aq,
-\&      path   => \*(Aq/perldoc\*(Aq
+\&      domain => \*(Aqdocs.mojolicious.org\*(Aq,
+\&      path   => \*(Aq/Mojolicious\*(Aq
 \&    )
 \&  );
 .Ve
@@ -290,9 +261,8 @@ Mojo::UserAgent::CookieJar object.
 \&  $ua         = $ua\->inactivity_timeout(15);
 .Ve
 .PP
-Maximum amount of time in seconds a connection can be inactive before getting
-closed, defaults to the value of the \f(CW\*(C`MOJO_INACTIVITY_TIMEOUT\*(C'\fR environment
-variable or \f(CW20\fR. Setting the value to \f(CW0\fR will allow connections to be
+Maximum amount of time in seconds a connection can be inactive before getting closed, defaults to the value of the
+\&\f(CW\*(C`MOJO_INACTIVITY_TIMEOUT\*(C'\fR environment variable or \f(CW40\fR. Setting the value to \f(CW0\fR will allow connections to be
 inactive indefinitely.
 .SS "insecure"
 .IX Subsection "insecure"
@@ -301,8 +271,8 @@ inactive indefinitely.
 \&  $ua      = $ua\->insecure($bool);
 .Ve
 .PP
-Do not require a valid \s-1TLS\s0 certificate to access \s-1HTTPS/WSS\s0 sites, defaults to
-the value of the \f(CW\*(C`MOJO_INSECURE\*(C'\fR environment variable.
+Do not require a valid \s-1TLS\s0 certificate to access \s-1HTTPS/WSS\s0 sites, defaults to the value of the \f(CW\*(C`MOJO_INSECURE\*(C'\fR
+environment variable.
 .PP
 .Vb 2
 \&  # Disable TLS certificate verification for testing
@@ -315,8 +285,7 @@ the value of the \f(CW\*(C`MOJO_INSECURE\*(C'\fR environment variable.
 \&  $ua      = $ua\->ioloop(Mojo::IOLoop\->new);
 .Ve
 .PP
-Event loop object to use for blocking I/O operations, defaults to a
-Mojo::IOLoop object.
+Event loop object to use for blocking I/O operations, defaults to a Mojo::IOLoop object.
 .SS "key"
 .IX Subsection "key"
 .Vb 2
@@ -324,16 +293,7 @@ Mojo::IOLoop object.
 \&  $ua     = $ua\->key(\*(Aq/etc/tls/client.crt\*(Aq);
 .Ve
 .PP
-Path to \s-1TLS\s0 key file, defaults to the value of the \f(CW\*(C`MOJO_KEY_FILE\*(C'\fR environment
-variable.
-.SS "local_address"
-.IX Subsection "local_address"
-.Vb 2
-\&  my $address = $ua\->local_address;
-\&  $ua         = $ua\->local_address(\*(Aq127.0.0.1\*(Aq);
-.Ve
-.PP
-Local address to bind to.
+Path to \s-1TLS\s0 key file, defaults to the value of the \f(CW\*(C`MOJO_KEY_FILE\*(C'\fR environment variable.
 .SS "max_connections"
 .IX Subsection "max_connections"
 .Vb 2
@@ -341,9 +301,8 @@ Local address to bind to.
 \&  $ua     = $ua\->max_connections(5);
 .Ve
 .PP
-Maximum number of keep-alive connections that the user agent will retain before
-it starts closing the oldest ones, defaults to \f(CW5\fR. Setting the value to \f(CW0\fR
-will prevent any connections from being kept alive.
+Maximum number of keep-alive connections that the user agent will retain before it starts closing the oldest ones,
+defaults to \f(CW5\fR. Setting the value to \f(CW0\fR will prevent any connections from being kept alive.
 .SS "max_redirects"
 .IX Subsection "max_redirects"
 .Vb 2
@@ -351,9 +310,8 @@ will prevent any connections from being kept alive.
 \&  $ua     = $ua\->max_redirects(3);
 .Ve
 .PP
-Maximum number of redirects the user agent will follow before it fails,
-defaults to the value of the \f(CW\*(C`MOJO_MAX_REDIRECTS\*(C'\fR environment variable or
-\&\f(CW0\fR.
+Maximum number of redirects the user agent will follow before it fails, defaults to the value of the
+\&\f(CW\*(C`MOJO_MAX_REDIRECTS\*(C'\fR environment variable or \f(CW0\fR.
 .SS "max_response_size"
 .IX Subsection "max_response_size"
 .Vb 2
@@ -361,12 +319,10 @@ defaults to the value of the \f(CW\*(C`MOJO_MAX_REDIRECTS\*(C'\fR environment va
 \&  $ua     = $ua\->max_response_size(16777216);
 .Ve
 .PP
-Maximum response size in bytes, defaults to the value of
-\&\*(L"max_message_size\*(R" in Mojo::Message::Response. Setting the value to \f(CW0\fR will
-allow responses of indefinite size. Note that increasing this value can also
-drastically increase memory usage, should you for example attempt to parse an
-excessively large response body with the methods \*(L"dom\*(R" in Mojo::Message or
-\&\*(L"json\*(R" in Mojo::Message.
+Maximum response size in bytes, defaults to the value of \*(L"max_message_size\*(R" in Mojo::Message::Response. Setting the
+value to \f(CW0\fR will allow responses of indefinite size. Note that increasing this value can also drastically increase
+memory usage, should you for example attempt to parse an excessively large response body with the methods
+\&\*(L"dom\*(R" in Mojo::Message or \*(L"json\*(R" in Mojo::Message.
 .SS "proxy"
 .IX Subsection "proxy"
 .Vb 2
@@ -387,8 +343,7 @@ Proxy manager, defaults to a Mojo::UserAgent::Proxy object.
 \&  $ua\->proxy\->http(\*(Aqsocks://127.0.0.1:9050\*(Aq)\->https(\*(Aqsocks://127.0.0.1:9050\*(Aq);
 \&
 \&  # Manually configure UNIX domain socket (using CONNECT for HTTPS/WebSockets)
-\&  $ua\->proxy\->http(\*(Aqhttp+unix://%2Ftmp%2Fproxy.sock\*(Aq)
-\&    \->https(\*(Aqhttp+unix://%2Ftmp%2Fproxy.sock\*(Aq);
+\&  $ua\->proxy\->http(\*(Aqhttp+unix://%2Ftmp%2Fproxy.sock\*(Aq) \->https(\*(Aqhttp+unix://%2Ftmp%2Fproxy.sock\*(Aq);
 .Ve
 .SS "request_timeout"
 .IX Subsection "request_timeout"
@@ -397,11 +352,10 @@ Proxy manager, defaults to a Mojo::UserAgent::Proxy object.
 \&  $ua         = $ua\->request_timeout(5);
 .Ve
 .PP
-Maximum amount of time in seconds establishing a connection, sending the
-request and receiving a whole response may take before getting canceled,
-defaults to the value of the \f(CW\*(C`MOJO_REQUEST_TIMEOUT\*(C'\fR environment variable or
-\&\f(CW0\fR. Setting the value to \f(CW0\fR will allow the user agent to wait indefinitely.
-The timeout will reset for every followed redirect.
+Maximum amount of time in seconds establishing a connection, sending the request and receiving a whole response may
+take before getting canceled, defaults to the value of the \f(CW\*(C`MOJO_REQUEST_TIMEOUT\*(C'\fR environment variable or \f(CW0\fR.
+Setting the value to \f(CW0\fR will allow the user agent to wait indefinitely. The timeout will reset for every followed
+redirect.
 .PP
 .Vb 2
 \&  # Total limit of 5 seconds, of which 3 seconds may be spent connecting
@@ -414,14 +368,12 @@ The timeout will reset for every followed redirect.
 \&  $ua        = $ua\->server(Mojo::UserAgent::Server\->new);
 .Ve
 .PP
-Application server relative URLs will be processed with, defaults to a
-Mojo::UserAgent::Server object.
+Application server relative URLs will be processed with, defaults to a Mojo::UserAgent::Server object.
 .PP
-.Vb 7
+.Vb 6
 \&  # Mock web service
 \&  $ua\->server\->app(Mojolicious\->new);
-\&  $ua\->server\->app\->routes\->get(\*(Aq/time\*(Aq => sub {
-\&    my $c = shift;
+\&  $ua\->server\->app\->routes\->get(\*(Aq/time\*(Aq => sub ($c) {
 \&    $c\->render(json => {now => time});
 \&  });
 \&  my $time = $ua\->get(\*(Aq/time\*(Aq)\->result\->json\->{now};
@@ -435,6 +387,14 @@ Mojo::UserAgent::Server object.
 \&  # Port currently used for processing relative URLs non\-blocking
 \&  say $ua\->server\->nb_url\->port;
 .Ve
+.SS "socket_options"
+.IX Subsection "socket_options"
+.Vb 2
+\&  my $options = $ua\->socket_options;
+\&  $ua         = $ua\->socket_options({LocalAddr => \*(Aq127.0.0.1\*(Aq});
+.Ve
+.PP
+Additional options for IO::Socket::IP when opening new connections.
 .SS "transactor"
 .IX Subsection "transactor"
 .Vb 2
@@ -453,22 +413,17 @@ Transaction builder, defaults to a Mojo::UserAgent::Transactor object.
 .Ve
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::UserAgent inherits all methods from Mojo::EventEmitter and
-implements the following new ones.
+Mojo::UserAgent inherits all methods from Mojo::EventEmitter and implements the following new ones.
 .SS "build_tx"
 .IX Subsection "build_tx"
-.Vb 7
+.Vb 4
 \&  my $tx = $ua\->build_tx(GET => \*(Aqexample.com\*(Aq);
-\&  my $tx = $ua\->build_tx(
-\&    PUT => \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => \*(AqContent!\*(Aq);
-\&  my $tx = $ua\->build_tx(
-\&    PUT => \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
-\&  my $tx = $ua\->build_tx(
-\&    PUT => \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->build_tx(PUT => \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => \*(AqContent!\*(Aq);
+\&  my $tx = $ua\->build_tx(PUT => \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->build_tx(PUT => \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Generate Mojo::Transaction::HTTP object with
-\&\*(L"tx\*(R" in Mojo::UserAgent::Transactor.
+Generate Mojo::Transaction::HTTP object with \*(L"tx\*(R" in Mojo::UserAgent::Transactor.
 .PP
 .Vb 4
 \&  # Request with custom cookie
@@ -483,8 +438,7 @@ Generate Mojo::Transaction::HTTP object with
 \&
 \&  # Interrupt response by raising an error
 \&  my $tx = $ua\->build_tx(GET => \*(Aqhttp://example.com\*(Aq);
-\&  $tx\->res\->on(progress => sub {
-\&    my $res = shift;
+\&  $tx\->res\->on(progress => sub ($res) {
 \&    return unless my $server = $res\->headers\->server;
 \&    $res\->error({message => \*(AqOh noes, it is IIS!\*(Aq}) if $server =~ /IIS/;
 \&  });
@@ -492,24 +446,20 @@ Generate Mojo::Transaction::HTTP object with
 .Ve
 .SS "build_websocket_tx"
 .IX Subsection "build_websocket_tx"
-.Vb 3
+.Vb 2
 \&  my $tx = $ua\->build_websocket_tx(\*(Aqws://example.com\*(Aq);
-\&  my $tx = $ua\->build_websocket_tx(
-\&    \*(Aqws://example.com\*(Aq => {DNT => 1} => [\*(Aqv1.proto\*(Aq]);
+\&  my $tx = $ua\->build_websocket_tx( \*(Aqws://example.com\*(Aq => {DNT => 1} => [\*(Aqv1.proto\*(Aq]);
 .Ve
 .PP
-Generate Mojo::Transaction::HTTP object with
-\&\*(L"websocket\*(R" in Mojo::UserAgent::Transactor.
+Generate Mojo::Transaction::HTTP object with \*(L"websocket\*(R" in Mojo::UserAgent::Transactor.
 .PP
-.Vb 10
+.Vb 12
 \&  # Custom WebSocket handshake with cookie
 \&  my $tx = $ua\->build_websocket_tx(\*(Aqwss://example.com/echo\*(Aq);
 \&  $tx\->req\->cookies({name => \*(Aquser\*(Aq, value => \*(Aqsri\*(Aq});
-\&  $ua\->start($tx => sub {
-\&    my ($ua, $tx) = @_;
+\&  $ua\->start($tx => sub ($ua, $tx) {
 \&    say \*(AqWebSocket handshake failed!\*(Aq and return unless $tx\->is_websocket;
-\&    $tx\->on(message => sub {
-\&      my ($tx, $msg) = @_;
+\&    $tx\->on(message => sub ($tx, $msg) {
 \&      say "WebSocket message: $msg";
 \&      $tx\->finish;
 \&    });
@@ -519,25 +469,19 @@ Generate Mojo::Transaction::HTTP object with
 .Ve
 .SS "delete"
 .IX Subsection "delete"
-.Vb 6
+.Vb 4
 \&  my $tx = $ua\->delete(\*(Aqexample.com\*(Aq);
 \&  my $tx = $ua\->delete(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => \*(AqContent!\*(Aq);
-\&  my $tx = $ua\->delete(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
-\&  my $tx = $ua\->delete(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->delete(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->delete(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform blocking \f(CW\*(C`DELETE\*(C'\fR request and return resulting
-Mojo::Transaction::HTTP object, takes the same arguments as
-\&\*(L"tx\*(R" in Mojo::UserAgent::Transactor (except for the \f(CW\*(C`DELETE\*(C'\fR method, which is
-implied). You can also append a callback to perform requests non-blocking.
+Perform blocking \f(CW\*(C`DELETE\*(C'\fR request and return resulting Mojo::Transaction::HTTP object, takes the same arguments as
+\&\*(L"tx\*(R" in Mojo::UserAgent::Transactor (except for the \f(CW\*(C`DELETE\*(C'\fR method, which is implied). You can also append a callback
+to perform requests non-blocking.
 .PP
-.Vb 5
-\&  $ua\->delete(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub {
-\&    my ($ua, $tx) = @_;
-\&    say $tx\->result\->body;
-\&  });
+.Vb 2
+\&  $ua\->delete(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub ($ua, $tx) { say $tx\->result\->body });
 \&  Mojo::IOLoop\->start unless Mojo::IOLoop\->is_running;
 .Ve
 .SS "delete_p"
@@ -546,39 +490,31 @@ implied). You can also append a callback to perform requests non-blocking.
 \&  my $promise = $ua\->delete_p(\*(Aqhttp://example.com\*(Aq);
 .Ve
 .PP
-Same as \*(L"delete\*(R", but performs all requests non-blocking and returns a
-Mojo::Promise object instead of accepting a callback.
+Same as \*(L"delete\*(R", but performs all requests non-blocking and returns a Mojo::Promise object instead of accepting
+a callback.
 .PP
-.Vb 7
-\&  $ua\->delete_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub {
-\&    my $tx = shift;
+.Vb 5
+\&  $ua\->delete_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub ($tx) {
 \&    say $tx\->result\->body;
-\&  })\->catch(sub {
-\&    my $err = shift;
+\&  })\->catch(sub ($err) {
 \&    warn "Connection error: $err";
 \&  })\->wait;
 .Ve
 .SS "get"
 .IX Subsection "get"
-.Vb 6
+.Vb 4
 \&  my $tx = $ua\->get(\*(Aqexample.com\*(Aq);
 \&  my $tx = $ua\->get(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => \*(AqContent!\*(Aq);
-\&  my $tx = $ua\->get(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
-\&  my $tx = $ua\->get(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->get(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->get(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform blocking \f(CW\*(C`GET\*(C'\fR request and return resulting Mojo::Transaction::HTTP
-object, takes the same arguments as \*(L"tx\*(R" in Mojo::UserAgent::Transactor (except
-for the \f(CW\*(C`GET\*(C'\fR method, which is implied). You can also append a callback to
+Perform blocking \f(CW\*(C`GET\*(C'\fR request and return resulting Mojo::Transaction::HTTP object, takes the same arguments as
+\&\*(L"tx\*(R" in Mojo::UserAgent::Transactor (except for the \f(CW\*(C`GET\*(C'\fR method, which is implied). You can also append a callback to
 perform requests non-blocking.
 .PP
-.Vb 5
-\&  $ua\->get(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub {
-\&    my ($ua, $tx) = @_;
-\&    say $tx\->result\->body;
-\&  });
+.Vb 2
+\&  $ua\->get(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub ($ua, $tx) { say $tx\->result\->body });
 \&  Mojo::IOLoop\->start unless Mojo::IOLoop\->is_running;
 .Ve
 .SS "get_p"
@@ -587,39 +523,31 @@ perform requests non-blocking.
 \&  my $promise = $ua\->get_p(\*(Aqhttp://example.com\*(Aq);
 .Ve
 .PP
-Same as \*(L"get\*(R", but performs all requests non-blocking and returns a
-Mojo::Promise object instead of accepting a callback.
+Same as \*(L"get\*(R", but performs all requests non-blocking and returns a Mojo::Promise object instead of accepting a
+callback.
 .PP
-.Vb 7
-\&  $ua\->get_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub {
-\&    my $tx = shift;
+.Vb 5
+\&  $ua\->get_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub ($tx) {
 \&    say $tx\->result\->body;
-\&  })\->catch(sub {
-\&    my $err = shift;
+\&  })\->catch(sub ($err) {
 \&    warn "Connection error: $err";
 \&  })\->wait;
 .Ve
 .SS "head"
 .IX Subsection "head"
-.Vb 6
+.Vb 4
 \&  my $tx = $ua\->head(\*(Aqexample.com\*(Aq);
 \&  my $tx = $ua\->head(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => \*(AqContent!\*(Aq);
-\&  my $tx = $ua\->head(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
-\&  my $tx = $ua\->head(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->head(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->head(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform blocking \f(CW\*(C`HEAD\*(C'\fR request and return resulting
-Mojo::Transaction::HTTP object, takes the same arguments as
-\&\*(L"tx\*(R" in Mojo::UserAgent::Transactor (except for the \f(CW\*(C`HEAD\*(C'\fR method, which is
-implied). You can also append a callback to perform requests non-blocking.
+Perform blocking \f(CW\*(C`HEAD\*(C'\fR request and return resulting Mojo::Transaction::HTTP object, takes the same arguments as
+\&\*(L"tx\*(R" in Mojo::UserAgent::Transactor (except for the \f(CW\*(C`HEAD\*(C'\fR method, which is implied). You can also append a callback
+to perform requests non-blocking.
 .PP
-.Vb 5
-\&  $ua\->head(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub {
-\&    my ($ua, $tx) = @_;
-\&    say $tx\->result\->body;
-\&  });
+.Vb 2
+\&  $ua\->head(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub ($ua, $tx) { say $tx\->result\->body });
 \&  Mojo::IOLoop\->start unless Mojo::IOLoop\->is_running;
 .Ve
 .SS "head_p"
@@ -628,40 +556,31 @@ implied). You can also append a callback to perform requests non-blocking.
 \&  my $promise = $ua\->head_p(\*(Aqhttp://example.com\*(Aq);
 .Ve
 .PP
-Same as \*(L"head\*(R", but performs all requests non-blocking and returns a
-Mojo::Promise object instead of accepting a callback.
+Same as \*(L"head\*(R", but performs all requests non-blocking and returns a Mojo::Promise object instead of accepting a
+callback.
 .PP
-.Vb 7
-\&  $ua\->head_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub {
-\&    my $tx = shift;
+.Vb 5
+\&  $ua\->head_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub ($tx) {
 \&    say $tx\->result\->body;
-\&  })\->catch(sub {
-\&    my $err = shift;
+\&  })\->catch(sub ($err) {
 \&    warn "Connection error: $err";
 \&  })\->wait;
 .Ve
 .SS "options"
 .IX Subsection "options"
-.Vb 7
+.Vb 4
 \&  my $tx = $ua\->options(\*(Aqexample.com\*(Aq);
-\&  my $tx = $ua\->options(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => \*(AqContent!\*(Aq);
-\&  my $tx = $ua\->options(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
-\&  my $tx = $ua\->options(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->options(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => \*(AqContent!\*(Aq);
+\&  my $tx = $ua\->options(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->options(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform blocking \f(CW\*(C`OPTIONS\*(C'\fR request and return resulting
-Mojo::Transaction::HTTP object, takes the same arguments as
-\&\*(L"tx\*(R" in Mojo::UserAgent::Transactor (except for the \f(CW\*(C`OPTIONS\*(C'\fR method, which is
-implied). You can also append a callback to perform requests non-blocking.
+Perform blocking \f(CW\*(C`OPTIONS\*(C'\fR request and return resulting Mojo::Transaction::HTTP object, takes the same arguments as
+\&\*(L"tx\*(R" in Mojo::UserAgent::Transactor (except for the \f(CW\*(C`OPTIONS\*(C'\fR method, which is implied). You can also append a
+callback to perform requests non-blocking.
 .PP
-.Vb 5
-\&  $ua\->options(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub {
-\&    my ($ua, $tx) = @_;
-\&    say $tx\->result\->body;
-\&  });
+.Vb 2
+\&  $ua\->options(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub ($ua, $tx) { say $tx\->result\->body });
 \&  Mojo::IOLoop\->start unless Mojo::IOLoop\->is_running;
 .Ve
 .SS "options_p"
@@ -670,39 +589,31 @@ implied). You can also append a callback to perform requests non-blocking.
 \&  my $promise = $ua\->options_p(\*(Aqhttp://example.com\*(Aq);
 .Ve
 .PP
-Same as \*(L"options\*(R", but performs all requests non-blocking and returns a
-Mojo::Promise object instead of accepting a callback.
+Same as \*(L"options\*(R", but performs all requests non-blocking and returns a Mojo::Promise object instead of
+accepting a callback.
 .PP
-.Vb 7
-\&  $ua\->options_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub {
-\&    my $tx = shift;
+.Vb 5
+\&  $ua\->options_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub ($tx) {
 \&    say $tx\->result\->body;
-\&  })\->catch(sub {
-\&    my $err = shift;
+\&  })\->catch(sub ($err) {
 \&    warn "Connection error: $err";
 \&  })\->wait;
 .Ve
 .SS "patch"
 .IX Subsection "patch"
-.Vb 6
+.Vb 4
 \&  my $tx = $ua\->patch(\*(Aqexample.com\*(Aq);
 \&  my $tx = $ua\->patch(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => \*(AqContent!\*(Aq);
-\&  my $tx = $ua\->patch(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
-\&  my $tx = $ua\->patch(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->patch(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->patch(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform blocking \f(CW\*(C`PATCH\*(C'\fR request and return resulting
-Mojo::Transaction::HTTP object, takes the same arguments as
-\&\*(L"tx\*(R" in Mojo::UserAgent::Transactor (except for the \f(CW\*(C`PATCH\*(C'\fR method, which is
-implied). You can also append a callback to perform requests non-blocking.
+Perform blocking \f(CW\*(C`PATCH\*(C'\fR request and return resulting Mojo::Transaction::HTTP object, takes the same arguments as
+\&\*(L"tx\*(R" in Mojo::UserAgent::Transactor (except for the \f(CW\*(C`PATCH\*(C'\fR method, which is implied). You can also append a callback
+to perform requests non-blocking.
 .PP
-.Vb 5
-\&  $ua\->patch(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub {
-\&    my ($ua, $tx) = @_;
-\&    say $tx\->result\->body;
-\&  });
+.Vb 2
+\&  $ua\->patch(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub ($ua, $tx) { say $tx\->result\->body });
 \&  Mojo::IOLoop\->start unless Mojo::IOLoop\->is_running;
 .Ve
 .SS "patch_p"
@@ -711,39 +622,31 @@ implied). You can also append a callback to perform requests non-blocking.
 \&  my $promise = $ua\->patch_p(\*(Aqhttp://example.com\*(Aq);
 .Ve
 .PP
-Same as \*(L"patch\*(R", but performs all requests non-blocking and returns a
-Mojo::Promise object instead of accepting a callback.
+Same as \*(L"patch\*(R", but performs all requests non-blocking and returns a Mojo::Promise object instead of accepting
+a callback.
 .PP
-.Vb 7
-\&  $ua\->patch_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub {
-\&    my $tx = shift;
+.Vb 5
+\&  $ua\->patch_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub ($tx) {
 \&    say $tx\->result\->body;
-\&  })\->catch(sub {
-\&    my $err = shift;
+\&  })\->catch(sub ($err) {
 \&    warn "Connection error: $err";
 \&  })\->wait;
 .Ve
 .SS "post"
 .IX Subsection "post"
-.Vb 6
+.Vb 4
 \&  my $tx = $ua\->post(\*(Aqexample.com\*(Aq);
 \&  my $tx = $ua\->post(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => \*(AqContent!\*(Aq);
-\&  my $tx = $ua\->post(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
-\&  my $tx = $ua\->post(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->post(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->post(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform blocking \f(CW\*(C`POST\*(C'\fR request and return resulting
-Mojo::Transaction::HTTP object, takes the same arguments as
-\&\*(L"tx\*(R" in Mojo::UserAgent::Transactor (except for the \f(CW\*(C`POST\*(C'\fR method, which is
-implied). You can also append a callback to perform requests non-blocking.
+Perform blocking \f(CW\*(C`POST\*(C'\fR request and return resulting Mojo::Transaction::HTTP object, takes the same arguments as
+\&\*(L"tx\*(R" in Mojo::UserAgent::Transactor (except for the \f(CW\*(C`POST\*(C'\fR method, which is implied). You can also append a callback
+to perform requests non-blocking.
 .PP
-.Vb 5
-\&  $ua\->post(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub {
-\&    my ($ua, $tx) = @_;
-\&    say $tx\->result\->body;
-\&  });
+.Vb 2
+\&  $ua\->post(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub ($ua, $tx) { say $tx\->result\->body });
 \&  Mojo::IOLoop\->start unless Mojo::IOLoop\->is_running;
 .Ve
 .SS "post_p"
@@ -752,39 +655,31 @@ implied). You can also append a callback to perform requests non-blocking.
 \&  my $promise = $ua\->post_p(\*(Aqhttp://example.com\*(Aq);
 .Ve
 .PP
-Same as \*(L"post\*(R", but performs all requests non-blocking and returns a
-Mojo::Promise object instead of accepting a callback.
+Same as \*(L"post\*(R", but performs all requests non-blocking and returns a Mojo::Promise object instead of accepting a
+callback.
 .PP
-.Vb 7
-\&  $ua\->post_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub {
-\&    my $tx = shift;
+.Vb 5
+\&  $ua\->post_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub ($tx) {
 \&    say $tx\->result\->body;
-\&  })\->catch(sub {
-\&    my $err = shift;
+\&  })\->catch(sub ($err) {
 \&    warn "Connection error: $err";
 \&  })\->wait;
 .Ve
 .SS "put"
 .IX Subsection "put"
-.Vb 6
+.Vb 4
 \&  my $tx = $ua\->put(\*(Aqexample.com\*(Aq);
 \&  my $tx = $ua\->put(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => \*(AqContent!\*(Aq);
-\&  my $tx = $ua\->put(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
-\&  my $tx = $ua\->put(
-\&    \*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->put(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => form => {a => \*(Aqb\*(Aq});
+\&  my $tx = $ua\->put(\*(Aqhttp://example.com\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform blocking \f(CW\*(C`PUT\*(C'\fR request and return resulting Mojo::Transaction::HTTP
-object, takes the same arguments as \*(L"tx\*(R" in Mojo::UserAgent::Transactor (except
-for the \f(CW\*(C`PUT\*(C'\fR method, which is implied). You can also append a callback to
+Perform blocking \f(CW\*(C`PUT\*(C'\fR request and return resulting Mojo::Transaction::HTTP object, takes the same arguments as
+\&\*(L"tx\*(R" in Mojo::UserAgent::Transactor (except for the \f(CW\*(C`PUT\*(C'\fR method, which is implied). You can also append a callback to
 perform requests non-blocking.
 .PP
-.Vb 5
-\&  $ua\->put(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub {
-\&    my ($ua, $tx) = @_;
-\&    say $tx\->result\->body;
-\&  });
+.Vb 2
+\&  $ua\->put(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq} => sub ($ua, $tx) { say $tx\->result\->body });
 \&  Mojo::IOLoop\->start unless Mojo::IOLoop\->is_running;
 .Ve
 .SS "put_p"
@@ -793,15 +688,13 @@ perform requests non-blocking.
 \&  my $promise = $ua\->put_p(\*(Aqhttp://example.com\*(Aq);
 .Ve
 .PP
-Same as \*(L"put\*(R", but performs all requests non-blocking and returns a
-Mojo::Promise object instead of accepting a callback.
+Same as \*(L"put\*(R", but performs all requests non-blocking and returns a Mojo::Promise object instead of accepting a
+callback.
 .PP
-.Vb 7
-\&  $ua\->put_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub {
-\&    my $tx = shift;
+.Vb 5
+\&  $ua\->put_p(\*(Aqhttp://example.com\*(Aq => json => {a => \*(Aqb\*(Aq})\->then(sub ($tx) {
 \&    say $tx\->result\->body;
-\&  })\->catch(sub {
-\&    my $err = shift;
+\&  })\->catch(sub ($err) {
 \&    warn "Connection error: $err";
 \&  })\->wait;
 .Ve
@@ -811,16 +704,12 @@ Mojo::Promise object instead of accepting a callback.
 \&  my $tx = $ua\->start(Mojo::Transaction::HTTP\->new);
 .Ve
 .PP
-Perform blocking request for a custom Mojo::Transaction::HTTP object, which
-can be prepared manually or with \*(L"build_tx\*(R". You can also append a callback
-to perform requests non-blocking.
+Perform blocking request for a custom Mojo::Transaction::HTTP object, which can be prepared manually or with
+\&\*(L"build_tx\*(R". You can also append a callback to perform requests non-blocking.
 .PP
-.Vb 6
+.Vb 3
 \&  my $tx = $ua\->build_tx(GET => \*(Aqhttp://example.com\*(Aq);
-\&  $ua\->start($tx => sub {
-\&    my ($ua, $tx) = @_;
-\&    say $tx\->result\->body;
-\&  });
+\&  $ua\->start($tx => sub ($ua, $tx) { say $tx\->result\->body });
 \&  Mojo::IOLoop\->start unless Mojo::IOLoop\->is_running;
 .Ve
 .SS "start_p"
@@ -829,43 +718,34 @@ to perform requests non-blocking.
 \&  my $promise = $ua\->start_p(Mojo::Transaction::HTTP\->new);
 .Ve
 .PP
-Same as \*(L"start\*(R", but performs all requests non-blocking and returns a
-Mojo::Promise object instead of accepting a callback.
+Same as \*(L"start\*(R", but performs all requests non-blocking and returns a Mojo::Promise object instead of accepting
+a callback.
 .PP
-.Vb 8
+.Vb 6
 \&  my $tx = $ua\->build_tx(GET => \*(Aqhttp://example.com\*(Aq);
-\&  $ua\->start_p($tx)\->then(sub {
-\&    my $tx = shift;
+\&  $ua\->start_p($tx)\->then(sub ($tx) {
 \&    say $tx\->result\->body;
-\&  })\->catch(sub {
-\&    my $err = shift;
+\&  })\->catch(sub ($err) {
 \&    warn "Connection error: $err";
 \&  })\->wait;
 .Ve
 .SS "websocket"
 .IX Subsection "websocket"
-.Vb 3
+.Vb 2
 \&  $ua\->websocket(\*(Aqws://example.com\*(Aq => sub {...});
-\&  $ua\->websocket(
-\&    \*(Aqws://example.com\*(Aq => {DNT => 1} => [\*(Aqv1.proto\*(Aq] => sub {...});
+\&  $ua\->websocket(\*(Aqws://example.com\*(Aq => {DNT => 1} => [\*(Aqv1.proto\*(Aq] => sub {...});
 .Ve
 .PP
-Open a non-blocking WebSocket connection with transparent handshake, takes the
-same arguments as \*(L"websocket\*(R" in Mojo::UserAgent::Transactor. The callback will
-receive either a Mojo::Transaction::WebSocket or Mojo::Transaction::HTTP
-object, depending on if the handshake was successful.
+Open a non-blocking WebSocket connection with transparent handshake, takes the same arguments as
+\&\*(L"websocket\*(R" in Mojo::UserAgent::Transactor. The callback will receive either a Mojo::Transaction::WebSocket or
+Mojo::Transaction::HTTP object, depending on if the handshake was successful.
 .PP
-.Vb 10
-\&  $ua\->websocket(\*(Aqwss://example.com/echo\*(Aq => [\*(Aqv1.proto\*(Aq] => sub {
-\&    my ($ua, $tx) = @_;
+.Vb 11
+\&  $ua\->websocket(\*(Aqwss://example.com/echo\*(Aq => [\*(Aqv1.proto\*(Aq] => sub ($ua, $tx) {
 \&    say \*(AqWebSocket handshake failed!\*(Aq and return unless $tx\->is_websocket;
 \&    say \*(AqSubprotocol negotiation failed!\*(Aq and return unless $tx\->protocol;
-\&    $tx\->on(finish => sub {
-\&      my ($tx, $code, $reason) = @_;
-\&      say "WebSocket closed with status $code.";
-\&    });
-\&    $tx\->on(message => sub {
-\&      my ($tx, $msg) = @_;
+\&    $tx\->on(finish => sub ($tx, $code, $reason) { say "WebSocket closed with status $code." });
+\&    $tx\->on(message => sub ($tx, $msg) {
 \&      say "WebSocket message: $msg";
 \&      $tx\->finish;
 \&    });
@@ -874,9 +754,8 @@ object, depending on if the handshake was successful.
 \&  Mojo::IOLoop\->start unless Mojo::IOLoop\->is_running;
 .Ve
 .PP
-You can activate \f(CW\*(C`permessage\-deflate\*(C'\fR compression by setting the
-\&\f(CW\*(C`Sec\-WebSocket\-Extensions\*(C'\fR header, this can result in much better performance,
-but also increases memory usage by up to 300KiB per connection.
+You can activate \f(CW\*(C`permessage\-deflate\*(C'\fR compression by setting the \f(CW\*(C`Sec\-WebSocket\-Extensions\*(C'\fR header, this can result
+in much better performance, but also increases memory usage by up to 300KiB per connection.
 .PP
 .Vb 3
 \&  $ua\->websocket(\*(Aqws://example.com/foo\*(Aq => {
@@ -889,30 +768,26 @@ but also increases memory usage by up to 300KiB per connection.
 \&  my $promise = $ua\->websocket_p(\*(Aqws://example.com\*(Aq);
 .Ve
 .PP
-Same as \*(L"websocket\*(R", but returns a Mojo::Promise object instead of
-accepting a callback.
+Same as \*(L"websocket\*(R", but returns a Mojo::Promise object instead of accepting a callback.
 .PP
-.Vb 10
-\&  $ua\->websocket_p(\*(Aqwss://example.com/echo\*(Aq)\->then(sub {
-\&    my $tx = shift;
+.Vb 12
+\&  $ua\->websocket_p(\*(Aqwss://example.com/echo\*(Aq)\->then(sub ($tx) {
 \&    my $promise = Mojo::Promise\->new;
 \&    $tx\->on(finish => sub { $promise\->resolve });
-\&    $tx\->on(message => sub {
-\&      my ($tx, $msg) = @_;
+\&    $tx\->on(message => sub ($tx, $msg) {
 \&      say "WebSocket message: $msg";
 \&      $tx\->finish;
 \&    });
 \&    $tx\->send(\*(AqHi!\*(Aq);
 \&    return $promise;
-\&  })\->catch(sub {
-\&    my $err = shift;
+\&  })\->catch(sub ($err) {
 \&    warn "WebSocket error: $err";
 \&  })\->wait;
 .Ve
 .SH "DEBUGGING"
 .IX Header "DEBUGGING"
-You can set the \f(CW\*(C`MOJO_CLIENT_DEBUG\*(C'\fR environment variable to get some advanced
-diagnostics information printed to \f(CW\*(C`STDERR\*(C'\fR.
+You can set the \f(CW\*(C`MOJO_CLIENT_DEBUG\*(C'\fR environment variable to get some advanced diagnostics information printed to
+\&\f(CW\*(C`STDERR\*(C'\fR.
 .PP
 .Vb 1
 \&  MOJO_CLIENT_DEBUG=1

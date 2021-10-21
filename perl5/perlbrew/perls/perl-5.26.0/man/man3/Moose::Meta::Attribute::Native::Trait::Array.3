@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Moose::Meta::Attribute::Native::Trait::Array 3"
-.TH Moose::Meta::Attribute::Native::Trait::Array 3 "2017-07-12" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Moose::Meta::Attribute::Native::Trait::Array 3 "2021-03-31" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -76,7 +76,7 @@
 Moose::Meta::Attribute::Native::Trait::Array \- Helper trait for ArrayRef attributes
 .SH "VERSION"
 .IX Header "VERSION"
-version 2.2006
+version 2.2015
 .SH "SYNOPSIS"
 .IX Header "SYNOPSIS"
 .Vb 2
@@ -141,11 +141,14 @@ This method does not accept any arguments.
 .IP "\(bu" 4
 \&\fBelements\fR
 .Sp
-Returns all of the elements of the array as an array (not an array reference).
+In list context, returns all of the elements of the array as a list.
 .Sp
-.Vb 2
-\&  my @option = $stuff\->all_options;
-\&  print "@options\en";    # prints "foo bar baz boo"
+In scalar context, returns the number of elements in the array.
+.Sp
+.Vb 3
+\&  my @options = $stuff\->all_options;
+\&  print "@options";    # prints "foo bar baz boo"
+\&  print scalar $stuff\->all_options; # prints 4
 .Ve
 .Sp
 This method does not accept any arguments.
@@ -216,7 +219,7 @@ This method requires a single argument.
 \&\fBfirst_index( sub { ... } )\fR
 .Sp
 This method returns the index of the first matching item in the array, just
-like List::MoreUtils's \f(CW\*(C`first_index\*(C'\fR function. The matching is done with a
+like \*(L"first_index\*(R" in List::SomeUtils. The matching is done with a
 subroutine reference you pass to this method. The subroutine will be called
 against each element in the array until one matches or all elements have been
 checked. Each list element will be available to the sub in \f(CW$_\fR.
@@ -310,8 +313,7 @@ This method does not accept any arguments.
 .IP "\(bu" 4
 \&\fBuniq\fR
 .Sp
-Returns the array with all duplicate elements removed, like \f(CW\*(C`uniq\*(C'\fR from
-List::MoreUtils.
+Returns the array with all duplicate elements removed, like \*(L"uniq\*(R" in List::Util.
 .Sp
 This method does not accept any arguments.
 .IP "\(bu" 4
@@ -377,7 +379,7 @@ This method accepts one or two arguments.
 \&\fBnatatime($n, \f(CB$code\fB)\fR
 .Sp
 This method returns an iterator which, on each call, returns \f(CW$n\fR more items
-from the array, in order, like \f(CW\*(C`natatime\*(C'\fR from List::MoreUtils.
+from the array, in order, like \*(L"natatime\*(R" in List::SomeUtils.
 .Sp
 If you pass a coderef as the second argument, then this code ref will be
 called on each group of \f(CW$n\fR elements in the array until the array is
@@ -397,13 +399,13 @@ See \*(L"\s-1BUGS\*(R"\s0 in Moose for details on reporting bugs.
 .SH "AUTHORS"
 .IX Header "AUTHORS"
 .IP "\(bu" 4
-Stevan Little <stevan.little@iinteractive.com>
+Stevan Little <stevan@cpan.org>
 .IP "\(bu" 4
 Dave Rolsky <autarch@urth.org>
 .IP "\(bu" 4
-Jesse Luehrs <doy@tozt.net>
+Jesse Luehrs <doy@cpan.org>
 .IP "\(bu" 4
-Shawn M Moore <code@sartak.org>
+Shawn M Moore <sartak@cpan.org>
 .IP "\(bu" 4
 יובל קוג'מן (Yuval Kogman) <nothingmuch@woobling.org>
 .IP "\(bu" 4
@@ -411,11 +413,11 @@ Karen Etheridge <ether@cpan.org>
 .IP "\(bu" 4
 Florian Ragwitz <rafl@debian.org>
 .IP "\(bu" 4
-Hans Dieter Pearcey <hdp@weftsoar.net>
+Hans Dieter Pearcey <hdp@cpan.org>
 .IP "\(bu" 4
 Chris Prather <chris@prather.org>
 .IP "\(bu" 4
-Matt S Trout <mst@shadowcat.co.uk>
+Matt S Trout <mstrout@cpan.org>
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
 This software is copyright (c) 2006 by Infinity Interactive, Inc.

@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Server::Morbo::Backend::Poll 3"
-.TH Mojo::Server::Morbo::Backend::Poll 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Server::Morbo::Backend::Poll 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -86,24 +86,21 @@ Mojo::Server::Morbo::Backend::Poll \- Morbo default backend
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Server::Morbo::Backend:Poll is the default backend for
-Mojo::Server::Morbo.
+Mojo::Server::Morbo::Backend::Poll is the default backend for Mojo::Server::Morbo.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojo::Server::Morbo::Backend::Poll inherits all attributes from
-Mojo::Server::Morbo::Backend.
+Mojo::Server::Morbo::Backend::Poll inherits all attributes from Mojo::Server::Morbo::Backend.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Server::Morbo::Backend::Poll inherits all methods from
-Mojo::Server::Morbo::Backend and implements the following new ones.
+Mojo::Server::Morbo::Backend::Poll inherits all methods from Mojo::Server::Morbo::Backend and implements the
+following new ones.
 .SS "modified_files"
 .IX Subsection "modified_files"
 .Vb 1
 \&  my $files = $backend\->modified_files;
 .Ve
 .PP
-Check file size and mtime to determine which files have changed, this is not
-particularly efficient, but very portable.
+Check file size and mtime to determine which files have changed, this is not particularly efficient, but very portable.
 .PP
 .Vb 2
 \&  # All files that have been modified

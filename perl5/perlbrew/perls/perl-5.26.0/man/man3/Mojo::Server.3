@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Server 3"
-.TH Mojo::Server 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Server 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -78,10 +78,9 @@ Mojo::Server \- HTTP/WebSocket server base class
 .IX Header "SYNOPSIS"
 .Vb 2
 \&  package Mojo::Server::MyServer;
-\&  use Mojo::Base \*(AqMojo::Server\*(Aq;
+\&  use Mojo::Base \*(AqMojo::Server\*(Aq, \-signatures;
 \&
-\&  sub run {
-\&    my $self = shift;
+\&  sub run ($self) {
 \&
 \&    # Get a transaction
 \&    my $tx = $self\->build_tx;
@@ -92,28 +91,22 @@ Mojo::Server \- HTTP/WebSocket server base class
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Server is an abstract base class for HTTP/WebSocket servers and server
-interfaces, like Mojo::Server::CGI, Mojo::Server::Daemon,
-Mojo::Server::Hypnotoad, Mojo::Server::Morbo, Mojo::Server::Prefork
-and Mojo::Server::PSGI.
+Mojo::Server is an abstract base class for HTTP/WebSocket servers and server interfaces, like Mojo::Server::CGI,
+Mojo::Server::Daemon, Mojo::Server::Hypnotoad, Mojo::Server::Morbo, Mojo::Server::Prefork and
+Mojo::Server::PSGI.
 .SH "EVENTS"
 .IX Header "EVENTS"
-Mojo::Server inherits all events from Mojo::EventEmitter and can emit the
-following new ones.
+Mojo::Server inherits all events from Mojo::EventEmitter and can emit the following new ones.
 .SS "request"
 .IX Subsection "request"
-.Vb 4
-\&  $server\->on(request => sub {
-\&    my ($server, $tx) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $server\->on(request => sub ($server, $tx) {...});
 .Ve
 .PP
 Emitted when a request is ready and needs to be handled.
 .PP
-.Vb 7
-\&  $server\->on(request => sub {
-\&    my ($server, $tx) = @_;
+.Vb 6
+\&  $server\->on(request => sub ($server, $tx) {
 \&    $tx\->res\->code(200);
 \&    $tx\->res\->headers\->content_type(\*(Aqtext/plain\*(Aq);
 \&    $tx\->res\->body(\*(AqHello World!\*(Aq);
@@ -138,12 +131,21 @@ Application this server handles, defaults to a Mojo::HelloWorld object.
 \&  $server  = $server\->reverse_proxy($bool);
 .Ve
 .PP
-This server operates behind a reverse proxy, defaults to the value of the
-\&\f(CW\*(C`MOJO_REVERSE_PROXY\*(C'\fR environment variable.
+This server operates behind a reverse proxy, defaults to the value of the \f(CW\*(C`MOJO_REVERSE_PROXY\*(C'\fR environment variable
+or true if \*(L"trusted_proxies\*(R" is not empty.
+.SS "trusted_proxies"
+.IX Subsection "trusted_proxies"
+.Vb 2
+\&  my $proxies = $server\->trusted_proxies;
+\&  $server     = $server\->trusted_proxies([\*(Aq10.0.0.0/8\*(Aq, \*(Aq127.0.0.1\*(Aq, \*(Aq172.16.0.0/12\*(Aq, \*(Aq192.168.0.0/16\*(Aq, \*(Aqfc00::/7\*(Aq]);
+.Ve
+.PP
+This server expects requests from trusted reverse proxies, defaults to the value of the \f(CW\*(C`MOJO_TRUSTED_PROXIES\*(C'\fR
+environment variable split on commas with optional whitespace. These proxies should be addresses or networks in \s-1CIDR\s0
+form.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Server inherits all methods from Mojo::EventEmitter and implements
-the following new ones.
+Mojo::Server inherits all methods from Mojo::EventEmitter and implements the following new ones.
 .SS "build_app"
 .IX Subsection "build_app"
 .Vb 3
@@ -169,8 +171,10 @@ Let application build a transaction.
 Daemonize server process.
 .SS "load_app"
 .IX Subsection "load_app"
-.Vb 1
+.Vb 3
 \&  my $app = $server\->load_app(\*(Aq/home/sri/myapp.pl\*(Aq);
+\&  my $app = $server\->load_app(\*(Aq/home/sri/myapp.pl\*(Aq, log => Mojo::Log\->new);
+\&  my $app = $server\->load_app(\*(Aq/home/sri/myapp.pl\*(Aq, {log => Mojo::Log\->new});
 .Ve
 .PP
 Load application from script and assign it to \*(L"app\*(R".
@@ -186,8 +190,7 @@ Load application from script and assign it to \*(L"app\*(R".
 \&  my $server = Mojo::Server\->new({reverse_proxy => 1});
 .Ve
 .PP
-Construct a new Mojo::Server object and subscribe to \*(L"request\*(R" event
-with default request handling.
+Construct a new Mojo::Server object and subscribe to \*(L"request\*(R" event with default request handling.
 .SS "run"
 .IX Subsection "run"
 .Vb 1

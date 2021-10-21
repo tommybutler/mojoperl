@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Types 3"
-.TH Mojolicious::Types 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Types 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -109,6 +109,7 @@ Mojolicious::Types manages \s-1MIME\s0 types for Mojolicious.
 \&  png      \-> image/png
 \&  rss      \-> application/rss+xml
 \&  svg      \-> image/svg+xml
+\&  ttf      \-> font/ttf
 \&  txt      \-> text/plain;charset=UTF\-8
 \&  webm     \-> video/webm
 \&  woff     \-> font/woff
@@ -131,20 +132,16 @@ Mojolicious::Types implements the following attributes.
 \&\s-1MIME\s0 type mapping.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Types inherits all methods from Mojo::Base and implements
-the following new ones.
+Mojolicious::Types inherits all methods from Mojo::Base and implements the following new ones.
 .SS "content_type"
 .IX Subsection "content_type"
 .Vb 1
 \&  $types\->content_type(Mojolicious::Controller\->new, {ext => \*(Aqjson\*(Aq});
 .Ve
 .PP
-Detect \s-1MIME\s0 type for Mojolicious::Controller object unless a \f(CW\*(C`Content\-Type\*(C'\fR
-response header has already been set, defaults to using
-\&\f(CW\*(C`application/octet\-stream\*(C'\fR if no better alternative could be found. Note that
-this method is \fB\s-1EXPERIMENTAL\s0\fR and might change without warning!
-.PP
-These options are currently available:
+Detect \s-1MIME\s0 type for Mojolicious::Controller object unless a \f(CW\*(C`Content\-Type\*(C'\fR response header has already been set,
+defaults to using \f(CW\*(C`application/octet\-stream\*(C'\fR if no better alternative could be found. These options are currently
+available:
 .IP "ext" 2
 .IX Item "ext"
 .Vb 1
@@ -177,8 +174,7 @@ Detect file extensions from \f(CW\*(C`Accept\*(C'\fR header value.
 \&  my $type = $types\->file_type(\*(Aqfoo/bar.png\*(Aq);
 .Ve
 .PP
-Get \s-1MIME\s0 type for file path. Note that this method is \fB\s-1EXPERIMENTAL\s0\fR and might
-change without warning!
+Get \s-1MIME\s0 type for file path.
 .SS "type"
 .IX Subsection "type"
 .Vb 3
@@ -187,8 +183,7 @@ change without warning!
 \&  $types   = $types\->type(json => [\*(Aqapplication/json\*(Aq, \*(Aqtext/x\-json\*(Aq]);
 .Ve
 .PP
-Get or set \s-1MIME\s0 types for file extension, alternatives are only used for
-detection.
+Get or set \s-1MIME\s0 types for file extension, alternatives are only used for detection.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

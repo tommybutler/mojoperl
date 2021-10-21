@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::IOLoop::Client 3"
-.TH Mojo::IOLoop::Client 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::IOLoop::Client 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -81,14 +81,8 @@ Mojo::IOLoop::Client \- Non\-blocking TCP/IP and UNIX domain socket client
 \&
 \&  # Create socket connection
 \&  my $client = Mojo::IOLoop::Client\->new;
-\&  $client\->on(connect => sub {
-\&    my ($client, $handle) = @_;
-\&    ...
-\&  });
-\&  $client\->on(error => sub {
-\&    my ($client, $err) = @_;
-\&    ...
-\&  });
+\&  $client\->on(connect => sub ($client, $handle) {...});
+\&  $client\->on(error => sub ($client, $err) {...});
 \&  $client\->connect(address => \*(Aqexample.com\*(Aq, port => 80);
 \&
 \&  # Start reactor if necessary
@@ -96,29 +90,21 @@ Mojo::IOLoop::Client \- Non\-blocking TCP/IP and UNIX domain socket client
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::IOLoop::Client opens \s-1TCP/IP\s0 and \s-1UNIX\s0 domain socket connections for
-Mojo::IOLoop.
+Mojo::IOLoop::Client opens \s-1TCP/IP\s0 and \s-1UNIX\s0 domain socket connections for Mojo::IOLoop.
 .SH "EVENTS"
 .IX Header "EVENTS"
-Mojo::IOLoop::Client inherits all events from Mojo::EventEmitter and can
-emit the following new ones.
+Mojo::IOLoop::Client inherits all events from Mojo::EventEmitter and can emit the following new ones.
 .SS "connect"
 .IX Subsection "connect"
-.Vb 4
-\&  $client\->on(connect => sub {
-\&    my ($client, $handle) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $client\->on(connect => sub ($client, $handle) {...});
 .Ve
 .PP
 Emitted once the connection is established.
 .SS "error"
 .IX Subsection "error"
-.Vb 4
-\&  $client\->on(error => sub {
-\&    my ($client, $err) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $client\->on(error => sub ($client, $err) {...});
 .Ve
 .PP
 Emitted if an error occurs on the connection, fatal if unhandled.
@@ -132,20 +118,18 @@ Mojo::IOLoop::Client implements the following attributes.
 \&  $client     = $client\->reactor(Mojo::Reactor::Poll\->new);
 .Ve
 .PP
-Low-level event reactor, defaults to the \f(CW\*(C`reactor\*(C'\fR attribute value of the
-global Mojo::IOLoop singleton. Note that this attribute is weakened.
+Low-level event reactor, defaults to the \f(CW\*(C`reactor\*(C'\fR attribute value of the global Mojo::IOLoop singleton. Note that
+this attribute is weakened.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::IOLoop::Client inherits all methods from Mojo::EventEmitter and
-implements the following new ones.
+Mojo::IOLoop::Client inherits all methods from Mojo::EventEmitter and implements the following new ones.
 .SS "can_nnr"
 .IX Subsection "can_nnr"
 .Vb 1
 \&  my $bool = Mojo::IOLoop::Client\->can_nnr;
 .Ve
 .PP
-True if Net::DNS::Native 0.15+ is installed and non-blocking name resolution
-support enabled.
+True if Net::DNS::Native 0.15+ is installed and non-blocking name resolution support enabled.
 .SS "can_socks"
 .IX Subsection "can_socks"
 .Vb 1
@@ -160,9 +144,8 @@ True if IO::Socket::SOCKS 0.64+ is installed and \s-1SOCKS5\s0 support enabled.
 \&  $client\->connect({address => \*(Aq127.0.0.1\*(Aq, port => 3000});
 .Ve
 .PP
-Open a socket connection to a remote host. Note that non-blocking name
-resolution depends on Net::DNS::Native (0.15+), \s-1SOCKS5\s0 support on
-IO::Socket::Socks (0.64), and \s-1TLS\s0 support on IO::Socket::SSL (2.009+).
+Open a socket connection to a remote host. Note that non-blocking name resolution depends on Net::DNS::Native
+(0.15+), \s-1SOCKS5\s0 support on IO::Socket::Socks (0.64), and \s-1TLS\s0 support on IO::Socket::SSL (2.009+).
 .PP
 These options are currently available:
 .IP "address" 2
@@ -179,13 +162,6 @@ Address or host name of the peer to connect to, defaults to \f(CW127.0.0.1\fR.
 .Ve
 .Sp
 Use an already prepared IO::Socket::IP object.
-.IP "local_address" 2
-.IX Item "local_address"
-.Vb 1
-\&  local_address => \*(Aq127.0.0.1\*(Aq
-.Ve
-.Sp
-Local address to bind to.
 .IP "path" 2
 .IX Item "path"
 .Vb 1
@@ -200,6 +176,13 @@ Path of \s-1UNIX\s0 domain socket to connect to.
 .Ve
 .Sp
 Port to connect to, defaults to \f(CW80\fR or \f(CW443\fR with \f(CW\*(C`tls\*(C'\fR option.
+.IP "socket_options" 2
+.IX Item "socket_options"
+.Vb 1
+\&  socket_options => {LocalAddr => \*(Aq127.0.0.1\*(Aq}
+.Ve
+.Sp
+Additional options for IO::Socket::IP when opening new connections.
 .IP "socks_address" 2
 .IX Item "socks_address"
 .Vb 1
@@ -234,8 +217,7 @@ Username to use for \s-1SOCKS5\s0 authentication.
 \&  timeout => 15
 .Ve
 .Sp
-Maximum amount of time in seconds establishing connection may take before
-getting canceled, defaults to \f(CW10\fR.
+Maximum amount of time in seconds establishing connection may take before getting canceled, defaults to \f(CW10\fR.
 .IP "tls" 2
 .IX Item "tls"
 .Vb 1
@@ -264,20 +246,13 @@ Path to the \s-1TLS\s0 certificate file.
 .Ve
 .Sp
 Path to the \s-1TLS\s0 key file.
-.IP "tls_protocols" 2
-.IX Item "tls_protocols"
+.IP "tls_options" 2
+.IX Item "tls_options"
 .Vb 1
-\&  tls_protocols => [\*(Aqfoo\*(Aq, \*(Aqbar\*(Aq]
+\&  tls_options => {SSL_alpn_protocols => [\*(Aqfoo\*(Aq, \*(Aqbar\*(Aq], SSL_verify_mode => 0x00}
 .Ve
 .Sp
-\&\s-1ALPN\s0 protocols to negotiate.
-.IP "tls_verify" 2
-.IX Item "tls_verify"
-.Vb 1
-\&  tls_verify => 0x00
-.Ve
-.Sp
-\&\s-1TLS\s0 verification mode.
+Additional options for IO::Socket::SSL.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

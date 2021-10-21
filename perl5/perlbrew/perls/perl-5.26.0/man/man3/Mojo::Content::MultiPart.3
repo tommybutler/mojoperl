@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Content::MultiPart 3"
-.TH Mojo::Content::MultiPart 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Content::MultiPart 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -85,36 +85,29 @@ Mojo::Content::MultiPart \- HTTP multipart content
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Content::MultiPart is a container for \s-1HTTP\s0 multipart content, based on
-\&\s-1RFC 7230\s0 <http://tools.ietf.org/html/rfc7230>,
-\&\s-1RFC 7231\s0 <http://tools.ietf.org/html/rfc7231> and
-\&\s-1RFC 2388\s0 <http://tools.ietf.org/html/rfc2388>.
+Mojo::Content::MultiPart is a container for \s-1HTTP\s0 multipart content, based on \s-1RFC
+7230\s0 <https://tools.ietf.org/html/rfc7230>, \s-1RFC 7231\s0 <https://tools.ietf.org/html/rfc7231> and \s-1RFC
+2388\s0 <https://tools.ietf.org/html/rfc2388>.
 .SH "EVENTS"
 .IX Header "EVENTS"
-Mojo::Content::Multipart inherits all events from Mojo::Content and can
-emit the following new ones.
+Mojo::Content::MultiPart inherits all events from Mojo::Content and can emit the following new ones.
 .SS "part"
 .IX Subsection "part"
-.Vb 4
-\&  $multi\->on(part => sub {
-\&    my ($multi, $single) = @_;
-\&    ...
-\&  });
+.Vb 1
+\&  $multi\->on(part => sub ($multi, $single) {...});
 .Ve
 .PP
 Emitted when a new Mojo::Content::Single part starts.
 .PP
-.Vb 5
-\&  $multi\->on(part => sub {
-\&    my ($multi, $single) = @_;
+.Vb 4
+\&  $multi\->on(part => sub ($multi, $single) {
 \&    return unless $single\->headers\->content_disposition =~ /name="([^"]+)"/;
 \&    say "Field: $1";
 \&  });
 .Ve
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojo::Content::MultiPart inherits all attributes from Mojo::Content and
-implements the following new ones.
+Mojo::Content::MultiPart inherits all attributes from Mojo::Content and implements the following new ones.
 .SS "parts"
 .IX Subsection "parts"
 .Vb 2
@@ -122,12 +115,10 @@ implements the following new ones.
 \&  $multi    = $multi\->parts([Mojo::Content::Single\->new]);
 .Ve
 .PP
-Content parts embedded in this multipart content, usually
-Mojo::Content::Single objects.
+Content parts embedded in this multipart content, usually Mojo::Content::Single objects.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Content::MultiPart inherits all methods from Mojo::Content and
-implements the following new ones.
+Mojo::Content::MultiPart inherits all methods from Mojo::Content and implements the following new ones.
 .SS "body_contains"
 .IX Subsection "body_contains"
 .Vb 1
@@ -155,17 +146,15 @@ Generate a suitable boundary for content and add it to \f(CW\*(C`Content\-Type\*
 \&  my $clone = $multi\->clone;
 .Ve
 .PP
-Return a new Mojo::Content::MultiPart object cloned from this content if
-possible, otherwise return \f(CW\*(C`undef\*(C'\fR.
+Return a new Mojo::Content::MultiPart object cloned from this content if possible, otherwise return \f(CW\*(C`undef\*(C'\fR.
 .SS "get_body_chunk"
 .IX Subsection "get_body_chunk"
 .Vb 1
 \&  my $bytes = $multi\->get_body_chunk(0);
 .Ve
 .PP
-Get a chunk of content starting from a specific position. Note that it might
-not be possible to get the same chunk twice if content was generated
-dynamically.
+Get a chunk of content starting from a specific position. Note that it might not be possible to get the same chunk
+twice if content was generated dynamically.
 .SS "is_multipart"
 .IX Subsection "is_multipart"
 .Vb 1
@@ -183,8 +172,8 @@ True, this is a Mojo::Content::MultiPart object.
 \&    = Mojo::Content::MultiPart\->new({parts => [Mojo::Content::Single\->new]});
 .Ve
 .PP
-Construct a new Mojo::Content::MultiPart object and subscribe to event
-\&\*(L"read\*(R" in Mojo::Content with default content parser.
+Construct a new Mojo::Content::MultiPart object and subscribe to event \*(L"read\*(R" in Mojo::Content with default content
+parser.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

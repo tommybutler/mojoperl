@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Date 3"
-.TH Mojo::Date 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Date 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -89,10 +89,8 @@ Mojo::Date \- HTTP date
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Date implements \s-1HTTP\s0 date and time functions, based on
-\&\s-1RFC 7230\s0 <http://tools.ietf.org/html/rfc7230>,
-\&\s-1RFC 7231\s0 <http://tools.ietf.org/html/rfc7231> and
-\&\s-1RFC 3339\s0 <http://tools.ietf.org/html/rfc3339>.
+Mojo::Date implements \s-1HTTP\s0 date and time functions, based on \s-1RFC 7230\s0 <https://tools.ietf.org/html/rfc7230>, \s-1RFC
+7231\s0 <https://tools.ietf.org/html/rfc7231> and \s-1RFC 3339\s0 <https://tools.ietf.org/html/rfc3339>.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojo::Date implements the following attributes.
@@ -106,8 +104,7 @@ Mojo::Date implements the following attributes.
 Epoch seconds, defaults to the current time.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Date inherits all methods from Mojo::Base and implements the
-following new ones.
+Mojo::Date inherits all methods from Mojo::Base and implements the following new ones.
 .SS "new"
 .IX Subsection "new"
 .Vb 2
@@ -151,7 +148,7 @@ Parse date.
 \&  my $str = $date\->to_datetime;
 .Ve
 .PP
-Render \s-1RFC 3339\s0 <http://tools.ietf.org/html/rfc3339> date and time.
+Render \s-1RFC 3339\s0 <https://tools.ietf.org/html/rfc3339> date and time.
 .PP
 .Vb 2
 \&  # "1994\-11\-06T08:49:37Z"

@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::DOM::HTML 3"
-.TH Mojo::DOM::HTML 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::DOM::HTML 3 "2021-08-09" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -86,22 +86,19 @@ Mojo::DOM::HTML \- HTML/XML engine
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::DOM::HTML is the \s-1HTML/XML\s0 engine used by Mojo::DOM, based on the
-\&\s-1HTML\s0 Living Standard <https://html.spec.whatwg.org> and the
-Extensible Markup Language (\s-1XML\s0) 1.0 <http://www.w3.org/TR/xml/>.
+Mojo::DOM::HTML is the \s-1HTML/XML\s0 engine used by Mojo::DOM, based on the \s-1HTML\s0 Living
+Standard <https://html.spec.whatwg.org> and the Extensible Markup Language (\s-1XML\s0) 1.0 <https://www.w3.org/TR/xml/>.
 .SH "FUNCTIONS"
 .IX Header "FUNCTIONS"
-Mojo::DOM::HTML implements the following functions, which can be imported
-individually.
+Mojo::DOM::HTML implements the following functions, which can be imported individually.
 .SS "tag_to_html"
 .IX Subsection "tag_to_html"
 .Vb 1
 \&  my $str = tag_to_html \*(Aqdiv\*(Aq, id => \*(Aqfoo\*(Aq, \*(Aqsafe content\*(Aq;
 .Ve
 .PP
-Generate \s-1HTML/XML\s0 tag and render it right away. This is a significantly faster
-alternative to \*(L"tag\*(R" for template systems that have to generate a lot of
-tags.
+Generate \s-1HTML/XML\s0 tag and render it right away. This is a significantly faster alternative to \*(L"tag\*(R" for template
+systems that have to generate a lot of tags.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojo::DOM::HTML implements the following attributes.
@@ -112,8 +109,7 @@ Mojo::DOM::HTML implements the following attributes.
 \&  $html    = $html\->tree([\*(Aqroot\*(Aq]);
 .Ve
 .PP
-Document Object Model. Note that this structure should only be used very
-carefully since it is very dynamic.
+Document Object Model. Note that this structure should only be used very carefully since it is very dynamic.
 .SS "xml"
 .IX Subsection "xml"
 .Vb 2
@@ -121,12 +117,10 @@ carefully since it is very dynamic.
 \&  $html    = $html\->xml($bool);
 .Ve
 .PP
-Disable \s-1HTML\s0 semantics in parser and activate case-sensitivity, defaults to
-auto-detection based on \s-1XML\s0 declarations.
+Disable \s-1HTML\s0 semantics in parser and activate case-sensitivity, defaults to auto-detection based on \s-1XML\s0 declarations.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::DOM::HTML inherits all methods from Mojo::Base and implements the
-following new ones.
+Mojo::DOM::HTML inherits all methods from Mojo::Base and implements the following new ones.
 .SS "parse"
 .IX Subsection "parse"
 .Vb 1

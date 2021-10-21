@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Loader 3"
-.TH Mojo::Loader 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Loader 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -92,9 +92,8 @@ Mojo::Loader \- Load all kinds of things
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Loader is a class loader and plugin framework. Aside from finding
-modules and loading classes, it allows multiple files to be stored in the
-\&\f(CW\*(C`DATA\*(C'\fR section of a class, which can then be accessed individually.
+Mojo::Loader is a class loader and plugin framework. Aside from finding modules and loading classes, it allows
+multiple files to be stored in the \f(CW\*(C`DATA\*(C'\fR section of a class, which can then be accessed individually.
 .PP
 .Vb 1
 \&  package Foo;
@@ -113,14 +112,11 @@ modules and loading classes, it allows multiple files to be stored in the
 \&  third file.
 .Ve
 .PP
-Each file has a header starting with \f(CW\*(C`@@\*(C'\fR, followed by the file name and
-optional instructions for decoding its content. Currently only the Base64
-encoding is supported, which can be quite convenient for the storage of binary
-data.
+Each file has a header starting with \f(CW\*(C`@@\*(C'\fR, followed by the file name and optional instructions for decoding its
+content. Currently only the Base64 encoding is supported, which can be quite convenient for the storage of binary data.
 .SH "FUNCTIONS"
 .IX Header "FUNCTIONS"
-Mojo::Loader implements the following functions, which can be imported
-individually.
+Mojo::Loader implements the following functions, which can be imported individually.
 .SS "data_section"
 .IX Subsection "data_section"
 .Vb 2
@@ -128,8 +124,8 @@ individually.
 \&  my $index = data_section \*(AqFoo::Bar\*(Aq, \*(Aqindex.html\*(Aq;
 .Ve
 .PP
-Extract embedded file from the \f(CW\*(C`DATA\*(C'\fR section of a class, all files will be
-cached once they have been accessed for the first time.
+Extract embedded file from the \f(CW\*(C`DATA\*(C'\fR section of a class, all files will be cached once they have been accessed for
+the first time.
 .PP
 .Vb 2
 \&  # List embedded files
@@ -151,22 +147,30 @@ Check if embedded file from the \f(CW\*(C`DATA\*(C'\fR section of a class was Ba
 Search for packages in a namespace non-recursively.
 .SS "find_modules"
 .IX Subsection "find_modules"
-.Vb 1
+.Vb 2
 \&  my @modules = find_modules \*(AqMyApp::Namespace\*(Aq;
+\&  my @modules = find_modules \*(AqMyApp::Namespace\*(Aq, {recursive => 1};
 .Ve
 .PP
-Search for modules in a namespace non-recursively.
+Search for modules in a namespace.
+.PP
+These options are currently available:
+.IP "recursive" 2
+.IX Item "recursive"
+.Vb 1
+\&  recursive => 1
+.Ve
+.Sp
+Search namespace recursively.
 .SS "load_class"
 .IX Subsection "load_class"
 .Vb 1
 \&  my $e = load_class \*(AqFoo::Bar\*(Aq;
 .Ve
 .PP
-Load a class and catch exceptions, returns a false value if loading was
-successful, a true value if the class was not found, or a Mojo::Exception
-object if loading failed. Note that classes are checked for a \f(CW\*(C`new\*(C'\fR method to
-see if they are already loaded, so trying to load the same class multiple times
-may yield different results.
+Load a class and catch exceptions, returns a false value if loading was successful, a true value if the class was not
+found, or a Mojo::Exception object if loading failed. Note that classes are checked for a \f(CW\*(C`new\*(C'\fR method to see if
+they are already loaded, so trying to load the same class multiple times may yield different results.
 .PP
 .Vb 4
 \&  # Handle exceptions
@@ -174,6 +178,13 @@ may yield different results.
 \&    die ref $e ? "Exception: $e" : \*(AqNot found!\*(Aq;
 \&  }
 .Ve
+.SS "load_classes"
+.IX Subsection "load_classes"
+.Vb 1
+\&  my @classes = load_classes \*(AqFoo::Bar\*(Aq;
+.Ve
+.PP
+Load all classes in a namespace recursively.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

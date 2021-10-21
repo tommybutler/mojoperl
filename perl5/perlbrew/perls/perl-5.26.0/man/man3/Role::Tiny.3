@@ -67,13 +67,13 @@
 .\" ========================================================================
 .\"
 .IX Title "Role::Tiny 3"
-.TH Role::Tiny 3 "2016-11-01" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Role::Tiny 3 "2021-01-24" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
 .nh
 .SH "NAME"
-Role::Tiny \- Roles. Like a nouvelle cuisine portion size slice of Moose.
+Role::Tiny \- Roles: a nouvelle cuisine portion size slice of Moose
 .SH "SYNOPSIS"
 .IX Header "SYNOPSIS"
 .Vb 1
@@ -129,6 +129,23 @@ composition is the other way around, where the class wins. If multiple roles
 are applied in a single call (single with statement), then if any of their
 provided methods clash, an exception is raised unless the class provides
 a method since this conflict indicates a potential problem.
+.SS "\s-1ROLE METHODS\s0"
+.IX Subsection "ROLE METHODS"
+All subs created after importing Role::Tiny will be considered methods to be
+composed. For example:
+.PP
+.Vb 6
+\&    package MyRole;
+\&    use List::Util qw(min);
+\&    sub mysub { }
+\&    use Role::Tiny;
+\&    use List::Util qw(max);
+\&    sub mymethod { }
+.Ve
+.PP
+In this role, \f(CW\*(C`max\*(C'\fR and \f(CW\*(C`mymethod\*(C'\fR will be included when composing MyRole,
+and \f(CW\*(C`min\*(C'\fR and \f(CW\*(C`mysub\*(C'\fR will not. For additional control, namespace::clean
+can be used to exclude undesired subs from roles.
 .SH "IMPORTED SUBROUTINES"
 .IX Header "IMPORTED SUBROUTINES"
 .SS "requires"
@@ -164,7 +181,7 @@ different roles, please refactor your codebase.
 \& before foo => sub { ... };
 .Ve
 .PP
-See \*(L"before method(s) => sub { ... }\*(R" in Class::Method::Modifiers for full
+See \*(L"before method(s) => sub { ... };\*(R" in Class::Method::Modifiers for full
 documentation.
 .PP
 Note that since you are not required to use method modifiers,
@@ -177,7 +194,7 @@ both Class::Method::Modifiers and Role::Tiny.
 \& around foo => sub { ... };
 .Ve
 .PP
-See \*(L"around method(s) => sub { ... }\*(R" in Class::Method::Modifiers for full
+See \*(L"around method(s) => sub { ... };\*(R" in Class::Method::Modifiers for full
 documentation.
 .PP
 Note that since you are not required to use method modifiers,
@@ -190,7 +207,7 @@ both Class::Method::Modifiers and Role::Tiny.
 \& after foo => sub { ... };
 .Ve
 .PP
-See \*(L"after method(s) => sub { ... }\*(R" in Class::Method::Modifiers for full
+See \*(L"after method(s) => sub { ... };\*(R" in Class::Method::Modifiers for full
 documentation.
 .PP
 Note that since you are not required to use method modifiers,
@@ -229,6 +246,13 @@ for your class. However, if \f(CW\*(C`any\*(C'\fR class in your class' inheritan
 hierarchy provides \f(CW\*(C`DOES\*(C'\fR, then Role::Tiny will not override it.
 .SH "METHODS"
 .IX Header "METHODS"
+.SS "make_role"
+.IX Subsection "make_role"
+.Vb 1
+\& Role::Tiny\->make_role(\*(AqSome::Role\*(Aq);
+.Ve
+.PP
+Makes a package into a role, but does not export any subs into it.
 .SS "apply_roles_to_package"
 .IX Subsection "apply_roles_to_package"
 .Vb 3

@@ -1,12 +1,11 @@
 package Moose::Util;
-our $VERSION = '2.2006';
+our $VERSION = '2.2015';
 
 use strict;
 use warnings;
 
 use Module::Runtime 0.014 'use_package_optimistically', 'module_notional_filename';
 use Data::OptList;
-use Params::Util qw( _STRING );
 use Sub::Exporter;
 use Scalar::Util 'blessed';
 use List::Util 1.33 qw(first any all);
@@ -354,13 +353,9 @@ sub _load_user_class {
 
 # XXX - this should be added to Params::Util
 sub _STRINGLIKE0 ($) {
-    return 1 if _STRING( $_[0] );
-    if ( blessed $_[0] ) {
-        return overload::Method( $_[0], q{""} );
-    }
-
-    return 1 if defined $_[0] && $_[0] eq q{};
-
+    return 0 if !defined $_[0];
+    return 1 if !ref $_[0];
+    return 1 if overload::OverloadedStringify($_[0]);
     return 0;
 }
 
@@ -541,7 +536,7 @@ Moose::Util - Utilities for working with Moose classes
 
 =head1 VERSION
 
-version 2.2006
+version 2.2015
 
 =head1 SYNOPSIS
 
@@ -680,7 +675,7 @@ See L<Moose/BUGS> for details on reporting bugs.
 
 =item *
 
-Stevan Little <stevan.little@iinteractive.com>
+Stevan Little <stevan@cpan.org>
 
 =item *
 
@@ -688,11 +683,11 @@ Dave Rolsky <autarch@urth.org>
 
 =item *
 
-Jesse Luehrs <doy@tozt.net>
+Jesse Luehrs <doy@cpan.org>
 
 =item *
 
-Shawn M Moore <code@sartak.org>
+Shawn M Moore <sartak@cpan.org>
 
 =item *
 
@@ -708,7 +703,7 @@ Florian Ragwitz <rafl@debian.org>
 
 =item *
 
-Hans Dieter Pearcey <hdp@weftsoar.net>
+Hans Dieter Pearcey <hdp@cpan.org>
 
 =item *
 
@@ -716,7 +711,7 @@ Chris Prather <chris@prather.org>
 
 =item *
 
-Matt S Trout <mst@shadowcat.co.uk>
+Matt S Trout <mstrout@cpan.org>
 
 =back
 

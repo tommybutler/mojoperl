@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Commands 3"
-.TH Mojolicious::Commands 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Commands 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -80,7 +80,7 @@ Mojolicious::Commands \- Command line interface
 \&  Usage: APPLICATION COMMAND [OPTIONS]
 \&
 \&    mojo version
-\&    mojo generate lite_app
+\&    mojo generate lite\-app
 \&    ./myapp.pl daemon \-m production \-l http://*:8080
 \&    ./myapp.pl get /foo
 \&    ./myapp.pl routes \-v
@@ -97,9 +97,8 @@ Mojolicious::Commands \- Command line interface
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojolicious::Commands is the interactive command line interface for the
-Mojolicious framework. It will automatically detect available commands in
-the \f(CW\*(C`Mojolicious::Command\*(C'\fR and \f(CW\*(C`Mojolicious::Command::Author\*(C'\fR namespaces.
+Mojolicious::Commands is the interactive command line interface for the Mojolicious framework. It will
+automatically detect available commands in the \f(CW\*(C`Mojolicious::Command\*(C'\fR and \f(CW\*(C`Mojolicious::Command::Author\*(C'\fR namespaces.
 .SH "COMMANDS"
 .IX Header "COMMANDS"
 These commands are available by default.
@@ -109,8 +108,7 @@ These commands are available by default.
 \&  $ ./myapp.pl cgi
 .Ve
 .PP
-Use Mojolicious::Command::cgi to start application with \s-1CGI\s0 backend, usually
-auto detected.
+Use Mojolicious::Command::cgi to start application with \s-1CGI\s0 backend, usually auto detected.
 .SS "cpanify"
 .IX Subsection "cpanify"
 .Vb 1
@@ -124,8 +122,7 @@ Use Mojolicious::Command::Author::cpanify for uploading files to \s-1CPAN.\s0
 \&  $ ./myapp.pl daemon
 .Ve
 .PP
-Use Mojolicious::Command::daemon to start application with standalone \s-1HTTP\s0
-and WebSocket server.
+Use Mojolicious::Command::daemon to start application with standalone \s-1HTTP\s0 and WebSocket server.
 .SS "eval"
 .IX Subsection "eval"
 .Vb 1
@@ -155,16 +152,24 @@ List available options for generator command with short descriptions.
 \&  $ mojo generate app <AppName>
 .Ve
 .PP
-Use Mojolicious::Command::Author::generate::app to generate application
-directory structure for a fully functional Mojolicious application.
-.SS "generate lite_app"
-.IX Subsection "generate lite_app"
-.Vb 1
-\&  $ mojo generate lite_app
+Use Mojolicious::Command::Author::generate::app to generate application directory structure for a fully functional
+Mojolicious application.
+.SS "generate dockerfile"
+.IX Subsection "generate dockerfile"
+.Vb 2
+\&  $ ./myapp.pl generate dockerfile
+\&  $ ./script/my_app generate dockerfile
 .Ve
 .PP
-Use Mojolicious::Command::Author::generate::lite_app to generate a fully
-functional Mojolicious::Lite application.
+Use Mojolicious::Command::Author::generate::dockerfile to generate \f(CW\*(C`Dockerfile\*(C'\fR for application.
+.SS "generate lite-app"
+.IX Subsection "generate lite-app"
+.Vb 1
+\&  $ mojo generate lite\-app
+.Ve
+.PP
+Use Mojolicious::Command::Author::generate::lite_app to generate a fully functional Mojolicious::Lite
+application.
 .SS "generate makefile"
 .IX Subsection "generate makefile"
 .Vb 2
@@ -172,16 +177,15 @@ functional Mojolicious::Lite application.
 \&  $ ./myapp.pl generate makefile
 .Ve
 .PP
-Use Mojolicious::Command::Author::generate::makefile to generate
-\&\f(CW\*(C`Makefile.PL\*(C'\fR file for application.
+Use Mojolicious::Command::Author::generate::makefile to generate \f(CW\*(C`Makefile.PL\*(C'\fR file for application.
 .SS "generate plugin"
 .IX Subsection "generate plugin"
 .Vb 1
 \&  $ mojo generate plugin <PluginName>
 .Ve
 .PP
-Use Mojolicious::Command::Author::generate::plugin to generate directory
-structure for a fully functional Mojolicious plugin.
+Use Mojolicious::Command::Author::generate::plugin to generate directory structure for a fully functional
+Mojolicious plugin.
 .SS "get"
 .IX Subsection "get"
 .Vb 2
@@ -189,8 +193,7 @@ structure for a fully functional Mojolicious plugin.
 \&  $ ./myapp.pl get /foo
 .Ve
 .PP
-Use Mojolicious::Command::get to perform requests to remote host or local
-application.
+Use Mojolicious::Command::get to perform requests to remote host or local application.
 .SS "help"
 .IX Subsection "help"
 .Vb 3
@@ -213,24 +216,22 @@ List available options for the command with short descriptions.
 \&  $ ./myapp.pl inflate
 .Ve
 .PP
-Use Mojolicious::Command::Author::inflate to turn templates and static files
-embedded in the \f(CW\*(C`DATA\*(C'\fR sections of your application into real files.
+Use Mojolicious::Command::Author::inflate to turn templates and static files embedded in the \f(CW\*(C`DATA\*(C'\fR sections of
+your application into real files.
 .SS "prefork"
 .IX Subsection "prefork"
 .Vb 1
 \&  $ ./myapp.pl prefork
 .Ve
 .PP
-Use Mojolicious::Command::prefork to start application with standalone
-pre-forking \s-1HTTP\s0 and WebSocket server.
+Use Mojolicious::Command::prefork to start application with standalone pre-forking \s-1HTTP\s0 and WebSocket server.
 .SS "psgi"
 .IX Subsection "psgi"
 .Vb 1
 \&  $ ./myapp.pl psgi
 .Ve
 .PP
-Use Mojolicious::Command::psgi to start application with \s-1PSGI\s0 backend,
-usually auto detected.
+Use Mojolicious::Command::psgi to start application with \s-1PSGI\s0 backend, usually auto detected.
 .SS "routes"
 .IX Subsection "routes"
 .Vb 1
@@ -245,12 +246,11 @@ Use Mojolicious::Command::routes to list application routes.
 \&  $ ./myapp.pl version
 .Ve
 .PP
-Use Mojolicious::Command::version to show version information for available
-core and optional modules, very useful for debugging.
+Use Mojolicious::Command::version to show version information for available core and optional modules, very useful
+for debugging.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojolicious::Commands inherits all attributes from Mojolicious::Command
-and implements the following new ones.
+Mojolicious::Commands inherits all attributes from Mojolicious::Command and implements the following new ones.
 .SS "hint"
 .IX Subsection "hint"
 .Vb 2
@@ -274,8 +274,7 @@ Short usage message shown before listing available commands.
 \&  $commands      = $commands\->namespaces([\*(AqMyApp::Command\*(Aq]);
 .Ve
 .PP
-Namespaces to load commands from, defaults to \f(CW\*(C`Mojolicious::Command::Author\*(C'\fR
-and \f(CW\*(C`Mojolicious::Command\*(C'\fR.
+Namespaces to load commands from, defaults to \f(CW\*(C`Mojolicious::Command::Author\*(C'\fR and \f(CW\*(C`Mojolicious::Command\*(C'\fR.
 .PP
 .Vb 2
 \&  # Add another namespace to load commands from
@@ -283,8 +282,7 @@ and \f(CW\*(C`Mojolicious::Command\*(C'\fR.
 .Ve
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Commands inherits all methods from Mojolicious::Command and
-implements the following new ones.
+Mojolicious::Commands inherits all methods from Mojolicious::Command and implements the following new ones.
 .SS "detect"
 .IX Subsection "detect"
 .Vb 1
@@ -299,8 +297,8 @@ Try to detect environment, or return \f(CW\*(C`undef\*(C'\fR if none could be de
 \&  $commands\->run(@ARGV);
 .Ve
 .PP
-Load and run commands. Automatic deployment environment detection can be
-disabled with the \f(CW\*(C`MOJO_NO_DETECT\*(C'\fR environment variable.
+Load and run commands. Automatic deployment environment detection can be disabled with the \f(CW\*(C`MOJO_NO_DETECT\*(C'\fR
+environment variable.
 .SS "start_app"
 .IX Subsection "start_app"
 .Vb 2
@@ -308,9 +306,8 @@ disabled with the \f(CW\*(C`MOJO_NO_DETECT\*(C'\fR environment variable.
 \&  Mojolicious::Commands\->start_app(MyApp => @ARGV);
 .Ve
 .PP
-Load application from class and start the command line interface for it. Note
-that the options \f(CW\*(C`\-h\*(C'\fR/\f(CW\*(C`\-\-help\*(C'\fR, \f(CW\*(C`\-\-home\*(C'\fR and \f(CW\*(C`\-m\*(C'\fR/\f(CW\*(C`\-\-mode\*(C'\fR, which are
-shared by all commands, will be parsed from \f(CW@ARGV\fR during compile time.
+Load application from class and start the command line interface for it. Note that the options \f(CW\*(C`\-h\*(C'\fR/\f(CW\*(C`\-\-help\*(C'\fR,
+\&\f(CW\*(C`\-\-home\*(C'\fR and \f(CW\*(C`\-m\*(C'\fR/\f(CW\*(C`\-\-mode\*(C'\fR, which are shared by all commands, will be parsed from \f(CW@ARGV\fR during compile time.
 .PP
 .Vb 2
 \&  # Always start daemon for application

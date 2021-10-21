@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "JSON_XS 1"
-.TH JSON_XS 1 "2016-09-23" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH JSON_XS 1 "2018-11-15" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -113,8 +113,8 @@ Read a file in the given format from \s-1STDIN.\s0
 .ie n .IP "eval \- evaluate the given code as (non\-utf\-8) Perl, basically the reverse of ""\-t dump""" 4
 .el .IP "eval \- evaluate the given code as (non\-utf\-8) Perl, basically the reverse of ``\-t dump''" 4
 .IX Item "eval - evaluate the given code as (non-utf-8) Perl, basically the reverse of -t dump"
-.IP "yaml \- \s-1YAML\s0 (avoid at all costs, requires the \s-1YAML\s0 module :)" 4
-.IX Item "yaml - YAML (avoid at all costs, requires the YAML module :)"
+.IP "yaml \- \s-1YAML\s0 format (requires that module to be installed)" 4
+.IX Item "yaml - YAML format (requires that module to be installed)"
 .IP "string \- do not attempt to decode the file data" 4
 .IX Item "string - do not attempt to decode the file data"
 .ie n .IP "none \- nothing is read, creates an ""undef"" scalar \- mainly useful with ""\-e""" 4
@@ -141,6 +141,8 @@ Write the file in the given format to \s-1STDOUT.\s0
 .IX Item "json-utf-32le, json-utf-32be - little endian/big endian utf-32"
 .IP "cbor \- \s-1CBOR\s0 (\s-1RFC 7049,\s0 \s-1CBOR::XS\s0), a kind of binary \s-1JSON\s0" 4
 .IX Item "cbor - CBOR (RFC 7049, CBOR::XS), a kind of binary JSON"
+.IP "cbor-packed \- \s-1CBOR\s0 using extensions to make it smaller" 4
+.IX Item "cbor-packed - CBOR using extensions to make it smaller"
 .IP "storable \- a Storable frozen value in network format" 4
 .IX Item "storable - a Storable frozen value in network format"
 .IP "storable-file \- a Storable file in network format (Storable has two incompatible formats)" 4
@@ -149,8 +151,8 @@ Write the file in the given format to \s-1STDOUT.\s0
 .IX Item "bencode - use Convert::Bencode, if available (used by torrent files, among others)"
 .IP "clzf \- Compress::LZF format" 4
 .IX Item "clzf - Compress::LZF format"
-.IP "yaml \- \s-1YAML\s0" 4
-.IX Item "yaml - YAML"
+.IP "yaml \- \s-1YAML::XS\s0 format" 4
+.IX Item "yaml - YAML::XS format"
 .IP "dump \- Data::Dump" 4
 .IX Item "dump - Data::Dump"
 .IP "dumper \- Data::Dumper" 4

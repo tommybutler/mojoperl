@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Test::Mojo 3"
-.TH Test::Mojo 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Test::Mojo 3 "2021-08-09" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -104,25 +104,36 @@ Test::Mojo \- Testing Mojo
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Test::Mojo is a test user agent based on Mojo::UserAgent, it is usually
-used together with Test::More to test Mojolicious applications. Just run
-your tests with prove.
+Test::Mojo is a test user agent based on Mojo::UserAgent, it is usually used together with Test::More to test
+Mojolicious applications. Just run your tests with prove.
 .PP
 .Vb 2
 \&  $ prove \-l \-v
 \&  $ prove \-l \-v t/foo.t
 .Ve
 .PP
-If it is not already defined, the \f(CW\*(C`MOJO_LOG_LEVEL\*(C'\fR environment variable will
-be set to \f(CW\*(C`debug\*(C'\fR or \f(CW\*(C`fatal\*(C'\fR, depending on the value of the
-\&\f(CW\*(C`HARNESS_IS_VERBOSE\*(C'\fR environment variable. And to make it esier to test
-\&\s-1HTTPS/WSS\s0 web services \*(L"insecure\*(R" in Mojo::UserAgent will be activated by
-default for \*(L"ua\*(R".
+If it is not already defined, the \f(CW\*(C`MOJO_LOG_LEVEL\*(C'\fR environment variable will be set to \f(CW\*(C`trace\*(C'\fR or \f(CW\*(C`fatal\*(C'\fR, depending
+on the value of the \f(CW\*(C`HARNESS_IS_VERBOSE\*(C'\fR environment variable. And to make it esier to test \s-1HTTPS/WSS\s0 web services
+\&\*(L"insecure\*(R" in Mojo::UserAgent will be activated by default for \*(L"ua\*(R".
 .PP
 See Mojolicious::Guides::Testing for more.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Test::Mojo implements the following attributes.
+.SS "handler"
+.IX Subsection "handler"
+.Vb 2
+\&  my $cb = $t\->handler;
+\&  $t     = $t\->handler(sub {...});
+.Ve
+.PP
+A callback to connect Test::Mojo with Test::More.
+.PP
+.Vb 3
+\&  $t\->handler(sub ($name, @args) {
+\&    return Test::More\->can($name)\->(@args);
+\&  });
+.Ve
 .SS "message"
 .IX Subsection "message"
 .Vb 2
@@ -130,12 +141,11 @@ Test::Mojo implements the following attributes.
 \&  $t      = $t\->message([text => $bytes]);
 .Ve
 .PP
-Current WebSocket message represented as an array reference containing the
-frame type and payload.
+Current WebSocket message represented as an array reference containing the frame type and payload.
 .PP
 .Vb 5
 \&  # More specific tests
-\&  use Mojo::JSON \*(Aqdecode_json\*(Aq;
+\&  use Mojo::JSON qw(decode_json);
 \&  my $hash = decode_json $t\->message\->[1];
 \&  is ref $hash, \*(AqHASH\*(Aq, \*(Aqright reference\*(Aq;
 \&  is $hash\->{foo}, \*(Aqbar\*(Aq, \*(Aqright value\*(Aq;
@@ -155,10 +165,9 @@ frame type and payload.
 .PP
 True if the last test was successful.
 .PP
-.Vb 11
+.Vb 10
 \&  # Build custom tests
-\&  my $location_is = sub {
-\&    my ($t, $value, $desc) = @_;
+\&  my $location_is = sub ($t, $value, $desc = \*(Aq\*(Aq) {
 \&    $desc ||= "Location: $value";
 \&    local $Test::Builder::Level = $Test::Builder::Level + 1;
 \&    return $t\->success(is($t\->tx\->res\->headers\->location, $value, $desc));
@@ -175,8 +184,7 @@ True if the last test was successful.
 \&  $t     = $t\->tx(Mojo::Transaction::HTTP\->new);
 .Ve
 .PP
-Current transaction, usually a Mojo::Transaction::HTTP or
-Mojo::Transaction::WebSocket object.
+Current transaction, usually a Mojo::Transaction::HTTP or Mojo::Transaction::WebSocket object.
 .PP
 .Vb 4
 \&  # More specific tests
@@ -209,16 +217,12 @@ User agent used for testing, defaults to a Mojo::UserAgent object.
 \&    \->json_is(\*(Aq/1/content\*(Aq, \*(AqMojo rocks!\*(Aq);
 \&
 \&  # Customize all transactions (including followed redirects)
-\&  $t\->ua\->on(start => sub {
-\&    my ($ua, $tx) = @_;
-\&    $tx\->req\->headers\->accept_language(\*(Aqen\-US\*(Aq);
-\&  });
+\&  $t\->ua\->on(start => sub ($ua, $tx) { $tx\->req\->headers\->accept_language(\*(Aqen\-US\*(Aq) });
 \&  $t\->get_ok(\*(Aq/hello\*(Aq)\->status_is(200)\->content_like(qr/Howdy/);
 .Ve
 .SH "METHODS"
 .IX Header "METHODS"
-Test::Mojo inherits all methods from Mojo::Base and implements the
-following new ones.
+Test::Mojo inherits all methods from Mojo::Base and implements the following new ones.
 .SS "app"
 .IX Subsection "app"
 .Vb 2
@@ -241,16 +245,14 @@ Access application with \*(L"app\*(R" in Mojo::UserAgent::Server.
 \&  is $c\->res\->body, \*(AqFoo!\*(Aq, \*(Aqright content\*(Aq;
 \&
 \&  # Change application behavior
-\&  $t\->app\->hook(before_dispatch => sub {
-\&    my $c = shift;
-\&    $c\->render(text => \*(AqThis request did not reach the router.\*(Aq)
-\&      if $c\->req\->url\->path\->contains(\*(Aq/user\*(Aq);
+\&  $t\->app\->hook(before_dispatch => sub ($c) {
+\&    $c\->render(text => \*(AqThis request did not reach the router.\*(Aq) if $c\->req\->url\->path\->contains(\*(Aq/user\*(Aq);
 \&  });
 \&  $t\->get_ok(\*(Aq/user\*(Aq)\->status_is(200)\->content_like(qr/not reach the router/);
 \&
 \&  # Extract additional information
 \&  my $stash;
-\&  $t\->app\->hook(after_dispatch => sub { $stash = shift\->stash });
+\&  $t\->app\->hook(after_dispatch => sub ($c) { $stash = $c\->stash });
 \&  $t\->get_ok(\*(Aq/hello\*(Aq)\->status_is(200);
 \&  is $stash\->{foo}, \*(Aqbar\*(Aq, \*(Aqright value\*(Aq;
 .Ve
@@ -261,8 +263,8 @@ Access application with \*(L"app\*(R" in Mojo::UserAgent::Server.
 \&  $t = $t\->attr_is(\*(Aqimg.cat\*(Aq, \*(Aqalt\*(Aq, \*(AqGrumpy cat\*(Aq, \*(Aqright alt text\*(Aq);
 .Ve
 .PP
-Checks text content of attribute with \*(L"attr\*(R" in Mojo::DOM at the \s-1CSS\s0 selectors
-first matching \s-1HTML/XML\s0 element for exact match with \*(L"at\*(R" in Mojo::DOM.
+Checks text content of attribute with \*(L"attr\*(R" in Mojo::DOM at the \s-1CSS\s0 selectors first matching \s-1HTML/XML\s0 element for
+exact match with \*(L"at\*(R" in Mojo::DOM.
 .SS "attr_isnt"
 .IX Subsection "attr_isnt"
 .Vb 2
@@ -278,8 +280,8 @@ Opposite of \*(L"attr_is\*(R".
 \&  $t = $t\->attr_like(\*(Aqimg.cat\*(Aq, \*(Aqalt\*(Aq, qr/Grumpy/, \*(Aqright alt text\*(Aq);
 .Ve
 .PP
-Checks text content of attribute with \*(L"attr\*(R" in Mojo::DOM at the \s-1CSS\s0 selectors
-first matching \s-1HTML/XML\s0 element for similar match with \*(L"at\*(R" in Mojo::DOM.
+Checks text content of attribute with \*(L"attr\*(R" in Mojo::DOM at the \s-1CSS\s0 selectors first matching \s-1HTML/XML\s0 element for
+similar match with \*(L"at\*(R" in Mojo::DOM.
 .SS "attr_unlike"
 .IX Subsection "attr_unlike"
 .Vb 2
@@ -295,8 +297,7 @@ Opposite of \*(L"attr_like\*(R".
 \&  $t = $t\->content_is(\*(Aqworking!\*(Aq, \*(Aqright content\*(Aq);
 .Ve
 .PP
-Check response content for exact match after retrieving it from
-\&\*(L"text\*(R" in Mojo::Message.
+Check response content for exact match after retrieving it from \*(L"text\*(R" in Mojo::Message.
 .SS "content_isnt"
 .IX Subsection "content_isnt"
 .Vb 2
@@ -312,8 +313,7 @@ Opposite of \*(L"content_is\*(R".
 \&  $t = $t\->content_like(qr/working!/, \*(Aqright content\*(Aq);
 .Ve
 .PP
-Check response content for similar match after retrieving it from
-\&\*(L"text\*(R" in Mojo::Message.
+Check response content for similar match after retrieving it from \*(L"text\*(R" in Mojo::Message.
 .SS "content_type_is"
 .IX Subsection "content_type_is"
 .Vb 2
@@ -364,8 +364,8 @@ Opposite of \*(L"content_like\*(R".
 \&  $t = $t\->delete_ok(\*(Aq/foo\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform a \f(CW\*(C`DELETE\*(C'\fR request and check for transport errors, takes the same
-arguments as \*(L"delete\*(R" in Mojo::UserAgent, except for the callback.
+Perform a \f(CW\*(C`DELETE\*(C'\fR request and check for transport errors, takes the same arguments as \*(L"delete\*(R" in Mojo::UserAgent,
+except for the callback.
 .SS "element_count_is"
 .IX Subsection "element_count_is"
 .Vb 2
@@ -373,8 +373,7 @@ arguments as \*(L"delete\*(R" in Mojo::UserAgent, except for the callback.
 \&  $t = $t\->element_count_is(\*(Aqhtml body div\*(Aq, 30, \*(Aqthirty elements\*(Aq);
 .Ve
 .PP
-Checks the number of \s-1HTML/XML\s0 elements matched by the \s-1CSS\s0 selector with
-\&\*(L"find\*(R" in Mojo::DOM.
+Checks the number of \s-1HTML/XML\s0 elements matched by the \s-1CSS\s0 selector with \*(L"find\*(R" in Mojo::DOM.
 .SS "element_exists"
 .IX Subsection "element_exists"
 .Vb 2
@@ -382,8 +381,7 @@ Checks the number of \s-1HTML/XML\s0 elements matched by the \s-1CSS\s0 selector
 \&  $t = $t\->element_exists(\*(Aqhtml head title\*(Aq, \*(Aqhas a title\*(Aq);
 .Ve
 .PP
-Checks for existence of the \s-1CSS\s0 selectors first matching \s-1HTML/XML\s0 element with
-\&\*(L"at\*(R" in Mojo::DOM.
+Checks for existence of the \s-1CSS\s0 selectors first matching \s-1HTML/XML\s0 element with \*(L"at\*(R" in Mojo::DOM.
 .PP
 .Vb 7
 \&  # Check attribute values
@@ -428,12 +426,12 @@ Wait for WebSocket connection to be closed gracefully and check status.
 \&  $t = $t\->get_ok(\*(Aq/foo\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform a \f(CW\*(C`GET\*(C'\fR request and check for transport errors, takes the same
-arguments as \*(L"get\*(R" in Mojo::UserAgent, except for the callback.
+Perform a \f(CW\*(C`GET\*(C'\fR request and check for transport errors, takes the same arguments as \*(L"get\*(R" in Mojo::UserAgent, except
+for the callback.
 .PP
 .Vb 2
 \&  # Run tests against remote host
-\&  $t\->get_ok(\*(Aqhttps://mojolicious.org/perldoc\*(Aq)\->status_is(200);
+\&  $t\->get_ok(\*(Aqhttps://docs.mojolicious.org\*(Aq)\->status_is(200);
 \&
 \&  # Use relative URL for request with Basic authentication
 \&  $t\->get_ok(\*(Aq//sri:secr3t@/secrets.json\*(Aq)
@@ -454,8 +452,8 @@ arguments as \*(L"get\*(R" in Mojo::UserAgent, except for the callback.
 \&  $t = $t\->head_ok(\*(Aq/foo\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform a \f(CW\*(C`HEAD\*(C'\fR request and check for transport errors, takes the same
-arguments as \*(L"head\*(R" in Mojo::UserAgent, except for the callback.
+Perform a \f(CW\*(C`HEAD\*(C'\fR request and check for transport errors, takes the same arguments as \*(L"head\*(R" in Mojo::UserAgent, except
+for the callback.
 .SS "header_exists"
 .IX Subsection "header_exists"
 .Vb 2
@@ -511,8 +509,8 @@ Opposite of \*(L"header_like\*(R".
 \&  $t = $t\->json_has(\*(Aq/minibar\*(Aq, \*(Aqhas a minibar\*(Aq);
 .Ve
 .PP
-Check if \s-1JSON\s0 response contains a value that can be identified using the given
-\&\s-1JSON\s0 Pointer with Mojo::JSON::Pointer.
+Check if \s-1JSON\s0 response contains a value that can be identified using the given \s-1JSON\s0 Pointer with
+Mojo::JSON::Pointer.
 .SS "json_hasnt"
 .IX Subsection "json_hasnt"
 .Vb 2
@@ -529,8 +527,13 @@ Opposite of \*(L"json_has\*(R".
 \&  $t = $t\->json_is(\*(Aq/foo/1\*(Aq => 2, \*(Aqright value\*(Aq);
 .Ve
 .PP
-Check the value extracted from \s-1JSON\s0 response using the given \s-1JSON\s0 Pointer with
-Mojo::JSON::Pointer, which defaults to the root value if it is omitted.
+Check the value extracted from \s-1JSON\s0 response using the given \s-1JSON\s0 Pointer with Mojo::JSON::Pointer, which defaults
+to the root value if it is omitted.
+.PP
+.Vb 2
+\&  # Use an empty JSON Pointer to test the whole JSON response with a test description
+\&  $t\->json_is(\*(Aq\*(Aq => {foo => [1, 2, 3]}, \*(Aqright object\*(Aq);
+.Ve
 .SS "json_like"
 .IX Subsection "json_like"
 .Vb 2
@@ -538,8 +541,8 @@ Mojo::JSON::Pointer, which defaults to the root value if it is omitted.
 \&  $t = $t\->json_like(\*(Aq/foo/1\*(Aq => qr/^\ed+$/, \*(Aqright value\*(Aq);
 .Ve
 .PP
-Check the value extracted from \s-1JSON\s0 response using the given \s-1JSON\s0 Pointer with
-Mojo::JSON::Pointer for similar match.
+Check the value extracted from \s-1JSON\s0 response using the given \s-1JSON\s0 Pointer with Mojo::JSON::Pointer for similar
+match.
 .SS "json_message_has"
 .IX Subsection "json_message_has"
 .Vb 2
@@ -547,8 +550,8 @@ Mojo::JSON::Pointer for similar match.
 \&  $t = $t\->json_message_has(\*(Aq/minibar\*(Aq, \*(Aqhas a minibar\*(Aq);
 .Ve
 .PP
-Check if \s-1JSON\s0 WebSocket message contains a value that can be identified using
-the given \s-1JSON\s0 Pointer with Mojo::JSON::Pointer.
+Check if \s-1JSON\s0 WebSocket message contains a value that can be identified using the given \s-1JSON\s0 Pointer with
+Mojo::JSON::Pointer.
 .SS "json_message_hasnt"
 .IX Subsection "json_message_hasnt"
 .Vb 2
@@ -565,9 +568,8 @@ Opposite of \*(L"json_message_has\*(R".
 \&  $t = $t\->json_message_is(\*(Aq/foo/1\*(Aq => 2, \*(Aqright value\*(Aq);
 .Ve
 .PP
-Check the value extracted from \s-1JSON\s0 WebSocket message using the given \s-1JSON\s0
-Pointer with Mojo::JSON::Pointer, which defaults to the root value if it is
-omitted.
+Check the value extracted from \s-1JSON\s0 WebSocket message using the given \s-1JSON\s0 Pointer with Mojo::JSON::Pointer, which
+defaults to the root value if it is omitted.
 .SS "json_message_like"
 .IX Subsection "json_message_like"
 .Vb 2
@@ -575,8 +577,8 @@ omitted.
 \&  $t = $t\->json_message_like(\*(Aq/foo/1\*(Aq => qr/^\ed+$/, \*(Aqright value\*(Aq);
 .Ve
 .PP
-Check the value extracted from \s-1JSON\s0 WebSocket message using the given \s-1JSON\s0
-Pointer with Mojo::JSON::Pointer for similar match.
+Check the value extracted from \s-1JSON\s0 WebSocket message using the given \s-1JSON\s0 Pointer with Mojo::JSON::Pointer for
+similar match.
 .SS "json_message_unlike"
 .IX Subsection "json_message_unlike"
 .Vb 2
@@ -662,17 +664,15 @@ Opposite of \*(L"message_like\*(R".
 \&  my $t = Test::Mojo\->new(MyApp\->new, {foo => \*(Aqbar\*(Aq});
 .Ve
 .PP
-Construct a new Test::Mojo object. In addition to a class name or
-Mojo::File object pointing to the application script, you can pass along a
-hash reference with configuration values that will be used to override the
-application configuration. The special configuration value \f(CW\*(C`config_override\*(C'\fR
-will be set in \*(L"config\*(R" in Mojolicious as well, which is used to disable
-configuration plugins like Mojolicious::Plugin::Config and
-Mojolicious::Plugin::JSONConfig for tests.
+Construct a new Test::Mojo object. In addition to a class name or Mojo::File object pointing to the application
+script, you can pass along a hash reference with configuration values that will be used to override the application
+configuration. The special configuration value \f(CW\*(C`config_override\*(C'\fR will be set in \*(L"config\*(R" in Mojolicious as well, which
+is used to disable configuration plugins like Mojolicious::Plugin::Config, Mojolicious::Plugin::JSONConfig and
+Mojolicious::Plugin::NotYAMLConfig for tests.
 .PP
 .Vb 3
 \&  # Load application script relative to the "t" directory
-\&  use Mojo::File \*(Aqcurfile\*(Aq;
+\&  use Mojo::File qw(curfile);
 \&  my $t = Test::Mojo\->new(curfile\->dirname\->sibling(\*(Aqmyapp.pl\*(Aq));
 .Ve
 .SS "options_ok"
@@ -685,8 +685,8 @@ Mojolicious::Plugin::JSONConfig for tests.
 \&  $t = $t\->options_ok(\*(Aq/foo\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform a \f(CW\*(C`OPTIONS\*(C'\fR request and check for transport errors, takes the same
-arguments as \*(L"options\*(R" in Mojo::UserAgent, except for the callback.
+Perform a \f(CW\*(C`OPTIONS\*(C'\fR request and check for transport errors, takes the same arguments as \*(L"options\*(R" in Mojo::UserAgent,
+except for the callback.
 .SS "or"
 .IX Subsection "or"
 .Vb 1
@@ -710,8 +710,8 @@ Execute callback if the value of \*(L"success\*(R" is false.
 \&  $t = $t\->patch_ok(\*(Aq/foo\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform a \f(CW\*(C`PATCH\*(C'\fR request and check for transport errors, takes the same
-arguments as \*(L"patch\*(R" in Mojo::UserAgent, except for the callback.
+Perform a \f(CW\*(C`PATCH\*(C'\fR request and check for transport errors, takes the same arguments as \*(L"patch\*(R" in Mojo::UserAgent,
+except for the callback.
 .SS "post_ok"
 .IX Subsection "post_ok"
 .Vb 5
@@ -722,8 +722,8 @@ arguments as \*(L"patch\*(R" in Mojo::UserAgent, except for the callback.
 \&  $t = $t\->post_ok(\*(Aq/foo\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform a \f(CW\*(C`POST\*(C'\fR request and check for transport errors, takes the same
-arguments as \*(L"post\*(R" in Mojo::UserAgent, except for the callback.
+Perform a \f(CW\*(C`POST\*(C'\fR request and check for transport errors, takes the same arguments as \*(L"post\*(R" in Mojo::UserAgent, except
+for the callback.
 .PP
 .Vb 3
 \&  # Test file upload
@@ -745,8 +745,8 @@ arguments as \*(L"post\*(R" in Mojo::UserAgent, except for the callback.
 \&  $t = $t\->put_ok(\*(Aq/foo\*(Aq => {Accept => \*(Aq*/*\*(Aq} => json => {a => \*(Aqb\*(Aq});
 .Ve
 .PP
-Perform a \f(CW\*(C`PUT\*(C'\fR request and check for transport errors, takes the same
-arguments as \*(L"put\*(R" in Mojo::UserAgent, except for the callback.
+Perform a \f(CW\*(C`PUT\*(C'\fR request and check for transport errors, takes the same arguments as \*(L"put\*(R" in Mojo::UserAgent, except
+for the callback.
 .SS "request_ok"
 .IX Subsection "request_ok"
 .Vb 1
@@ -814,6 +814,14 @@ Check response status for exact match.
 .Ve
 .PP
 Opposite of \*(L"status_is\*(R".
+.SS "test"
+.IX Subsection "test"
+.Vb 1
+\&  $t = $t\->test(\*(Aqis\*(Aq, \*(Aqfirst value\*(Aq, \*(Aqsecond value\*(Aq, \*(Aqright value\*(Aq);
+.Ve
+.PP
+Call Test::More functions through \*(L"handler\*(R", used to implement Test::Mojo roles. The result will be stored in
+\&\*(L"success\*(R".
 .SS "text_is"
 .IX Subsection "text_is"
 .Vb 2
@@ -821,8 +829,7 @@ Opposite of \*(L"status_is\*(R".
 \&  $t = $t\->text_is(\*(Aqhtml head title\*(Aq => \*(AqHello!\*(Aq, \*(Aqright title\*(Aq);
 .Ve
 .PP
-Checks text content of the \s-1CSS\s0 selectors first matching \s-1HTML/XML\s0 element for
-exact match with \*(L"at\*(R" in Mojo::DOM.
+Checks text content of the \s-1CSS\s0 selectors first matching \s-1HTML/XML\s0 element for exact match with \*(L"at\*(R" in Mojo::DOM.
 .SS "text_isnt"
 .IX Subsection "text_isnt"
 .Vb 2
@@ -838,8 +845,7 @@ Opposite of \*(L"text_is\*(R".
 \&  $t = $t\->text_like(\*(Aqhtml head title\*(Aq => qr/Hello/, \*(Aqright title\*(Aq);
 .Ve
 .PP
-Checks text content of the \s-1CSS\s0 selectors first matching \s-1HTML/XML\s0 element for
-similar match with \*(L"at\*(R" in Mojo::DOM.
+Checks text content of the \s-1CSS\s0 selectors first matching \s-1HTML/XML\s0 element for similar match with \*(L"at\*(R" in Mojo::DOM.
 .SS "text_unlike"
 .IX Subsection "text_unlike"
 .Vb 2
@@ -856,8 +862,8 @@ Opposite of \*(L"text_like\*(R".
 \&  $t = $t\->websocket_ok(\*(Aq/echo\*(Aq => {DNT => 1} => [\*(Aqv1.proto\*(Aq]);
 .Ve
 .PP
-Open a WebSocket connection with transparent handshake, takes the same
-arguments as \*(L"websocket\*(R" in Mojo::UserAgent, except for the callback.
+Open a WebSocket connection with transparent handshake, takes the same arguments as \*(L"websocket\*(R" in Mojo::UserAgent,
+except for the callback.
 .PP
 .Vb 6
 \&  # WebSocket with permessage\-deflate compression

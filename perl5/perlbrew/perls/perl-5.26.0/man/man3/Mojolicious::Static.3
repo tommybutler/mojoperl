@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Static 3"
-.TH Mojolicious::Static 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Static 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -85,10 +85,8 @@ Mojolicious::Static \- Serve static files
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojolicious::Static is a static file server with \f(CW\*(C`Range\*(C'\fR,
-\&\f(CW\*(C`If\-Modified\-Since\*(C'\fR and \f(CW\*(C`If\-None\-Match\*(C'\fR support, based on
-\&\s-1RFC 7232\s0 <http://tools.ietf.org/html/rfc7232> and
-\&\s-1RFC 7233\s0 <http://tools.ietf.org/html/rfc7233>.
+Mojolicious::Static is a static file server with \f(CW\*(C`Range\*(C'\fR, \f(CW\*(C`If\-Modified\-Since\*(C'\fR and \f(CW\*(C`If\-None\-Match\*(C'\fR support, based
+on \s-1RFC 7232\s0 <https://tools.ietf.org/html/rfc7232> and \s-1RFC 7233\s0 <https://tools.ietf.org/html/rfc7233>.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
 Mojolicious::Static implements the following attributes.
@@ -99,12 +97,10 @@ Mojolicious::Static implements the following attributes.
 \&  $static     = $static\->classes([\*(Aqmain\*(Aq]);
 .Ve
 .PP
-Classes to use for finding files in \f(CW\*(C`DATA\*(C'\fR sections with Mojo::Loader,
-first one has the highest precedence, defaults to \f(CW\*(C`main\*(C'\fR. Only files with
-exactly one extension will be used, like \f(CW\*(C`index.html\*(C'\fR. Note that for files to
-be detected, these classes need to have already been loaded and added before
-\&\*(L"warmup\*(R" is called, which usually happens automatically during application
-startup.
+Classes to use for finding files in \f(CW\*(C`DATA\*(C'\fR sections with Mojo::Loader, first one has the highest precedence,
+defaults to \f(CW\*(C`main\*(C'\fR. Only files with exactly one extension will be used, like \f(CW\*(C`index.html\*(C'\fR. Note that for files to be
+detected, these classes need to have already been loaded and added before \*(L"warmup\*(R" is called, which usually happens
+automatically during application startup.
 .PP
 .Vb 2
 \&  # Add another class with static files in DATA section
@@ -120,9 +116,8 @@ startup.
 \&  $static   = $static\->extra({\*(Aqfoo/bar.txt\*(Aq => \*(Aq/home/sri/myapp/bar.txt\*(Aq});
 .Ve
 .PP
-Paths for extra files to be served from locations other than \*(L"paths\*(R", such
-as the images used by the built-in exception and not found pages. Note that
-extra files are only served if no better alternative could be found in
+Paths for extra files to be served from locations other than \*(L"paths\*(R", such as the images used by the built-in
+exception and not found pages. Note that extra files are only served if no better alternative could be found in
 \&\*(L"paths\*(R" and \*(L"classes\*(R".
 .PP
 .Vb 2
@@ -147,8 +142,7 @@ Directories to serve static files from, first one has the highest precedence.
 .Ve
 .SH "METHODS"
 .IX Header "METHODS"
-Mojolicious::Static inherits all methods from Mojo::Base and implements
-the following new ones.
+Mojolicious::Static inherits all methods from Mojo::Base and implements the following new ones.
 .SS "dispatch"
 .IX Subsection "dispatch"
 .Vb 1
@@ -163,9 +157,8 @@ Serve static file for Mojolicious::Controller object.
 \&  my $asset = $static\->file(\*(Aq../lib/MyApp.pm\*(Aq);
 .Ve
 .PP
-Build Mojo::Asset::File or Mojo::Asset::Memory object for a file,
-relative to \*(L"paths\*(R" or from \*(L"classes\*(R", or return \f(CW\*(C`undef\*(C'\fR if it doesn't
-exist. Note that this method uses a relative path, but does not protect from
+Build Mojo::Asset::File or Mojo::Asset::Memory object for a file, relative to \*(L"paths\*(R" or from \*(L"classes\*(R",
+or return \f(CW\*(C`undef\*(C'\fR if it doesn't exist. Note that this method uses a relative path, but does not protect from
 traversing to parent directories.
 .PP
 .Vb 1
@@ -179,9 +172,8 @@ traversing to parent directories.
 \&    Mojolicious::Controller\->new, {etag => \*(AqW/"def"\*(Aq});
 .Ve
 .PP
-Check freshness of request by comparing the \f(CW\*(C`If\-None\-Match\*(C'\fR and
-\&\f(CW\*(C`If\-Modified\-Since\*(C'\fR request headers to the \f(CW\*(C`ETag\*(C'\fR and \f(CW\*(C`Last\-Modified\*(C'\fR
-response headers.
+Check freshness of request by comparing the \f(CW\*(C`If\-None\-Match\*(C'\fR and \f(CW\*(C`If\-Modified\-Since\*(C'\fR request headers to the \f(CW\*(C`ETag\*(C'\fR
+and \f(CW\*(C`Last\-Modified\*(C'\fR response headers.
 .PP
 These options are currently available:
 .IP "etag" 2
@@ -206,17 +198,16 @@ Add \f(CW\*(C`Last\-Modified\*(C'\fR header before comparing.
 \&  my $bool = $static\->serve(Mojolicious::Controller\->new, \*(Aq../lib/MyApp.pm\*(Aq);
 .Ve
 .PP
-Serve a specific file, relative to \*(L"paths\*(R" or from \*(L"classes\*(R". Note that
-this method uses a relative path, but does not protect from traversing to parent
-directories.
+Serve a specific file, relative to \*(L"paths\*(R" or from \*(L"classes\*(R". Note that this method uses a relative path, but
+does not protect from traversing to parent directories.
 .SS "serve_asset"
 .IX Subsection "serve_asset"
 .Vb 1
 \&  $static\->serve_asset(Mojolicious::Controller\->new, Mojo::Asset::File\->new);
 .Ve
 .PP
-Serve a Mojo::Asset::File or Mojo::Asset::Memory object with \f(CW\*(C`Range\*(C'\fR,
-\&\f(CW\*(C`If\-Modified\-Since\*(C'\fR and \f(CW\*(C`If\-None\-Match\*(C'\fR support.
+Serve a Mojo::Asset::File or Mojo::Asset::Memory object with \f(CW\*(C`Range\*(C'\fR, \f(CW\*(C`If\-Modified\-Since\*(C'\fR and \f(CW\*(C`If\-None\-Match\*(C'\fR
+support.
 .SS "warmup"
 .IX Subsection "warmup"
 .Vb 1

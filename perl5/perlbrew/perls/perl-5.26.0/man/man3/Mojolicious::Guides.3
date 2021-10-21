@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojolicious::Guides 3"
-.TH Mojolicious::Guides 3 "2019-11-21" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojolicious::Guides 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -76,73 +76,67 @@
 Mojolicious::Guides \- The Mojolicious Guide to the Galaxy
 .SH "DON'T PANIC!"
 .IX Header "DON'T PANIC!"
-The Mojolicious <https://mojolicious.org> documentation is structured into
-three parts. The \*(L"\s-1TUTORIAL\*(R"\s0 everyone starts with, the \*(L"\s-1GUIDES\*(R"\s0 that
-explain all major features in detail, and the class \*(L"\s-1REFERENCE\*(R"\s0 listing
-all available APIs.
+The Mojolicious <https://mojolicious.org> documentation is structured into three parts. The \*(L"\s-1TUTORIAL\*(R"\s0 everyone
+starts with, the \*(L"\s-1GUIDES\*(R"\s0 that explain all major features in detail, and the \*(L"\s-1API\*(R"\s0 reference listing all
+available classes.
 .PP
-Some parts of the documentation only use the Mojolicious::Lite micro web
-framework for examples, but that's merely a convenience for the reader. Almost
-all features are exactly the same for full Mojolicious applications.
+Some parts of the documentation only use the Mojolicious::Lite micro web framework for examples, but that's merely a
+convenience for the reader. Almost all features are exactly the same for full Mojolicious applications.
 .SH "BASICS"
 .IX Header "BASICS"
-.IP "Learning Perl" 2
-.IX Item "Learning Perl"
-If you are new to Perl, we recommend
-Learn Perl in 2 hours 30 minutes <http://qntm.org/files/perl/perl.html> for a
-quick introduction, or the
-Modern Perl book <https://pragprog.com/book/swperl/modern-perl-fourth-edition>,
-freely available in many formats. Both are excellent introductions to the
-language. For more books and documentation, check out
-learn.perl.org <http://learn.perl.org/>.
-.IP "Learning Web Technologies" 2
-.IX Item "Learning Web Technologies"
-All web development starts with \s-1HTML, CSS\s0 and JavaScript, to learn the basics
-we recommend the
-Mozilla Developer Network <https://developer.mozilla.org/en-US/docs/Web>. And
-if you want to know more about how browsers and web servers actually
-communicate, there's also a very nice introduction to
+.SS "Learning Perl"
+.IX Subsection "Learning Perl"
+If you are new to Perl, we recommend Learn Perl in 2 hours 30 minutes <https://qntm.org/perl_en> for a quick
+introduction, or the Modern Perl book <https://pragprog.com/book/swperl/modern-perl-fourth-edition>, freely available
+in many formats. Both are excellent introductions to the language. For more books and documentation, check out
+learn.perl.org <https://learn.perl.org/>.
+.SS "Learning Web Technologies"
+.IX Subsection "Learning Web Technologies"
+All web development starts with \s-1HTML, CSS\s0 and JavaScript, to learn the basics we recommend the Mozilla Developer
+Network <https://developer.mozilla.org/en-US/docs/Web>. And if you want to know more about how browsers and web servers
+actually communicate, there's also a very nice introduction to
 \&\s-1HTTP\s0 <https://developer.mozilla.org/en-US/docs/Web/HTTP>.
 .SH "CONVENTIONS"
 .IX Header "CONVENTIONS"
-.IP "Modern Perl" 2
-.IX Item "Modern Perl"
-Mojolicious uses a modern subset of Perl exclusively, and therefore all
-documentation assumes that strict, warnings, utf8 and Perl 5.10
-features are enabled, even if examples don't specifically mention it.
-.Sp
+.SS "Modern Perl"
+.IX Subsection "Modern Perl"
+Mojolicious uses a modern subset of Perl exclusively, and therefore all documentation assumes that strict,
+warnings, utf8 and Perl 5.16 features are enabled, even if examples don't specifically mention it.
+.PP
 .Vb 4
 \&  use strict;
 \&  use warnings;
 \&  use utf8;
-\&  use feature \*(Aq:5.10\*(Aq;
+\&  use feature \*(Aq:5.16\*(Aq;
 .Ve
-.Sp
-Some modules, like Mojo::Base and Mojolicious::Lite, will enable them for
-you automatically, whenever they are used.
-.IP "Variable names" 2
-.IX Item "Variable names"
-For brevity and clarity, example variables will reflect the type of data the \s-1API\s0
-uses. For instance, \f(CW$bytes\fR or \f(CW$chars\fR to distinguish whether it is encoded
-bytes or decoded characters in a Perl string, \f(CW$bool\fR if the
-value just indicates true or false, \f(CW$c\fR to denote a Mojolicious::Controller
-object, or \f(CW$app\fR to denote the application object.
+.PP
+Some modules, like Mojo::Base and Mojolicious::Lite, will enable them for you automatically, whenever they are
+used.
+.SS "Signatures"
+.IX Subsection "Signatures"
+On Perl 5.20+ you can also use the \f(CW\*(C`\-signatures\*(C'\fR flag with Mojo::Base to enable support for
+subroutine signatures. Signatures are used in all examples for clarity, even when \f(CW\*(C`\-signatures\*(C'\fR
+is omitted for brevity.
+.SS "Variable names"
+.IX Subsection "Variable names"
+For brevity and clarity, example variables will reflect the type of data the \s-1API\s0 uses. For instance, \f(CW$bytes\fR or
+\&\f(CW$chars\fR to distinguish whether it is encoded bytes or decoded characters in a Perl string, \f(CW$bool\fR if
+the value just indicates true or false, \f(CW$c\fR to denote a Mojolicious::Controller object, or \f(CW$app\fR to denote the
+application object.
 .SH "TUTORIAL"
 .IX Header "TUTORIAL"
 .IP "Mojolicious::Guides::Tutorial" 2
 .IX Item "Mojolicious::Guides::Tutorial"
-A fast and fun way to get started developing web applications with
-Mojolicious. The tutorial introduces the Mojolicious::Lite micro web
-framework, which is only a thin wrapper around the full web framework. The
-simplified notation introduced in the tutorial is commonly used throughout the
-guides and is therefore considered a prerequisite, you should definitely take a
-look!
+A fast and fun way to get started developing web applications with Mojolicious. The tutorial introduces the
+Mojolicious::Lite micro web framework, which is only a thin wrapper around the full web framework. The simplified
+notation introduced in the tutorial is commonly used throughout the guides and is therefore considered a prerequisite,
+you should definitely take a look!
 .SH "GUIDES"
 .IX Header "GUIDES"
 .IP "Mojolicious::Guides::Growing" 2
 .IX Item "Mojolicious::Guides::Growing"
-Starting a Mojolicious::Lite prototype from scratch and growing it into a
-well-structured Mojolicious application.
+Starting a Mojolicious::Lite prototype from scratch and growing it into a well-structured Mojolicious
+application.
 .IP "Mojolicious::Guides::Routing" 2
 .IX Item "Mojolicious::Guides::Routing"
 Simple and fun introduction to the Mojolicious router.
@@ -151,8 +145,7 @@ Simple and fun introduction to the Mojolicious router.
 Generating content with the Mojolicious renderer.
 .IP "Mojolicious::Guides::Testing" 2
 .IX Item "Mojolicious::Guides::Testing"
-Powerful yet elegant testing techniques and tools for Mojolicious and other
-web applications.
+Powerful yet elegant testing techniques and tools for Mojolicious and other web applications.
 .IP "Mojolicious::Guides::Cookbook" 2
 .IX Item "Mojolicious::Guides::Cookbook"
 Cooking with Mojolicious, recipes for every taste.
@@ -164,9 +157,8 @@ Become a part of the ongoing Mojolicious development.
 Answers to the most frequently asked questions.
 .SH "HIGHLIGHTS"
 .IX Header "HIGHLIGHTS"
-Mojolicious and Mojolicious::Lite are the sum of many parts, built on top
-of the Mojo web development toolkit. Small building blocks that can be used
-independently for all kinds of applications, these are the most prominent ones.
+Mojolicious and Mojolicious::Lite are the sum of many parts, built on top of the Mojo web development toolkit.
+Small building blocks that can be used independently for all kinds of applications, these are the most prominent ones.
 .IP "Mojo::UserAgent" 2
 .IX Item "Mojo::UserAgent"
 Full featured non-blocking I/O \s-1HTTP\s0 and WebSocket user agent.
@@ -178,14 +170,12 @@ Very fun and minimalistic \s-1HTML/XML DOM\s0 parser with \s-1CSS\s0 selector su
 Minimalistic \s-1JSON\s0 implementation that just works.
 .IP "Mojo::Server::Daemon" 2
 .IX Item "Mojo::Server::Daemon"
-Full featured, highly portable non-blocking I/O \s-1HTTP\s0 and WebSocket server, with
-self-restart support through Mojo::Server::Morbo, perfect for development
-and testing.
+Full featured, highly portable non-blocking I/O \s-1HTTP\s0 and WebSocket server, with self-restart support through
+Mojo::Server::Morbo, perfect for development and testing.
 .IP "Mojo::Server::Prefork" 2
 .IX Item "Mojo::Server::Prefork"
-Full featured, \s-1UNIX\s0 optimized, preforking non-blocking I/O \s-1HTTP\s0 and WebSocket
-server with support for zero downtime software upgrades (hot deployment)
-through Mojo::Server::Hypnotoad.
+Full featured, \s-1UNIX\s0 optimized, preforking non-blocking I/O \s-1HTTP\s0 and WebSocket server with support for zero downtime
+software upgrades (hot deployment) through Mojo::Server::Hypnotoad.
 .IP "Mojo::Server::CGI, Mojo::Server::PSGI" 2
 .IX Item "Mojo::Server::CGI, Mojo::Server::PSGI"
 Transparent \s-1CGI\s0 and \s-1PSGI\s0 support out of the box.
@@ -201,42 +191,34 @@ Testing toolkit for web applications.
 .IP "ojo" 2
 .IX Item "ojo"
 Fun one-liners using everything above.
-.SH "SPIN-OFFS"
-.IX Header "SPIN-OFFS"
-These modules are not part of the Mojolicious distribution, but have been
-designed to be used with it and are being developed under the same umbrella.
+.SH "FULL-STACK"
+.IX Header "FULL-STACK"
+These modules are not part of the Mojolicious distribution, but have been designed to be used with it and are being
+developed under the same umbrella.
 .IP "Mojo::Pg" 2
 .IX Item "Mojo::Pg"
-A tiny wrapper around DBD::Pg that makes
-PostgreSQL <http://www.postgresql.org> a lot of fun to use with
-Mojolicious. Perform queries blocking and non-blocking, use all
-\&\s-1SQL\s0 features <https://www.postgresql.org/docs/current/static/sql.html>
-PostgreSQL has to offer, generate \s-1CRUD\s0 queries from data structures, manage your
-database schema with migrations and build scalable real-time web applications
-with the publish/subscribe pattern.
+A tiny wrapper around DBD::Pg that makes PostgreSQL <https://www.postgresql.org> a lot of fun to use with
+Mojolicious. Perform queries blocking and non-blocking, use all \s-1SQL\s0
+features <https://www.postgresql.org/docs/current/static/sql.html> PostgreSQL has to offer, generate \s-1CRUD\s0 queries from
+data structures, manage your database schema with migrations and build scalable real-time web applications with the
+publish/subscribe pattern.
 .Sp
-\&\fBExamples:\fR The minimal
-chat <https://github.com/mojolicious/mojo-pg/tree/master/examples/chat.pl>
-application will show you how to scale WebSockets to multiple servers, and the
-well-structured
-blog <https://github.com/mojolicious/mojo-pg/tree/master/examples/blog> 
-application how to apply the \s-1MVC\s0 design pattern in practice.
+\&\fBExamples:\fR The minimal chat <https://github.com/mojolicious/mojo-pg/tree/main/examples/chat.pl> application will
+show you how to scale WebSockets to multiple servers, and the well-structured
+blog <https://github.com/mojolicious/mojo-pg/tree/main/examples/blog>  application how to apply the \s-1MVC\s0 design pattern
+in practice.
 .IP "Minion" 2
 .IX Item "Minion"
-A full featured job queue for Mojolicious with support for multiple backends
-(such as PostgreSQL <http://www.postgresql.org>). Job queues allow you to
-process time and/or computationally intensive tasks in background processes,
-outside of the request/response lifecycle. Among those tasks you'll commonly
-find image resizing, spam filtering, \s-1HTTP\s0 downloads, building tarballs, warming
-caches and basically everything else you can imagine that's not super fast.
+A full featured job queue for Mojolicious with support for multiple backends (such as
+PostgreSQL <https://www.postgresql.org>). Job queues allow you to process time and/or computationally intensive tasks
+in background processes, outside of the request/response lifecycle. Among those tasks you'll commonly find image
+resizing, spam filtering, \s-1HTTP\s0 downloads, building tarballs, warming caches and basically everything else you can
+imagine that's not super fast.
 .Sp
-\&\fBExamples:\fR The
-link
-checker <https://github.com/mojolicious/minion/tree/master/examples/linkcheck>
-will show you how to integrate background jobs into well-structured
-Mojolicious applications.
-.SH "REFERENCE"
-.IX Header "REFERENCE"
+\&\fBExamples:\fR The link checker <https://github.com/mojolicious/minion/tree/main/examples/linkcheck> will show you how to
+integrate background jobs into well-structured Mojolicious applications.
+.SH "API"
+.IX Header "API"
 This is the class hierarchy of the Mojolicious distribution.
 .IP "\(bu" 2
 Mojo
@@ -379,12 +361,6 @@ Mojo::Parameters
 Mojo::Path
 .IP "\(bu" 2
 Mojo::Promise
-.RS 2
-.IP "\(bu" 2
-Mojo::IOLoop::Delay
-.RE
-.RS 2
-.RE
 .IP "\(bu" 2
 Mojo::Server::Hypnotoad
 .IP "\(bu" 2
@@ -435,6 +411,8 @@ Mojolicious::Command::Author::cpanify
 .IP "\(bu" 2
 Mojolicious::Command::Author::generate::app
 .IP "\(bu" 2
+Mojolicious::Command::Author::generate::dockerfile
+.IP "\(bu" 2
 Mojolicious::Command::Author::generate::lite_app
 .IP "\(bu" 2
 Mojolicious::Command::Author::generate::makefile
@@ -463,6 +441,12 @@ Mojolicious::Plugin::Config
 .RS 2
 .IP "\(bu" 2
 Mojolicious::Plugin::JSONConfig
+.RS 2
+.IP "\(bu" 2
+Mojolicious::Plugin::NotYAMLConfig
+.RE
+.RS 2
+.RE
 .RE
 .RS 2
 .RE
@@ -542,12 +526,10 @@ Mojo::WebSocket
 ojo
 .SH "MORE"
 .IX Header "MORE"
-A lot more documentation and examples by many different authors can be found in
-the Mojolicious wiki <http://github.com/mojolicious/mojo/wiki>.
+A lot more documentation and examples by many different authors can be found in the Mojolicious
+wiki <https://github.com/mojolicious/mojo/wiki>.
 .SH "SUPPORT"
 .IX Header "SUPPORT"
-If you have any questions the documentation might not yet answer, don't
-hesitate to ask on the
-mailing list <http://groups.google.com/group/mojolicious> or the official \s-1IRC\s0
-channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.freenode.net\*(C'\fR (chat
-now! <https://kiwiirc.com/nextclient/#irc://irc.freenode.net/mojo?nick=guest-?>).
+If you have any questions the documentation might not yet answer, don't hesitate to ask in the
+Forum <https://forum.mojolicious.org> or the official \s-1IRC\s0 channel \f(CW\*(C`#mojo\*(C'\fR on \f(CW\*(C`irc.libera.chat\*(C'\fR
+(chat now! <https://web.libera.chat/#mojo>).

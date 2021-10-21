@@ -1,8 +1,8 @@
 package Moose::Exception;
-our $VERSION = '2.2006';
+our $VERSION = '2.2015';
 
 use Moose;
-use Devel::StackTrace 1.33;
+use Devel::StackTrace 2.03;
 
 has 'trace' => (
     is            => 'ro',
@@ -36,7 +36,8 @@ sub _build_trace {
     # be weakening all references in its frames)
     my $skip = 0;
     while (my @c = caller(++$skip)) {
-        last if $c[3] =~ /^(.*)::new$/ && $self->isa($1);
+        last if ($c[3] =~ /^(.*)::new$/ || $c[3] =~ /^\S+ (.*)::new \(defined at /)
+            && $self->isa($1);
     }
     $skip++;
 
@@ -91,6 +92,7 @@ sub as_string {
     return $message;
 }
 
+__PACKAGE__->meta->make_immutable;
 1;
 
 # ABSTRACT: Superclass for Moose internal exceptions
@@ -107,7 +109,7 @@ Moose::Exception - Superclass for Moose internal exceptions
 
 =head1 VERSION
 
-version 2.2006
+version 2.2015
 
 =head1 DESCRIPTION
 
@@ -159,7 +161,7 @@ variable is true, these frames are included.
 
 =item *
 
-Stevan Little <stevan.little@iinteractive.com>
+Stevan Little <stevan@cpan.org>
 
 =item *
 
@@ -167,11 +169,11 @@ Dave Rolsky <autarch@urth.org>
 
 =item *
 
-Jesse Luehrs <doy@tozt.net>
+Jesse Luehrs <doy@cpan.org>
 
 =item *
 
-Shawn M Moore <code@sartak.org>
+Shawn M Moore <sartak@cpan.org>
 
 =item *
 
@@ -187,7 +189,7 @@ Florian Ragwitz <rafl@debian.org>
 
 =item *
 
-Hans Dieter Pearcey <hdp@weftsoar.net>
+Hans Dieter Pearcey <hdp@cpan.org>
 
 =item *
 
@@ -195,7 +197,7 @@ Chris Prather <chris@prather.org>
 
 =item *
 
-Matt S Trout <mst@shadowcat.co.uk>
+Matt S Trout <mstrout@cpan.org>
 
 =back
 

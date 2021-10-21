@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Asset::File 3"
-.TH Mojo::Asset::File 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Asset::File 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -98,8 +98,7 @@ Mojo::Asset::File is a file storage backend for \s-1HTTP\s0 content.
 Mojo::Asset::File inherits all events from Mojo::Asset.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojo::Asset::File inherits all attributes from Mojo::Asset and implements
-the following new ones.
+Mojo::Asset::File inherits all attributes from Mojo::Asset and implements the following new ones.
 .SS "cleanup"
 .IX Subsection "cleanup"
 .Vb 2
@@ -115,8 +114,7 @@ Delete \*(L"path\*(R" automatically once the file is not used anymore.
 \&  $file      = $file\->handle(IO::File\->new);
 .Ve
 .PP
-Filehandle, created on demand for \*(L"path\*(R", which can be generated
-automatically and safely based on \*(L"tmpdir\*(R".
+Filehandle, created on demand for \*(L"path\*(R", which can be generated automatically and safely based on \*(L"tmpdir\*(R".
 .SS "path"
 .IX Subsection "path"
 .Vb 2
@@ -132,12 +130,11 @@ File path used to create \*(L"handle\*(R".
 \&  $file      = $file\->tmpdir(\*(Aq/tmp\*(Aq);
 .Ve
 .PP
-Temporary directory used to generate \*(L"path\*(R", defaults to the value of the
-\&\f(CW\*(C`MOJO_TMPDIR\*(C'\fR environment variable or auto-detection.
+Temporary directory used to generate \*(L"path\*(R", defaults to the value of the \f(CW\*(C`MOJO_TMPDIR\*(C'\fR environment variable or
+auto-detection.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Asset::File inherits all methods from Mojo::Asset and implements
-the following new ones.
+Mojo::Asset::File inherits all methods from Mojo::Asset and implements the following new ones.
 .SS "add_chunk"
 .IX Subsection "add_chunk"
 .Vb 1
@@ -159,8 +156,7 @@ Check if asset contains a specific string.
 \&  my $bytes = $file\->get_chunk($offset, $max);
 .Ve
 .PP
-Get chunk of data starting from a specific position, defaults to a maximum
-chunk size of \f(CW131072\fR bytes (128KiB).
+Get chunk of data starting from a specific position, defaults to a maximum chunk size of \f(CW131072\fR bytes (128KiB).
 .SS "is_file"
 .IX Subsection "is_file"
 .Vb 1
@@ -211,8 +207,7 @@ Read all asset data at once.
 \&  $file = $file\->to_file;
 .Ve
 .PP
-Does nothing but return the invocant, since we already have a
-Mojo::Asset::File object.
+Does nothing but return the invocant, since we already have a Mojo::Asset::File object.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 Mojolicious, Mojolicious::Guides, <https://mojolicious.org>.

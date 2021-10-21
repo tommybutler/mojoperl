@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Mojo::Cookie::Response 3"
-.TH Mojo::Cookie::Response 3 "2020-01-14" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Mojo::Cookie::Response 3 "2021-06-30" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -86,12 +86,11 @@ Mojo::Cookie::Response \- HTTP response cookie
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-Mojo::Cookie::Response is a container for \s-1HTTP\s0 response cookies, based on
-\&\s-1RFC 6265\s0 <http://tools.ietf.org/html/rfc6265>.
+Mojo::Cookie::Response is a container for \s-1HTTP\s0 response cookies, based on \s-1RFC
+6265\s0 <https://tools.ietf.org/html/rfc6265>.
 .SH "ATTRIBUTES"
 .IX Header "ATTRIBUTES"
-Mojo::Cookie::Response inherits all attributes from Mojo::Cookie and
-implements the following new ones.
+Mojo::Cookie::Response inherits all attributes from Mojo::Cookie and implements the following new ones.
 .SS "domain"
 .IX Subsection "domain"
 .Vb 2
@@ -115,8 +114,7 @@ Expiration for cookie.
 \&  $cookie  = $cookie\->host_only($bool);
 .Ve
 .PP
-Host-only flag, indicating that the canonicalized request-host is identical to
-the cookie's \*(L"domain\*(R".
+Host-only flag, indicating that the canonicalized request-host is identical to the cookie's \*(L"domain\*(R".
 .SS "httponly"
 .IX Subsection "httponly"
 .Vb 2
@@ -124,8 +122,7 @@ the cookie's \*(L"domain\*(R".
 \&  $cookie  = $cookie\->httponly($bool);
 .Ve
 .PP
-HttpOnly flag, which can prevent client-side scripts from accessing this
-cookie.
+HttpOnly flag, which can prevent client-side scripts from accessing this cookie.
 .SS "max_age"
 .IX Subsection "max_age"
 .Vb 2
@@ -149,10 +146,9 @@ Cookie path.
 \&  $cookie      = $cookie\->samesite(\*(AqLax\*(Aq);
 .Ve
 .PP
-SameSite value. Note that this attribute is \fB\s-1EXPERIMENTAL\s0\fR because even though
-most commonly used browsers support the feature, there is no specification yet
-besides
-this draft <https://tools.ietf.org/html/draft-west-first-party-cookies-07>.
+SameSite value. Note that this attribute is \fB\s-1EXPERIMENTAL\s0\fR because even though most commonly used browsers support the
+feature, there is no specification yet besides this
+draft <https://tools.ietf.org/html/draft-west-first-party-cookies-07>.
 .SS "secure"
 .IX Subsection "secure"
 .Vb 2
@@ -160,12 +156,10 @@ this draft <https://tools.ietf.org/html/draft-west-first-party-cookies-07>.
 \&  $cookie  = $cookie\->secure($bool);
 .Ve
 .PP
-Secure flag, which instructs browsers to only send this cookie over \s-1HTTPS\s0
-connections.
+Secure flag, which instructs browsers to only send this cookie over \s-1HTTPS\s0 connections.
 .SH "METHODS"
 .IX Header "METHODS"
-Mojo::Cookie::Response inherits all methods from Mojo::Cookie and
-implements the following new ones.
+Mojo::Cookie::Response inherits all methods from Mojo::Cookie and implements the following new ones.
 .SS "parse"
 .IX Subsection "parse"
 .Vb 1

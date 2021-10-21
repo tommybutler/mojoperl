@@ -5,7 +5,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '2.02';
+our $VERSION = '2.04';
 
 use Devel::StackTrace::Frame;
 use File::Spec;
@@ -53,12 +53,42 @@ sub _record_caller_data {
             @DB::args = ();
             caller( $x++ );
         }
-        ) {
+    ) {
 
         my @args;
 
-        ## no critic (Variables::ProhibitPackageVars)
-        @args = $self->{no_args} ? () : @DB::args;
+        ## no critic (Variables::ProhibitPackageVars, BuiltinFunctions::ProhibitComplexMappings)
+        unless ( $self->{no_args} ) {
+
+            # This is the same workaroud as was applied to Carp.pm a little
+            # while back
+            # (https://rt.perl.org/Public/Bug/Display.html?id=131046):
+            #
+            #   Guard our serialization of the stack from stack refcounting
+            #   bugs NOTE this is NOT a complete solution, we cannot 100%
+            #   guard against these bugs. However in many cases Perl *is*
+            #   capable of detecting them and throws an error when it
+            #   does. Unfortunately serializing the arguments on the stack is
+            #   a perfect way of finding these bugs, even when they would not
+            #   affect normal program flow that did not poke around inside the
+            #   stack. Inside of Carp.pm it makes little sense reporting these
+            #   bugs, as Carp's job is to report the callers errors, not the
+            #   ones it might happen to tickle while doing so.  See:
+            #   https://rt.perl.org/Public/Bug/Display.html?id=131046 and:
+            #   https://rt.perl.org/Public/Bug/Display.html?id=52610 for more
+            #   details and discussion. - Yves
+            @args = map {
+                my $arg;
+                local $@ = $@;
+                eval {
+                    $arg = $_;
+                    1;
+                } or do {
+                    $arg = '** argument not available anymore **';
+                };
+                $arg;
+            } @DB::args;
+        }
         ## use critic
 
         my $raw = {
@@ -246,18 +276,28 @@ sub frame_count {
     return scalar( $self->frames );
 }
 
+sub message { $_[0]->{message} }
+
 sub as_string {
     my $self = shift;
     my $p    = shift;
 
-    my $st    = q{};
-    my $first = 1;
-    foreach my $f ( $self->frames ) {
-        $st .= $f->as_string( $first, $p ) . "\n";
-        $first = 0;
+    my @frames = $self->frames;
+    if (@frames) {
+        my $st    = q{};
+        my $first = 1;
+        for my $f (@frames) {
+            $st .= $f->as_string( $first, $p ) . "\n";
+            $first = 0;
+        }
+
+        return $st;
     }
 
-    return $st;
+    my $msg = $self->message;
+    return $msg if defined $msg;
+
+    return 'Trace begun';
 }
 
 {
@@ -284,7 +324,7 @@ Devel::StackTrace - An object representing a stack trace
 
 =head1 VERSION
 
-version 2.02
+version 2.04
 
 =head1 SYNOPSIS
 
@@ -498,11 +538,23 @@ The optional C<\%p> parameter only has one option. The C<max_arg_length>
 parameter truncates each subroutine argument's string representation if it is
 longer than this number of characters.
 
+If all the frames in a trace are skipped then this just returns the C<message>
+passed to the constructor or the string C<"Trace begun">.
+
+=head2 $trace->message
+
+Returns the message passed to the constructor. If this wasn't passed then this
+method returns C<undef>.
+
 =head1 SUPPORT
 
-Bugs may be submitted through L<https://github.com/houseabsolute/Devel-StackTrace/issues>.
+Bugs may be submitted at L<https://github.com/houseabsolute/Devel-StackTrace/issues>.
 
 I am also usually active on IRC as 'autarch' on C<irc://irc.perl.org>.
+
+=head1 SOURCE
+
+The source code repository for Devel-StackTrace can be found at L<https://github.com/houseabsolute/Devel-StackTrace>.
 
 =head1 DONATIONS
 
@@ -527,7 +579,7 @@ Dave Rolsky <autarch@urth.org>
 
 =head1 CONTRIBUTORS
 
-=for stopwords Dagfinn Ilmari Mannsåker David Cantrell Graham Knop Ivan Bessarabov Mark Fowler Ricardo Signes
+=for stopwords Dagfinn Ilmari Mannsåker David Cantrell Graham Knop Ivan Bessarabov Mark Fowler Pali Ricardo Signes
 
 =over 4
 
@@ -553,16 +605,23 @@ Mark Fowler <mark@twoshortplanks.com>
 
 =item *
 
+Pali <pali@cpan.org>
+
+=item *
+
 Ricardo Signes <rjbs@cpan.org>
 
 =back
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2000 - 2016 by David Rolsky.
+This software is Copyright (c) 2000 - 2019 by David Rolsky.
 
 This is free software, licensed under:
 
   The Artistic License 2.0 (GPL Compatible)
+
+The full text of the license can be found in the
+F<LICENSE> file included with this distribution.
 
 =cut

@@ -1,5 +1,5 @@
 package Devel::OverloadInfo;
-$Devel::OverloadInfo::VERSION = '0.004';
+$Devel::OverloadInfo::VERSION = '0.007';
 # ABSTRACT: introspect overloaded operators
 
 #pod =head1 DESCRIPTION
@@ -7,7 +7,7 @@ $Devel::OverloadInfo::VERSION = '0.004';
 #pod Devel::OverloadInfo returns information about L<overloaded|overload>
 #pod operators for a given class (or object), including where in the
 #pod inheritance hierarchy the overloads are declared and where the code
-#pod implementing it is.
+#pod implementing them is.
 #pod
 #pod =cut
 
@@ -15,12 +15,35 @@ use strict;
 use warnings;
 use overload ();
 use Scalar::Util qw(blessed);
-use Sub::Identify qw(sub_fullname);
 use Package::Stash 0.14;
 use MRO::Compat;
 
+BEGIN {
+    if (eval { require Sub::Util } && defined &Sub::Util::subname) {
+        *subname = \&Sub::Util::subname;
+    }
+    else {
+        require B;
+        *subname = sub {
+            my ($coderef) = @_;
+            die 'Not a subroutine reference'
+                unless ref $coderef;
+            my $cv = B::svref_2object($coderef);
+            die 'Not a subroutine reference'
+                unless $cv->isa('B::CV');
+            my $gv = $cv->GV;
+            return undef
+                if $gv->isa('B::SPECIAL');
+            my $stash = $gv->STASH;
+            my $package = $stash->isa('B::SPECIAL') ? '__ANON__' : $stash->NAME;
+            return $package . '::' . $gv->NAME;
+        };
+    }
+}
+
+
 use Exporter 5.57 qw(import);
-our @EXPORT_OK = qw(overload_info is_overloaded);
+our @EXPORT_OK = qw(overload_info overload_op_info is_overloaded);
 
 sub stash_with_symbol {
     my ($class, $symbol) = @_;
@@ -60,14 +83,18 @@ sub is_overloaded {
     );
 }
 
-#pod =func overload_info
+#pod =func overload_op_info
 #pod
-#pod     my $info = overload_info($class_or_object);
+#pod     my $info = overload_op_info($class_or_object, $op);
 #pod
-#pod Returns a hash reference with information about all the overloaded
-#pod operators of the argument, which can be either a class name or a blessed
-#pod object. The keys are the overloaded operators, as specified in
-#pod C<%overload::ops> (see L<overload/Overloadable Operations>).
+#pod Returns a hash reference with information about the specified
+#pod overloaded operator of the named class or blessed object.
+#pod
+#pod Returns C<undef> if the operator is not overloaded.
+#pod
+#pod See L<overload/Overloadable Operations> for the available operators.
+#pod
+#pod The keys in the returned hash are as follows:
 #pod
 #pod =over
 #pod
@@ -81,8 +108,7 @@ sub is_overloaded {
 #pod
 #pod =item code_name
 #pod
-#pod The name of the function implementing the overloaded operator, as
-#pod returned by C<sub_fullname> in L<Sub::Identify>.
+#pod The fully qualified name of the function implementing the overloaded operator.
 #pod
 #pod =item method_name (optional)
 #pod
@@ -103,6 +129,52 @@ sub is_overloaded {
 #pod
 #pod =cut
 
+sub overload_op_info {
+    my ($class, $op) = @_;
+    $class = blessed($class) || $class;
+
+    return undef unless is_overloaded($class);
+    my $op_method = $op eq 'fallback' ? "()" : "($op";
+    my ($stash, $func) = stash_with_symbol($class, "&$op_method")
+        or return undef;
+    my $info = {
+        class => $stash->name,
+    };
+    if ($func == \&overload::nil) {
+        # Named method or fallback, stored in the scalar slot
+        if (my $value_ref = $stash->get_symbol("\$$op_method")) {
+            my $value = $$value_ref;
+            if ($op eq 'fallback') {
+                $info->{value} = $value;
+            } else {
+                $info->{method_name} = $value;
+                if (my ($impl_stash, $impl_func) = stash_with_symbol($class, "&$value")) {
+                    $info->{code_class} = $impl_stash->name;
+                    $info->{code} = $impl_func;
+                }
+            }
+        }
+    } else {
+        $info->{code} = $func;
+    }
+    $info->{code_name} = subname($info->{code})
+        if exists $info->{code};
+
+    return $info;
+}
+
+#pod =func overload_info
+#pod
+#pod     my $info = overload_info($class_or_object);
+#pod
+#pod Returns a hash reference with information about all the overloaded
+#pod operators of specified class name or blessed object.  The keys are the
+#pod overloaded operators, as specified in C<%overload::ops> (see
+#pod L<overload/Overloadable Operations>), and the values are the hashes
+#pod returned by L</overload_op_info>.
+#pod
+#pod =cut
+
 sub overload_info {
     my $class = blessed($_[0]) || $_[0];
 
@@ -110,31 +182,9 @@ sub overload_info {
 
     my (%overloaded);
     for my $op (map split(/\s+/), values %overload::ops) {
-        my $op_method = $op eq 'fallback' ? "()" : "($op";
-        my ($stash, $func) = stash_with_symbol($class, "&$op_method")
+        my $info = overload_op_info($class, $op)
             or next;
-        my $info = $overloaded{$op} = {
-            class => $stash->name,
-        };
-        if ($func == \&overload::nil) {
-            # Named method or fallback, stored in the scalar slot
-            if (my $value_ref = $stash->get_symbol("\$$op_method")) {
-                my $value = $$value_ref;
-                if ($op eq 'fallback') {
-                    $info->{value} = $value;
-                } else {
-                    $info->{method_name} = $value;
-                    if (my ($impl_stash, $impl_func) = stash_with_symbol($class, "&$value")) {
-                        $info->{code_class} = $impl_stash->name;
-                        $info->{code} = $impl_func;
-                    }
-                }
-            }
-        } else {
-            $info->{code} = $func;
-        }
-        $info->{code_name} = sub_fullname($info->{code})
-            if exists $info->{code};
+        $overloaded{$op} = $info
     }
     return \%overloaded;
 }
@@ -161,14 +211,14 @@ Devel::OverloadInfo - introspect overloaded operators
 
 =head1 VERSION
 
-version 0.004
+version 0.007
 
 =head1 DESCRIPTION
 
 Devel::OverloadInfo returns information about L<overloaded|overload>
 operators for a given class (or object), including where in the
 inheritance hierarchy the overloads are declared and where the code
-implementing it is.
+implementing them is.
 
 =head1 FUNCTIONS
 
@@ -185,14 +235,18 @@ L<overload::Overloaded()|overload/overload::Overloaded(arg)>, but
 doesn't trigger various bugs associated with it in versions of perl
 before 5.16.
 
-=head2 overload_info
+=head2 overload_op_info
 
-    my $info = overload_info($class_or_object);
+    my $info = overload_op_info($class_or_object, $op);
 
-Returns a hash reference with information about all the overloaded
-operators of the argument, which can be either a class name or a blessed
-object. The keys are the overloaded operators, as specified in
-C<%overload::ops> (see L<overload/Overloadable Operations>).
+Returns a hash reference with information about the specified
+overloaded operator of the named class or blessed object.
+
+Returns C<undef> if the operator is not overloaded.
+
+See L<overload/Overloadable Operations> for the available operators.
+
+The keys in the returned hash are as follows:
 
 =over
 
@@ -206,8 +260,7 @@ A reference to the function implementing the overloaded operator.
 
 =item code_name
 
-The name of the function implementing the overloaded operator, as
-returned by C<sub_fullname> in L<Sub::Identify>.
+The fully qualified name of the function implementing the overloaded operator.
 
 =item method_name (optional)
 
@@ -225,6 +278,16 @@ was found.
 For the special C<fallback> key, the value it was given in C<class>.
 
 =back
+
+=head2 overload_info
+
+    my $info = overload_info($class_or_object);
+
+Returns a hash reference with information about all the overloaded
+operators of specified class name or blessed object.  The keys are the
+overloaded operators, as specified in C<%overload::ops> (see
+L<overload/Overloadable Operations>), and the values are the hashes
+returned by L</overload_op_info>.
 
 =head1 CAVEATS
 

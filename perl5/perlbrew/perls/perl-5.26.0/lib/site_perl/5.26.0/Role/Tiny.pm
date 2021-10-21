@@ -1,13 +1,9 @@
 package Role::Tiny;
-
-sub _getglob { \*{$_[0]} }
-sub _getstash { \%{"$_[0]::"} }
-
 use strict;
 use warnings;
 
-our $VERSION = '2.000005';
-$VERSION = eval $VERSION;
+our $VERSION = '2.002004';
+$VERSION =~ tr/_//d;
 
 our %INFO;
 our %APPLIED_TO;
@@ -19,8 +15,14 @@ our @ON_ROLE_CREATE;
 
 BEGIN {
   *_WORK_AROUND_BROKEN_MODULE_STATE = "$]" < 5.009 ? sub(){1} : sub(){0};
-  *_MRO_MODULE = "$]" < 5.010 ? sub(){"MRO/Compat.pm"} : sub(){"mro.pm"};
+  *_WORK_AROUND_HINT_LEAKAGE
+    = "$]" < 5.011 && !("$]" >= 5.009004 && "$]" < 5.010001)
+      ? sub(){1} : sub(){0};
+  *_CONSTANTS_DEFLATE = "$]" >= 5.012 && "$]" < 5.020 ? sub(){1} : sub(){0};
 }
+
+sub _getglob { no strict 'refs'; \*{$_[0]} }
+sub _getstash { no strict 'refs'; \%{"$_[0]::"} }
 
 sub croak {
   require Carp;
@@ -34,17 +36,46 @@ sub Role::Tiny::__GUARD__::DESTROY {
 }
 
 sub _load_module {
-  (my $proto = $_[0]) =~ s/::/\//g;
-  $proto .= '.pm';
-  return 1 if $INC{$proto};
+  my ($module) = @_;
+  (my $file = "$module.pm") =~ s{::}{/}g;
+  return 1
+    if $INC{$file};
+
   # can't just ->can('can') because a sub-package Foo::Bar::Baz
   # creates a 'Baz::' key in Foo::Bar's symbol table
-  return 1 if grep !/::$/, keys %{_getstash($_[0])||{}};
+  return 1
+    if grep !/::\z/, keys %{_getstash($module)};
   my $guard = _WORK_AROUND_BROKEN_MODULE_STATE
-    && bless([ $proto ], 'Role::Tiny::__GUARD__');
-  require $proto;
+    && bless([ $file ], 'Role::Tiny::__GUARD__');
+  local %^H if _WORK_AROUND_HINT_LEAKAGE;
+  require $file;
   pop @$guard if _WORK_AROUND_BROKEN_MODULE_STATE;
   return 1;
+}
+
+sub _require_module {
+  _load_module($_[1]);
+}
+
+sub _all_subs {
+  my ($me, $package) = @_;
+  my $stash = _getstash($package);
+  return {
+    map {;
+      no strict 'refs';
+      # this is an ugly hack to populate the scalar slot of any globs, to
+      # prevent perl from converting constants back into scalar refs in the
+      # stash when they are used (perl 5.12 - 5.18). scalar slots on their own
+      # aren't detectable through pure perl, so this seems like an acceptable
+      # compromise.
+      ${"${package}::${_}"} = ${"${package}::${_}"}
+        if _CONSTANTS_DEFLATE;
+      $_ => \&{"${package}::${_}"}
+    }
+    grep exists &{"${package}::${_}"},
+    grep !/::\z/,
+    keys %$stash
+  };
 }
 
 sub import {
@@ -52,17 +83,39 @@ sub import {
   my $me = shift;
   strict->import;
   warnings->import;
-  $me->_install_subs($target);
-  return if $me->is_role($target); # already exported into this package
+  my $non_methods = $me->_non_methods($target);
+  $me->_install_subs($target, @_);
+  $me->make_role($target);
+  $me->_mark_new_non_methods($target, $non_methods)
+    if $non_methods && %$non_methods;
+  return;
+}
+
+sub _mark_new_non_methods {
+  my ($me, $target, $old_non_methods) = @_;
+
+  my $non_methods = $INFO{$target}{non_methods};
+
+  my $subs = $me->_all_subs($target);
+  for my $sub (keys %$subs) {
+    if ( exists $old_non_methods->{$sub} && $non_methods->{$sub} != $subs->{$sub} ) {
+      $non_methods->{$sub} = $subs->{$sub};
+    }
+  }
+
+  return;
+}
+
+sub make_role {
+  my ($me, $target) = @_;
+
+  return if $me->is_role($target);
   $INFO{$target}{is_role} = 1;
-  # get symbol table reference
-  my $stash = _getstash($target);
-  # grab all *non-constant* (stash slot is not a scalarref) subs present
-  # in the symbol table and store their refaddrs (no need to forcibly
-  # inflate constant subs into real subs) with a map to the coderefs in
-  # case of copying or re-use
-  my @not_methods = (map { *$_{CODE}||() } grep !ref($_), values %$stash);
-  @{$INFO{$target}{not_methods}={}}{@not_methods} = @not_methods;
+
+  my $non_methods = $me->_all_subs($target);
+  delete @{$non_methods}{grep /\A\(/, keys %$non_methods};
+  $INFO{$target}{non_methods} = $non_methods;
+
   # a role does itself
   $APPLIED_TO{$target} = { $target => undef };
   foreach my $hook (@ON_ROLE_CREATE) {
@@ -73,38 +126,42 @@ sub import {
 sub _install_subs {
   my ($me, $target) = @_;
   return if $me->is_role($target);
-  # install before/after/around subs
-  foreach my $type (qw(before after around)) {
-    *{_getglob "${target}::${type}"} = sub {
-      push @{$INFO{$target}{modifiers}||=[]}, [ $type => @_ ];
+  my %install = $me->_gen_subs($target);
+  *{_getglob("${target}::${_}")} = $install{$_}
+    for sort keys %install;
+  return;
+}
+
+sub _gen_subs {
+  my ($me, $target) = @_;
+  (
+    (map {;
+      my $type = $_;
+      $type => sub {
+        my $code = pop;
+        my @names = ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
+        push @{$INFO{$target}{modifiers}||=[]}, [ $type, @names, $code ];
+        return;
+      };
+    } qw(before after around)),
+    requires => sub {
+      push @{$INFO{$target}{requires}||=[]}, @_;
       return;
-    };
-  }
-  *{_getglob "${target}::requires"} = sub {
-    push @{$INFO{$target}{requires}||=[]}, @_;
-    return;
-  };
-  *{_getglob "${target}::with"} = sub {
-    $me->apply_roles_to_package($target, @_);
-    return;
-  };
+    },
+    with => sub {
+      $me->apply_roles_to_package($target, @_);
+      return;
+    },
+  );
 }
 
 sub role_application_steps {
-  qw(_install_methods _check_requires _install_modifiers _copy_applied_list);
-}
-
-sub apply_single_role_to_package {
-  my ($me, $to, $role) = @_;
-
-  _load_module($role);
-
-  croak "This is apply_role_to_package" if ref($to);
-  croak "${role} is not a Role::Tiny" unless $me->is_role($role);
-
-  foreach my $step ($me->role_application_steps) {
-    $me->$step($to, $role);
-  }
+  qw(
+    _install_methods
+    _check_requires
+    _install_modifiers
+    _copy_applied_list
+  );
 }
 
 sub _copy_applied_list {
@@ -115,7 +172,6 @@ sub _copy_applied_list {
 
 sub apply_roles_to_object {
   my ($me, $object, @roles) = @_;
-  croak "No roles supplied!" unless @roles;
   my $class = ref($object);
   # on perl < 5.8.9, magic isn't copied to all ref copies. bless the parameter
   # directly, so at least the variable passed to us will get any magic applied
@@ -126,9 +182,7 @@ my $role_suffix = 'A000';
 sub _composite_name {
   my ($me, $superclass, @roles) = @_;
 
-  my $new_name = join(
-    '__WITH__', $superclass, my $compose_name = join '__AND__', @roles
-  );
+  my $new_name = $superclass . '__WITH__' . join '__AND__', @roles;
 
   if (length($new_name) > 252) {
     $new_name = $COMPOSED{abbrev}{$new_name} ||= do {
@@ -137,133 +191,125 @@ sub _composite_name {
       $abbrev.'__'.$role_suffix++;
     };
   }
-  return wantarray ? ($new_name, $compose_name) : $new_name;
+  return $new_name;
 }
 
 sub create_class_with_roles {
   my ($me, $superclass, @roles) = @_;
 
-  croak "No roles supplied!" unless @roles;
+  $me->_require_module($superclass);
+  $me->_check_roles(@roles);
 
-  _load_module($superclass);
-  {
-    my %seen;
-    if (my @dupes = grep 1 == $seen{$_}++, @roles) {
-      croak "Duplicated roles: ".join(', ', @dupes);
-    }
-  }
+  my $new_name = $me->_composite_name($superclass, @roles);
 
-  my ($new_name, $compose_name) = $me->_composite_name($superclass, @roles);
+  return $new_name
+    if $COMPOSED{class}{$new_name};
 
-  return $new_name if $COMPOSED{class}{$new_name};
+  return $me->_build_class_with_roles($new_name, $superclass, @roles);
+}
 
-  foreach my $role (@roles) {
-    _load_module($role);
-    croak "${role} is not a Role::Tiny" unless $me->is_role($role);
-  }
+sub _build_class_with_roles {
+  my ($me, $new_name, $superclass, @roles) = @_;
 
-  require(_MRO_MODULE);
-
-  my $composite_info = $me->_composite_info_for(@roles);
-  my %conflicts = %{$composite_info->{conflicts}};
-  if (keys %conflicts) {
-    my $fail =
-      join "\n",
-        map {
-          "Method name conflict for '$_' between roles "
-          ."'".join("' and '", sort values %{$conflicts{$_}})."'"
-          .", cannot apply these simultaneously to an object."
-        } keys %conflicts;
-    croak $fail;
-  }
-
-  my @composable = map $me->_composable_package_for($_), reverse @roles;
-
-  # some methods may not exist in the role, but get generated by
-  # _composable_package_for (Moose accessors via Moo).  filter out anything
-  # provided by the composable packages, excluding the subs we generated to
-  # make modifiers work.
-  my @requires = grep {
-    my $method = $_;
-    !grep $_->can($method) && !$COMPOSED{role}{$_}{modifiers_only}{$method},
-      @composable
-  } @{$composite_info->{requires}};
-
-  $me->_check_requires(
-    $superclass, $compose_name, \@requires
-  );
-
-  *{_getglob("${new_name}::ISA")} = [ @composable, $superclass ];
-
-  @{$APPLIED_TO{$new_name}||={}}{
-    map keys %{$APPLIED_TO{$_}}, @roles
-  } = ();
-
+  $COMPOSED{base}{$new_name} = $superclass;
+  @{*{_getglob("${new_name}::ISA")}} = ( $superclass );
+  $me->apply_roles_to_package($new_name, @roles);
   $COMPOSED{class}{$new_name} = 1;
   return $new_name;
 }
 
-# preserved for compat, and apply_roles_to_package calls it to allow an
-# updated Role::Tiny to use a non-updated Moo::Role
+sub _check_roles {
+  my ($me, @roles) = @_;
+  croak "No roles supplied!" unless @roles;
 
-sub apply_role_to_package { shift->apply_single_role_to_package(@_) }
+  my %seen;
+  if (my @dupes = grep 1 == $seen{$_}++, @roles) {
+    croak "Duplicated roles: ".join(', ', @dupes);
+  }
+
+  foreach my $role (@roles) {
+    $me->_require_module($role);
+    croak "${role} is not a ${me}" unless $me->is_role($role);
+  }
+}
+
+our %BACKCOMPAT_HACK;
+$BACKCOMPAT_HACK{+__PACKAGE__} = 0;
+sub _want_backcompat_hack {
+  my $me = shift;
+  return $BACKCOMPAT_HACK{$me}
+    if exists $BACKCOMPAT_HACK{$me};
+  no warnings 'uninitialized';
+  $BACKCOMPAT_HACK{$me} =
+    $me->can('apply_single_role_to_package') != \&apply_single_role_to_package
+    && $me->can('role_application_steps') == \&role_application_steps
+}
+
+our $IN_APPLY_ROLES;
+sub apply_single_role_to_package {
+  return
+    if $IN_APPLY_ROLES;
+  local $IN_APPLY_ROLES = 1;
+
+  my ($me, $to, $role) = @_;
+  $me->apply_roles_to_package($to, $role);
+}
+
+sub apply_role_to_package {
+  my ($me, $to, $role) = @_;
+  $me->apply_roles_to_package($to, $role);
+}
 
 sub apply_roles_to_package {
   my ($me, $to, @roles) = @_;
+  croak "Can't apply roles to object with apply_roles_to_package"
+    if ref $to;
 
-  return $me->apply_role_to_package($to, $roles[0]) if @roles == 1;
+  $me->_check_roles(@roles);
 
-  my %conflicts = %{$me->_composite_info_for(@roles)->{conflicts}};
-  my @have = grep $to->can($_), keys %conflicts;
-  delete @conflicts{@have};
+  my @have_conflicts;
+  my %role_methods;
 
-  if (keys %conflicts) {
-    my $fail =
-      join "\n",
-        map {
-          "Due to a method name conflict between roles "
-          ."'".join(' and ', sort values %{$conflicts{$_}})."'"
-          .", the method '$_' must be implemented by '${to}'"
-        } keys %conflicts;
-    croak $fail;
+  if (@roles > 1) {
+    my %conflicts = %{$me->_composite_info_for(@roles)->{conflicts}};
+    @have_conflicts = grep $to->can($_), keys %conflicts;
+    delete @conflicts{@have_conflicts};
+
+    if (keys %conflicts) {
+      my $class = $COMPOSED{base}{$to} || $to;
+      my $fail =
+        join "\n",
+          map {
+            "Due to a method name conflict between roles "
+            .join(' and ', map "'$_'", sort values %{$conflicts{$_}})
+            .", the method '$_' must be implemented by '$class'"
+          } sort keys %conflicts;
+      croak $fail;
+    }
+
+    %role_methods = map +($_ => $me->_concrete_methods_of($_)), @roles;
   }
 
-  # conflicting methods are supposed to be treated as required by the
-  # composed role. we don't have an actual composed role, but because
-  # we know the target class already provides them, we can instead
-  # pretend that the roles don't do for the duration of application.
-  my @role_methods = map $me->_concrete_methods_of($_), @roles;
-  # separate loops, since local ..., delete ... for ...; creates a scope
-  local @{$_}{@have} for @role_methods;
-  delete @{$_}{@have} for @role_methods;
-
-  # the if guard here is essential since otherwise we accidentally create
-  # a $INFO for something that isn't a Role::Tiny (or Moo::Role) because
-  # autovivification hates us and wants us to die()
-  if ($INFO{$to}) {
-    delete $INFO{$to}{methods}; # reset since we're about to add methods
-  }
-
-  # backcompat: allow subclasses to use apply_single_role_to_package
-  # to apply changes.  set a local var so ours does nothing.
-  our %BACKCOMPAT_HACK;
-  if($me ne __PACKAGE__
-      and exists $BACKCOMPAT_HACK{$me} ? $BACKCOMPAT_HACK{$me} :
-      $BACKCOMPAT_HACK{$me} =
-        $me->can('role_application_steps')
-          == \&role_application_steps
-        && $me->can('apply_single_role_to_package')
-          != \&apply_single_role_to_package
-  ) {
+  if (!$IN_APPLY_ROLES and _want_backcompat_hack($me)) {
+    local $IN_APPLY_ROLES = 1;
     foreach my $role (@roles) {
       $me->apply_single_role_to_package($to, $role);
     }
   }
-  else {
-    foreach my $step ($me->role_application_steps) {
-      foreach my $role (@roles) {
-        $me->$step($to, $role);
-      }
+
+  my $role_methods;
+  foreach my $step ($me->role_application_steps) {
+    foreach my $role (@roles) {
+      # conflicting methods are supposed to be treated as required by the
+      # composed role. we don't have an actual composed role, but because
+      # we know the target class already provides them, we can instead
+      # pretend that the roles don't do for the duration of application.
+      $role_methods = $role_methods{$role} and (
+        (local @{$role_methods}{@have_conflicts}),
+        (delete @{$role_methods}{@have_conflicts}),
+      );
+
+      $me->$step($to, $role);
     }
   }
   $APPLIED_TO{$to}{join('|',@roles)} = 1;
@@ -272,60 +318,20 @@ sub apply_roles_to_package {
 sub _composite_info_for {
   my ($me, @roles) = @_;
   $COMPOSITE_INFO{join('|', sort @roles)} ||= do {
-    foreach my $role (@roles) {
-      _load_module($role);
-    }
     my %methods;
     foreach my $role (@roles) {
       my $this_methods = $me->_concrete_methods_of($role);
       $methods{$_}{$this_methods->{$_}} = $role for keys %$this_methods;
     }
-    my %requires;
-    @requires{map @{$INFO{$_}{requires}||[]}, @roles} = ();
-    delete $requires{$_} for keys %methods;
     delete $methods{$_} for grep keys(%{$methods{$_}}) == 1, keys %methods;
-    +{ conflicts => \%methods, requires => [keys %requires] }
+    +{ conflicts => \%methods }
   };
-}
-
-sub _composable_package_for {
-  my ($me, $role) = @_;
-  my $composed_name = 'Role::Tiny::_COMPOSABLE::'.$role;
-  return $composed_name if $COMPOSED{role}{$composed_name};
-  $me->_install_methods($composed_name, $role);
-  my $base_name = $composed_name.'::_BASE';
-  # force stash to exist so ->can doesn't complain
-  _getstash($base_name);
-  # Not using _getglob, since setting @ISA via the typeglob breaks
-  # inheritance on 5.10.0 if the stash has previously been accessed an
-  # then a method called on the class (in that order!), which
-  # ->_install_methods (with the help of ->_install_does) ends up doing.
-  { no strict 'refs'; @{"${composed_name}::ISA"} = ( $base_name ); }
-  my $modifiers = $INFO{$role}{modifiers}||[];
-  my @mod_base;
-  my @modifiers = grep !$composed_name->can($_),
-    do { my %h; @h{map @{$_}[1..$#$_-1], @$modifiers} = (); keys %h };
-  foreach my $modified (@modifiers) {
-    push @mod_base, "sub ${modified} { shift->next::method(\@_) }";
-  }
-  my $e;
-  {
-    local $@;
-    eval(my $code = join "\n", "package ${base_name};", @mod_base);
-    $e = "Evaling failed: $@\nTrying to eval:\n${code}" if $@;
-  }
-  die $e if $e;
-  $me->_install_modifiers($composed_name, $role);
-  $COMPOSED{role}{$composed_name} = {
-    modifiers_only => { map { $_ => 1 } @modifiers },
-  };
-  return $composed_name;
 }
 
 sub _check_requires {
   my ($me, $to, $name, $requires) = @_;
-  return unless my @requires = @{$requires||$INFO{$name}{requires}||[]};
-  if (my @requires_fail = grep !$to->can($_), @requires) {
+  $requires ||= $INFO{$name}{requires} || [];
+  if (my @requires_fail = grep !$to->can($_), @$requires) {
     # role -> role, add to requires, role -> class, error out
     if (my $to_info = $INFO{$to}) {
       push @{$to_info->{requires}||=[]}, @requires_fail;
@@ -335,49 +341,73 @@ sub _check_requires {
   }
 }
 
+sub _non_methods {
+  my ($me, $role) = @_;
+  my $info = $INFO{$role} or return {};
+
+  my %non_methods = %{ $info->{non_methods} || {} };
+
+  # this is only for backwards compatibility with older Moo, which
+  # reimplements method tracking rather than calling our method
+  my %not_methods = reverse %{ $info->{not_methods} || {} };
+  return \%non_methods unless keys %not_methods;
+
+  my $subs = $me->_all_subs($role);
+  for my $sub (grep !/\A\(/, keys %$subs) {
+    my $code = $subs->{$sub};
+    if (exists $not_methods{$code}) {
+      $non_methods{$sub} = $code;
+    }
+  }
+
+  return \%non_methods;
+}
+
 sub _concrete_methods_of {
   my ($me, $role) = @_;
   my $info = $INFO{$role};
-  # grab role symbol table
-  my $stash = _getstash($role);
-  # reverse so our keys become the values (captured coderefs) in case
-  # they got copied or re-used since
-  my $not_methods = { reverse %{$info->{not_methods}||{}} };
-  $info->{methods} ||= +{
-    # grab all code entries that aren't in the not_methods list
-    map {;
-      no strict 'refs';
-      my $code = exists &{"${role}::$_"} ? \&{"${role}::$_"} : undef;
-      ( ! $code or exists $not_methods->{$code} ) ? () : ($_ => $code)
-    } grep !ref($stash->{$_}), keys %$stash
-  };
+
+  return $info->{methods}
+    if $info && $info->{methods};
+
+  my $non_methods = $me->_non_methods($role);
+
+  my $subs = $me->_all_subs($role);
+  for my $sub (keys %$subs) {
+    if ( exists $non_methods->{$sub} && $non_methods->{$sub} == $subs->{$sub} ) {
+      delete $subs->{$sub};
+    }
+  }
+
+  if ($info) {
+    $info->{methods} = $subs;
+  }
+  return $subs;
 }
 
 sub methods_provided_by {
   my ($me, $role) = @_;
-  croak "${role} is not a Role::Tiny" unless $me->is_role($role);
-  (keys %{$me->_concrete_methods_of($role)}, @{$INFO{$role}->{requires}||[]});
+  $me->_require_module($role);
+  croak "${role} is not a ${me}" unless $me->is_role($role);
+  sort (keys %{$me->_concrete_methods_of($role)}, @{$INFO{$role}->{requires}||[]});
 }
 
 sub _install_methods {
   my ($me, $to, $role) = @_;
 
-  my $info = $INFO{$role};
-
   my $methods = $me->_concrete_methods_of($role);
 
-  # grab target symbol table
-  my $stash = _getstash($to);
+  my %existing_methods;
+  @existing_methods{keys %{ $me->_all_subs($to) }} = ();
 
-  # determine already extant methods of target
-  my %has_methods;
-  @has_methods{grep
-    +(ref($stash->{$_}) || *{$stash->{$_}}{CODE}),
-    keys %$stash
-  } = ();
+  # _concrete_methods_of caches its result on roles.  that cache needs to be
+  # invalidated after applying roles
+  delete $INFO{$to}{methods} if $INFO{$to};
 
-  foreach my $i (grep !exists $has_methods{$_}, keys %$methods) {
-    no warnings 'once';
+  foreach my $i (keys %$methods) {
+    next
+      if exists $existing_methods{$i};
+
     my $glob = _getglob "${to}::${i}";
     *$glob = $methods->{$i};
 
@@ -388,7 +418,7 @@ sub _install_methods {
         && ((defined &overload::nil && $methods->{$i} == \&overload::nil)
             || (defined &overload::_nil && $methods->{$i} == \&overload::_nil));
 
-    my $overload = ${ *{_getglob "${role}::${i}"}{SCALAR} };
+    my $overload = ${ _getglob "${role}::${i}" };
     next
       unless defined $overload;
 
@@ -455,10 +485,49 @@ sub _install_does {
   return *{_getglob "${to}::DOES"} = $new_sub;
 }
 
+# optimize for newer perls
+require mro
+  if "$]" >= 5.009_005;
+
+if (defined &mro::get_linear_isa) {
+  *_linear_isa = \&mro::get_linear_isa;
+}
+else {
+  my $e;
+  {
+    local $@;
+# this routine is simplified and not fully compatible with mro::get_linear_isa
+# but for our use the order doesn't matter, so we don't need to care
+    eval <<'END_CODE' or $e = $@;
+sub _linear_isa($;$) {
+  if (defined &mro::get_linear_isa) {
+    no warnings 'redefine', 'prototype';
+    *_linear_isa = \&mro::get_linear_isa;
+    goto &mro::get_linear_isa;
+  }
+
+  my @check = shift;
+  my @lin;
+
+  my %found;
+  while (defined(my $check = shift @check)) {
+    push @lin, $check;
+    no strict 'refs';
+    unshift @check, grep !$found{$_}++, @{"$check\::ISA"};
+  }
+
+  return \@lin;
+}
+
+1;
+END_CODE
+  }
+  die $e if defined $e;
+}
+
 sub does_role {
   my ($proto, $role) = @_;
-  require(_MRO_MODULE);
-  foreach my $class (@{mro::get_linear_isa(ref($proto)||$proto)}) {
+  foreach my $class (@{_linear_isa(ref($proto)||$proto)}) {
     return 1 if exists $APPLIED_TO{$class}{$role};
   }
   return 0;
@@ -466,7 +535,14 @@ sub does_role {
 
 sub is_role {
   my ($me, $role) = @_;
-  return !!($INFO{$role} && ($INFO{$role}{is_role} || $INFO{$role}{not_methods}));
+  return !!($INFO{$role} && (
+    $INFO{$role}{is_role}
+    # these are for backward compatibility with older Moo that overrode some
+    # methods without calling the originals, thus not getting is_role set
+    || $INFO{$role}{requires}
+    || $INFO{$role}{not_methods}
+    || $INFO{$role}{non_methods}
+  ));
 }
 
 1;
@@ -476,7 +552,7 @@ __END__
 
 =head1 NAME
 
-Role::Tiny - Roles. Like a nouvelle cuisine portion size slice of Moose.
+Role::Tiny - Roles: a nouvelle cuisine portion size slice of Moose
 
 =head1 SYNOPSIS
 
@@ -540,6 +616,22 @@ are applied in a single call (single with statement), then if any of their
 provided methods clash, an exception is raised unless the class provides
 a method since this conflict indicates a potential problem.
 
+=head2 ROLE METHODS
+
+All subs created after importing Role::Tiny will be considered methods to be
+composed. For example:
+
+    package MyRole;
+    use List::Util qw(min);
+    sub mysub { }
+    use Role::Tiny;
+    use List::Util qw(max);
+    sub mymethod { }
+
+In this role, C<max> and C<mymethod> will be included when composing MyRole,
+and C<min> and C<mysub> will not. For additional control, L<namespace::clean>
+can be used to exclude undesired subs from roles.
+
 =head1 IMPORTED SUBROUTINES
 
 =head2 requires
@@ -569,7 +661,7 @@ different roles, please refactor your codebase.
 
  before foo => sub { ... };
 
-See L<< Class::Method::Modifiers/before method(s) => sub { ... } >> for full
+See L<< Class::Method::Modifiers/before method(s) => sub { ... }; >> for full
 documentation.
 
 Note that since you are not required to use method modifiers,
@@ -581,7 +673,7 @@ both L<Class::Method::Modifiers> and L<Role::Tiny>.
 
  around foo => sub { ... };
 
-See L<< Class::Method::Modifiers/around method(s) => sub { ... } >> for full
+See L<< Class::Method::Modifiers/around method(s) => sub { ... }; >> for full
 documentation.
 
 Note that since you are not required to use method modifiers,
@@ -593,7 +685,7 @@ both L<Class::Method::Modifiers> and L<Role::Tiny>.
 
  after foo => sub { ... };
 
-See L<< Class::Method::Modifiers/after method(s) => sub { ... } >> for full
+See L<< Class::Method::Modifiers/after method(s) => sub { ... }; >> for full
 documentation.
 
 Note that since you are not required to use method modifiers,
@@ -630,6 +722,12 @@ for your class. However, if C<any> class in your class' inheritance
 hierarchy provides C<DOES>, then Role::Tiny will not override it.
 
 =head1 METHODS
+
+=head2 make_role
+
+ Role::Tiny->make_role('Some::Role');
+
+Makes a package into a role, but does not export any subs into it.
 
 =head2 apply_roles_to_package
 
