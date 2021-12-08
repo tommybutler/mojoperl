@@ -1,0 +1,1 @@
+{"target":"Data::MessagePack","provides":{"Data::MessagePack::PP":{"file":"lib/Data/MessagePack/PP.pm"},"Data::MessagePack":{"file":"lib/Data/MessagePack.pm","version":"1.01"},"Data::MessagePack::Boolean":{"file":"lib/Data/MessagePack/Boolean.pm"}},"name":"Data::MessagePack","dist":"Data-MessagePack-1.01","pathname":"S/SY/SYOHEX/Data-MessagePack-1.01.tar.gz","version":"1.01"}
