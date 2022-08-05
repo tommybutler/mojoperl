@@ -64,72 +64,10 @@
 .        nr F 2
 .    \}
 .\}
-.\"
-.\" Accent mark definitions (@(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2).
-.\" Fear.  Run.  Save yourself.  No user-serviceable parts.
-.    \" fudge factors for nroff and troff
-.if n \{\
-.    ds #H 0
-.    ds #V .8m
-.    ds #F .3m
-.    ds #[ \f1
-.    ds #] \fP
-.\}
-.if t \{\
-.    ds #H ((1u-(\\\\n(.fu%2u))*.13m)
-.    ds #V .6m
-.    ds #F 0
-.    ds #[ \&
-.    ds #] \&
-.\}
-.    \" simple accents for nroff and troff
-.if n \{\
-.    ds ' \&
-.    ds ` \&
-.    ds ^ \&
-.    ds , \&
-.    ds ~ ~
-.    ds /
-.\}
-.if t \{\
-.    ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
-.    ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
-.    ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
-.    ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
-.    ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
-.    ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
-.\}
-.    \" troff and (daisy-wheel) nroff accents
-.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
-.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
-.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
-.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
-.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
-.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
-.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
-.ds ae a\h'-(\w'a'u*4/10)'e
-.ds Ae A\h'-(\w'A'u*4/10)'E
-.    \" corrections for vroff
-.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
-.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
-.    \" for low resolution devices (crt and lpr)
-.if \n(.H>23 .if \n(.V>19 \
-\{\
-.    ds : e
-.    ds 8 ss
-.    ds o a
-.    ds d- d\h'-1'\(ga
-.    ds D- D\h'-1'\(hy
-.    ds th \o'bp'
-.    ds Th \o'LP'
-.    ds ae ae
-.    ds Ae AE
-.\}
-.rm #[ #] #H #V #F C
 .\" ========================================================================
 .\"
 .IX Title "IO::Compress::FAQ 3"
-.TH IO::Compress::FAQ 3 "2017-04-19" "perl v5.26.0" "Perl Programmers Reference Guide"
+.TH IO::Compress::FAQ 3 "2022-06-23" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -221,7 +159,7 @@ write a \f(CW\*(C`.tar.Z\*(C'\fR file
 \&    use Archive::Tar;
 \&    use IO::File;
 \&
-\&    my $fh = new IO::File "| compress \-c >$filename";
+\&    my $fh = IO::File\->new( "| compress \-c >$filename" );
 \&    my $tar = Archive::Tar\->new();
 \&    ...
 \&    $tar\->write($fh);
@@ -244,10 +182,10 @@ recompression.
 \&    my $gzipFile = "somefile.gz";
 \&    my $bzipFile = "somefile.bz2";
 \&
-\&    my $gunzip = new IO::Uncompress::Gunzip $gzipFile
+\&    my $gunzip = IO::Uncompress::Gunzip\->new( $gzipFile )
 \&        or die "Cannot gunzip $gzipFile: $GunzipError\en" ;
 \&
-\&    bzip2 $gunzip => $bzipFile 
+\&    bzip2 $gunzip => $bzipFile
 \&        or die "Cannot bzip2 to $bzipFile: $Bzip2Error\en" ;
 .Ve
 .PP
@@ -312,7 +250,7 @@ If you want to create a zip64 zip file with the \s-1OO\s0 interface you must
 specify the \f(CW\*(C`Zip64\*(C'\fR option.
 .PP
 .Vb 1
-\&    my $zip = new IO::Compress::Zip "whatever", Zip64 => 1;
+\&    my $zip = IO::Compress::Zip\->new( "whatever", Zip64 => 1 );
 .Ve
 .PP
 When uncompressing with \f(CW\*(C`IO\-Uncompress\-Unzip\*(C'\fR, it will automatically
@@ -340,7 +278,7 @@ An alternatively is the Info-Zip appnote. This is available from
 .SS "Gzip Resources"
 .IX Subsection "Gzip Resources"
 The primary reference for gzip files is \s-1RFC 1952\s0
-<http://www.faqs.org/rfcs/rfc1952.html>
+<https://datatracker.ietf.org/doc/html/rfc1952>
 .PP
 The primary site for gzip is <http://www.gzip.org>.
 .SS "Dealing with concatenated gzip files"
@@ -352,7 +290,7 @@ The example below illustrates this behaviour
 .Vb 5
 \&    $ echo abc | gzip \-c >x.gz
 \&    $ echo def | gzip \-c >>x.gz
-\&    $ gunzip \-c x.gz 
+\&    $ gunzip \-c x.gz
 \&    abc
 \&    def
 .Ve
@@ -437,7 +375,7 @@ data stream in a pbzip2 file. To uncompress the complete pbzip2 file you
 must include the \f(CW\*(C`MultiStream\*(C'\fR option, like this.
 .PP
 .Vb 2
-\&    bunzip2 $input => \e$output, MultiStream => 1 
+\&    bunzip2 $input => \e$output, MultiStream => 1
 \&        or die "bunzip2 failed: $Bunzip2Error\en";
 .Ve
 .SH "HTTP & NETWORK"
@@ -451,14 +389,14 @@ taken from
 .Vb 2
 \&  package Apache::GZip;
 \&  #File: Apache::GZip.pm
-\&  
+\&
 \&  use strict vars;
 \&  use Apache::Constants \*(Aq:common\*(Aq;
 \&  use Compress::Zlib;
 \&  use IO::File;
 \&  use constant GZIP_MAGIC => 0x1f8b;
 \&  use constant OS_MAGIC => 0x03;
-\&  
+\&
 \&  sub handler {
 \&      my $r = shift;
 \&      my ($fh,$gz);
@@ -467,28 +405,28 @@ taken from
 \&      $r\->header_out(\*(AqContent\-Encoding\*(Aq=>\*(Aqgzip\*(Aq);
 \&      $r\->send_http_header;
 \&      return OK if $r\->header_only;
-\&  
+\&
 \&      tie *STDOUT,\*(AqApache::GZip\*(Aq,$r;
 \&      print($_) while <$fh>;
 \&      untie *STDOUT;
 \&      return OK;
 \&  }
-\&  
+\&
 \&  sub TIEHANDLE {
 \&      my($class,$r) = @_;
 \&      # initialize a deflation stream
 \&      my $d = deflateInit(\-WindowBits=>\-MAX_WBITS()) || return undef;
-\&  
+\&
 \&      # gzip header \-\- don\*(Aqt ask how I found out
 \&      $r\->print(pack("nccVcc",GZIP_MAGIC,Z_DEFLATED,0,time(),0,OS_MAGIC));
-\&  
+\&
 \&      return bless { r   => $r,
 \&                     crc =>  crc32(undef),
 \&                     d   => $d,
-\&                     l   =>  0 
+\&                     l   =>  0
 \&                   },$class;
 \&  }
-\&  
+\&
 \&  sub PRINT {
 \&      my $self = shift;
 \&      foreach (@_) {
@@ -500,18 +438,18 @@ taken from
 \&        $self\->{crc} = crc32($_,$self\->{crc});
 \&      }
 \&  }
-\&  
+\&
 \&  sub DESTROY {
 \&     my $self = shift;
-\&     
+\&
 \&     # flush the output buffers
 \&     my $data = $self\->{d}\->flush;
 \&     $self\->{r}\->print($data);
-\&     
+\&
 \&     # print the CRC and the total length (uncompressed)
 \&     $self\->{r}\->print(pack("LL",@{$self}{qw/crc l/}));
 \&  }
-\&   
+\&
 \&  1;
 .Ve
 .PP
@@ -548,12 +486,12 @@ filehandle code can be removed. Here is the rewritten code.
 .PP
 .Vb 1
 \&  package Apache::GZip;
-\&  
+\&
 \&  use strict vars;
 \&  use Apache::Constants \*(Aq:common\*(Aq;
 \&  use IO::Compress::Gzip;
 \&  use IO::File;
-\&  
+\&
 \&  sub handler {
 \&      my $r = shift;
 \&      my ($fh,$gz);
@@ -563,11 +501,11 @@ filehandle code can be removed. Here is the rewritten code.
 \&      $r\->send_http_header;
 \&      return OK if $r\->header_only;
 \&
-\&      my $gz = new IO::Compress::Gzip \*(Aq\-\*(Aq, Minimal => 1
+\&      my $gz = IO::Compress::Gzip\->new( \*(Aq\-\*(Aq, Minimal => 1 )
 \&          or return DECLINED ;
 \&
 \&      print $gz $_ while <$fh>;
-\&  
+\&
 \&      return OK;
 \&  }
 .Ve
@@ -576,11 +514,11 @@ or even more succinctly, like this, using a one-shot gzip
 .PP
 .Vb 1
 \&  package Apache::GZip;
-\&  
+\&
 \&  use strict vars;
 \&  use Apache::Constants \*(Aq:common\*(Aq;
 \&  use IO::Compress::Gzip qw(gzip);
-\&  
+\&
 \&  sub handler {
 \&      my $r = shift;
 \&      $r\->header_out(\*(AqContent\-Encoding\*(Aq=>\*(Aqgzip\*(Aq);
@@ -592,7 +530,7 @@ or even more succinctly, like this, using a one-shot gzip
 \&
 \&      return OK;
 \&  }
-\&   
+\&
 \&  1;
 .Ve
 .PP
@@ -618,7 +556,7 @@ read from the \s-1FTP\s0 Server.
 \&    use Net::FTP;
 \&    use IO::Uncompress::Gunzip qw(:all);
 \&
-\&    my $ftp = new Net::FTP ...
+\&    my $ftp = Net::FTP\->new( ... )
 \&
 \&    my $retr_fh = $ftp\->retr($compressed_filename);
 \&    gunzip $retr_fh => $outFilename, AutoClose => 1
@@ -672,7 +610,7 @@ the other \f(CW\*(C`IO::Uncompress::*\*(C'\fR modules.
 \&
 \&    my $file = $ARGV[0] ;
 \&
-\&    my $fh = new IO::File "<$file"
+\&    my $fh = IO::File\->new( "<$file" )
 \&                or die "Cannot open \*(Aq$file\*(Aq: $!\en";
 \&
 \&    while (1)
@@ -681,7 +619,7 @@ the other \f(CW\*(C`IO::Uncompress::*\*(C'\fR modules.
 \&        my $buffer;
 \&
 \&        my $x ;
-\&        ($x = $fh\->read($buffer, ZIP_LOCAL_HDR_LENGTH)) == ZIP_LOCAL_HDR_LENGTH 
+\&        ($x = $fh\->read($buffer, ZIP_LOCAL_HDR_LENGTH)) == ZIP_LOCAL_HDR_LENGTH
 \&            or die "Truncated file: $!\en";
 \&
 \&        my $signature = unpack ("V", substr($buffer, 0, 4));
@@ -693,11 +631,11 @@ the other \f(CW\*(C`IO::Uncompress::*\*(C'\fR modules.
 \&        my $compressedMethod   = unpack ("v", substr($buffer, 8, 2));
 \&        my $compressedLength   = unpack ("V", substr($buffer, 18, 4));
 \&        my $uncompressedLength = unpack ("V", substr($buffer, 22, 4));
-\&        my $filename_length    = unpack ("v", substr($buffer, 26, 2)); 
+\&        my $filename_length    = unpack ("v", substr($buffer, 26, 2));
 \&        my $extra_length       = unpack ("v", substr($buffer, 28, 2));
 \&
 \&        my $filename ;
-\&        $fh\->read($filename, $filename_length) == $filename_length 
+\&        $fh\->read($filename, $filename_length) == $filename_length
 \&            or die "Truncated file\en";
 \&
 \&        $fh\->read($buffer, $extra_length) == $extra_length
@@ -720,9 +658,9 @@ the other \f(CW\*(C`IO::Uncompress::*\*(C'\fR modules.
 \&
 \&        # Done reading the Local Header
 \&
-\&        my $inf = new IO::Uncompress::RawInflate $fh,
+\&        my $inf = IO::Uncompress::RawInflate\->new( $fh,
 \&                            Transparent => 1,
-\&                            InputLength => $compressedLength
+\&                            InputLength => $compressedLength )
 \&          or die "Cannot uncompress $file [$filename]: $RawInflateError\en"  ;
 \&
 \&        my $line_count = 0;
@@ -741,14 +679,14 @@ header data. The code that I want to focus on is at the bottom.
 .PP
 .Vb 1
 \&    while (1) {
-\&    
+\&
 \&        # read local zip header data
 \&        # get $filename
 \&        # get $compressedLength
 \&
-\&        my $inf = new IO::Uncompress::RawInflate $fh,
+\&        my $inf = IO::Uncompress::RawInflate\->new( $fh,
 \&                            Transparent => 1,
-\&                            InputLength => $compressedLength
+\&                            InputLength => $compressedLength )
 \&          or die "Cannot uncompress $file [$filename]: $RawInflateError\en"  ;
 \&
 \&        my $line_count = 0;
@@ -776,7 +714,7 @@ Now consider what the code looks like without \f(CW\*(C`InputLength\*(C'\fR
 .PP
 .Vb 1
 \&    while (1) {
-\&    
+\&
 \&        # read local zip header data
 \&        # get $filename
 \&        # get $compressedLength
@@ -784,8 +722,8 @@ Now consider what the code looks like without \f(CW\*(C`InputLength\*(C'\fR
 \&        # read all the compressed data into $data
 \&        read($fh, $data, $compressedLength);
 \&
-\&        my $inf = new IO::Uncompress::RawInflate \e$data,
-\&                            Transparent => 1,
+\&        my $inf = IO::Uncompress::RawInflate\->new( \e$data,
+\&                            Transparent => 1 )
 \&          or die "Cannot uncompress $file [$filename]: $RawInflateError\en"  ;
 \&
 \&        my $line_count = 0;
@@ -814,9 +752,14 @@ application can cope with large compressed data streams.
 One final point \*(-- obviously \f(CW\*(C`InputLength\*(C'\fR can only be used whenever you
 know the length of the compressed data beforehand, like here with a zip
 file.
+.SH "SUPPORT"
+.IX Header "SUPPORT"
+General feedback/questions/bug reports should be sent to
+<https://github.com/pmqs//issues> (preferred) or
+<https://rt.cpan.org/Public/Dist/Display.html?Name=>.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Compress::Zlib, IO::Compress::Gzip, IO::Uncompress::Gunzip, IO::Compress::Deflate, IO::Uncompress::Inflate, IO::Compress::RawDeflate, IO::Uncompress::RawInflate, IO::Compress::Bzip2, IO::Uncompress::Bunzip2, IO::Compress::Lzma, IO::Uncompress::UnLzma, IO::Compress::Xz, IO::Uncompress::UnXz, IO::Compress::Lzop, IO::Uncompress::UnLzop, IO::Compress::Lzf, IO::Uncompress::UnLzf, IO::Uncompress::AnyInflate, IO::Uncompress::AnyUncompress
+Compress::Zlib, IO::Compress::Gzip, IO::Uncompress::Gunzip, IO::Compress::Deflate, IO::Uncompress::Inflate, IO::Compress::RawDeflate, IO::Uncompress::RawInflate, IO::Compress::Bzip2, IO::Uncompress::Bunzip2, IO::Compress::Lzma, IO::Uncompress::UnLzma, IO::Compress::Xz, IO::Uncompress::UnXz, IO::Compress::Lzip, IO::Uncompress::UnLzip, IO::Compress::Lzop, IO::Uncompress::UnLzop, IO::Compress::Lzf, IO::Uncompress::UnLzf, IO::Compress::Zstd, IO::Uncompress::UnZstd, IO::Uncompress::AnyInflate, IO::Uncompress::AnyUncompress
 .PP
 IO::Compress::FAQ
 .PP
@@ -831,7 +774,7 @@ This module was written by Paul Marquess, \f(CW\*(C`pmqs@cpan.org\*(C'\fR.
 See the Changes file.
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
-Copyright (c) 2005\-2017 Paul Marquess. All rights reserved.
+Copyright (c) 2005\-2022 Paul Marquess. All rights reserved.
 .PP
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

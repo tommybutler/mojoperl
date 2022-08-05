@@ -67,7 +67,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Test::Needs 3"
-.TH Test::Needs 3 "2016-09-27" "perl v5.26.0" "User Contributed Perl Documentation"
+.TH Test::Needs 3 "2021-05-25" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -144,17 +144,24 @@ and broken modules.
 .IX Item "Test2::Require::Module"
 Part of the Test2 ecosystem.  Only supports running as a \f(CW\*(C`use\*(C'\fR command to
 skip an entire plan.
-.SH "AUTHOR"
-.IX Header "AUTHOR"
+.IP "Test2::Require::Perl" 4
+.IX Item "Test2::Require::Perl"
+Part of the Test2 ecosystem.  Only supports running as a \f(CW\*(C`use\*(C'\fR command to
+skip an entire plan.  Checks perl versions.
+.IP "Test::If" 4
+.IX Item "Test::If"
+Acts as a \f(CW\*(C`use\*(C'\fR statement.  Only supports running as a \f(CW\*(C`use\*(C'\fR command to skip
+an entire plan.  Can skip based on subref results.
+.SH "AUTHORS"
+.IX Header "AUTHORS"
 haarg \- Graham Knop (cpan:HAARG) <haarg@haarg.org>
 .SH "CONTRIBUTORS"
 .IX Header "CONTRIBUTORS"
 None so far.
-.SH "COPYRIGHT"
-.IX Header "COPYRIGHT"
-Copyright (c) 2016 the Test::Needs \*(L"\s-1AUTHOR\*(R"\s0 and \*(L"\s-1CONTRIBUTORS\*(R"\s0
+.SH "COPYRIGHT AND LICENSE"
+.IX Header "COPYRIGHT AND LICENSE"
+Copyright (c) 2016 the Test::Needs \*(L"\s-1AUTHORS\*(R"\s0 and \*(L"\s-1CONTRIBUTORS\*(R"\s0
 as listed above.
-.SH "LICENSE"
-.IX Header "LICENSE"
+.PP
 This library is free software and may be distributed under the same terms
 as perl itself. See <http://dev.perl.org/licenses/>.

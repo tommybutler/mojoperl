@@ -1,0 +1,1 @@
+{"name":"Module::cpmfile","pathname":"S/SK/SKAJI/Module-cpmfile-0.006.tar.gz","provides":{"Module::cpmfile":{"file":"lib/Module/cpmfile.pm","version":"0.006"},"Module::cpmfile::Util":{"file":"lib/Module/cpmfile/Util.pm"},"Module::cpmfile::Prereqs":{"file":"lib/Module/cpmfile/Prereqs.pm"}},"version":"0.006","target":"Module::cpmfile","dist":"Module-cpmfile-0.006"}

@@ -64,72 +64,10 @@
 .        nr F 2
 .    \}
 .\}
-.\"
-.\" Accent mark definitions (@(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2).
-.\" Fear.  Run.  Save yourself.  No user-serviceable parts.
-.    \" fudge factors for nroff and troff
-.if n \{\
-.    ds #H 0
-.    ds #V .8m
-.    ds #F .3m
-.    ds #[ \f1
-.    ds #] \fP
-.\}
-.if t \{\
-.    ds #H ((1u-(\\\\n(.fu%2u))*.13m)
-.    ds #V .6m
-.    ds #F 0
-.    ds #[ \&
-.    ds #] \&
-.\}
-.    \" simple accents for nroff and troff
-.if n \{\
-.    ds ' \&
-.    ds ` \&
-.    ds ^ \&
-.    ds , \&
-.    ds ~ ~
-.    ds /
-.\}
-.if t \{\
-.    ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
-.    ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
-.    ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
-.    ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
-.    ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
-.    ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
-.\}
-.    \" troff and (daisy-wheel) nroff accents
-.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
-.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
-.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
-.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
-.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
-.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
-.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
-.ds ae a\h'-(\w'a'u*4/10)'e
-.ds Ae A\h'-(\w'A'u*4/10)'E
-.    \" corrections for vroff
-.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
-.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
-.    \" for low resolution devices (crt and lpr)
-.if \n(.H>23 .if \n(.V>19 \
-\{\
-.    ds : e
-.    ds 8 ss
-.    ds o a
-.    ds d- d\h'-1'\(ga
-.    ds D- D\h'-1'\(hy
-.    ds th \o'bp'
-.    ds Th \o'LP'
-.    ds ae ae
-.    ds Ae AE
-.\}
-.rm #[ #] #H #V #F C
 .\" ========================================================================
 .\"
 .IX Title "IO::Uncompress::Unzip 3"
-.TH IO::Uncompress::Unzip 3 "2017-04-19" "perl v5.26.0" "Perl Programmers Reference Guide"
+.TH IO::Uncompress::Unzip 3 "2022-06-23" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -144,7 +82,7 @@ IO::Uncompress::Unzip \- Read zip files/buffers
 \&    my $status = unzip $input => $output [,OPTS]
 \&        or die "unzip failed: $UnzipError\en";
 \&
-\&    my $z = new IO::Uncompress::Unzip $input [OPTS] 
+\&    my $z = IO::Uncompress::Unzip\->new( $input [OPTS] )
 \&        or die "unzip failed: $UnzipError\en";
 \&
 \&    $status = $z\->read($buffer)
@@ -188,6 +126,33 @@ This module provides a Perl interface that allows the reading of
 zlib files/buffers.
 .PP
 For writing zip files/buffers, see the companion module IO::Compress::Zip.
+.PP
+The primary purpose of this module is to provide \fIstreaming\fR read access to
+zip files and buffers.
+.PP
+At present the following compression methods are supported by IO::Uncompress::Unzip
+.IP "Store (0)" 5
+.IX Item "Store (0)"
+.PD 0
+.IP "Deflate (8)" 5
+.IX Item "Deflate (8)"
+.IP "Bzip2 (12)" 5
+.IX Item "Bzip2 (12)"
+.PD
+To read Bzip2 content, the module \f(CW\*(C`IO::Uncompress::Bunzip2\*(C'\fR must
+be installed.
+.IP "Lzma (14)" 5
+.IX Item "Lzma (14)"
+To read \s-1LZMA\s0 content, the module \f(CW\*(C`IO::Uncompress::UnLzma\*(C'\fR must
+be installed.
+.IP "Xz (95)" 5
+.IX Item "Xz (95)"
+To read Xz content, the module \f(CW\*(C`IO::Uncompress::UnXz\*(C'\fR must
+be installed.
+.IP "Zstandard (93)" 5
+.IX Item "Zstandard (93)"
+To read Zstandard content, the module \f(CW\*(C`IO::Uncompress::UnZstd\*(C'\fR must
+be installed.
 .SH "Functional Interface"
 .IX Header "Functional Interface"
 A top-level function, \f(CW\*(C`unzip\*(C'\fR, is provided to carry out
@@ -198,7 +163,7 @@ section.
 .Vb 1
 \&    use IO::Uncompress::Unzip qw(unzip $UnzipError) ;
 \&
-\&    unzip $input_filename_or_reference => $output_filename_or_reference [,OPTS] 
+\&    unzip $input_filename_or_reference => $output_filename_or_reference [,OPTS]
 \&        or die "unzip failed: $UnzipError\en";
 .Ve
 .PP
@@ -207,7 +172,8 @@ The functional interface needs Perl5.005 or better.
 .el .SS "unzip \f(CW$input_filename_or_reference\fP => \f(CW$output_filename_or_reference\fP [, \s-1OPTS\s0]"
 .IX Subsection "unzip $input_filename_or_reference => $output_filename_or_reference [, OPTS]"
 \&\f(CW\*(C`unzip\*(C'\fR expects at least two parameters,
-\&\f(CW$input_filename_or_reference\fR and \f(CW$output_filename_or_reference\fR.
+\&\f(CW$input_filename_or_reference\fR and \f(CW$output_filename_or_reference\fR
+and zero or more optional parameters (see \*(L"Optional Parameters\*(R")
 .PP
 \fIThe \f(CI$input_filename_or_reference\fI parameter\fR
 .IX Subsection "The $input_filename_or_reference parameter"
@@ -218,7 +184,7 @@ source of the compressed data.
 It can take one of the following forms:
 .IP "A filename" 5
 .IX Item "A filename"
-If the <$input_filename_or_reference> parameter is a simple scalar, it is
+If the \f(CW$input_filename_or_reference\fR parameter is a simple scalar, it is
 assumed to be a filename. This file will be opened for reading and the
 input data will be read from it.
 .IP "A filehandle" 5
@@ -242,8 +208,8 @@ contains valid filenames before any data is uncompressed.
 .IP "An Input FileGlob string" 5
 .IX Item "An Input FileGlob string"
 If \f(CW$input_filename_or_reference\fR is a string that is delimited by the
-characters \*(L"<\*(R" and \*(L">\*(R" \f(CW\*(C`unzip\*(C'\fR will assume that it is an 
-\&\fIinput fileglob string\fR. The input is the list of files that match the 
+characters \*(L"<\*(R" and \*(L">\*(R" \f(CW\*(C`unzip\*(C'\fR will assume that it is an
+\&\fIinput fileglob string\fR. The input is the list of files that match the
 fileglob.
 .Sp
 See File::GlobMapper for more details.
@@ -260,7 +226,7 @@ these forms.
 .IP "A filename" 5
 .IX Item "A filename"
 If the \f(CW$output_filename_or_reference\fR parameter is a simple scalar, it is
-assumed to be a filename.  This file will be opened for writing and the 
+assumed to be a filename.  This file will be opened for writing and the
 uncompressed data will be written to it.
 .IP "A filehandle" 5
 .IX Item "A filehandle"
@@ -273,7 +239,7 @@ If \f(CW$output_filename_or_reference\fR is a scalar reference, the
 uncompressed data will be stored in \f(CW$$output_filename_or_reference\fR.
 .IP "An Array Reference" 5
 .IX Item "An Array Reference"
-If \f(CW$output_filename_or_reference\fR is an array reference, 
+If \f(CW$output_filename_or_reference\fR is an array reference,
 the uncompressed data will be pushed onto the array.
 .IP "An Output FileGlob" 5
 .IX Item "An Output FileGlob"
@@ -299,13 +265,13 @@ concatenation of all the uncompressed data from each of the input
 files/buffers.
 .SS "Optional Parameters"
 .IX Subsection "Optional Parameters"
-Unless specified below, the optional parameters for \f(CW\*(C`unzip\*(C'\fR,
-\&\f(CW\*(C`OPTS\*(C'\fR, are the same as those used with the \s-1OO\s0 interface defined in the
-\&\*(L"Constructor Options\*(R" section below.
+The optional parameters for the one-shot function \f(CW\*(C`unzip\*(C'\fR
+are (for the most part) identical to those used with the \s-1OO\s0 interface defined in the
+\&\*(L"Constructor Options\*(R" section. The exceptions are listed below
 .ie n .IP """AutoClose => 0|1""" 5
 .el .IP "\f(CWAutoClose => 0|1\fR" 5
 .IX Item "AutoClose => 0|1"
-This option applies to any input or output data streams to 
+This option applies to any input or output data streams to
 \&\f(CW\*(C`unzip\*(C'\fR that are filehandles.
 .Sp
 If \f(CW\*(C`AutoClose\*(C'\fR is specified, and the value is true, it will result in all
@@ -316,10 +282,7 @@ This parameter defaults to 0.
 .ie n .IP """BinModeOut => 0|1""" 5
 .el .IP "\f(CWBinModeOut => 0|1\fR" 5
 .IX Item "BinModeOut => 0|1"
-When writing to a file or filehandle, set \f(CW\*(C`binmode\*(C'\fR before writing to the
-file.
-.Sp
-Defaults to 0.
+This option is now a no-op. All files will be written  in binmode.
 .ie n .IP """Append => 0|1""" 5
 .el .IP "\f(CWAppend => 0|1\fR" 5
 .IX Item "Append => 0|1"
@@ -347,7 +310,7 @@ written to it.  Otherwise the file pointer will not be moved.
 .RE
 .RS 5
 .Sp
-When \f(CW\*(C`Append\*(C'\fR is specified, and set to true, it will \fIappend\fR all uncompressed 
+When \f(CW\*(C`Append\*(C'\fR is specified, and set to true, it will \fIappend\fR all uncompressed
 data to the output data stream.
 .Sp
 So when the output is a filehandle it will carry out a seek to the eof
@@ -450,10 +413,10 @@ uncompressed data to a buffer, \f(CW$buffer\fR.
 \&    use IO::Uncompress::Unzip qw(unzip $UnzipError) ;
 \&    use IO::File ;
 \&
-\&    my $input = new IO::File "<file1.zip"
+\&    my $input = IO::File\->new( "<file1.zip" )
 \&        or die "Cannot open \*(Aqfile1.zip\*(Aq: $!\en" ;
 \&    my $buffer ;
-\&    unzip $input => \e$buffer 
+\&    unzip $input => \e$buffer
 \&        or die "unzip failed: $UnzipError\en";
 .Ve
 .SH "OO Interface"
@@ -463,7 +426,7 @@ uncompressed data to a buffer, \f(CW$buffer\fR.
 The format of the constructor for IO::Uncompress::Unzip is shown below
 .PP
 .Vb 2
-\&    my $z = new IO::Uncompress::Unzip $input [OPTS]
+\&    my $z = IO::Uncompress::Unzip\->new( $input [OPTS] )
 \&        or die "IO::Uncompress::Unzip failed: $UnzipError\en";
 .Ve
 .PP
@@ -513,6 +476,18 @@ prefixed by a '\-'.  So all of the following are valid
 .el .IP "\f(CWName => ``membername''\fR" 5
 .IX Item "Name => ""membername"""
 Open \*(L"membername\*(R" from the zip file for reading.
+.ie n .IP """Efs => 0| 1""" 5
+.el .IP "\f(CWEfs => 0| 1\fR" 5
+.IX Item "Efs => 0| 1"
+When this option is set to true \s-1AND\s0 the zip archive being read has
+the \*(L"Language Encoding Flag\*(R" (\s-1EFS\s0) set, the member name is assumed to be encoded in \s-1UTF\-8.\s0
+.Sp
+If the member name in the zip archive is not valid \s-1UTF\-8\s0 when this optionn is true,
+the script will die with an error message.
+.Sp
+Note that this option only works with Perl 5.8.4 or better.
+.Sp
+This option defaults to \fBfalse\fR.
 .ie n .IP """AutoClose => 0|1""" 5
 .el .IP "\f(CWAutoClose => 0|1\fR" 5
 .IX Item "AutoClose => 0|1"
@@ -828,6 +803,10 @@ Skips to the next compressed data stream in the input file/buffer. If a new
 compressed data stream is found, the eof marker will be cleared and \f(CW$.\fR
 will be reset to 0.
 .PP
+If trailing data is present immediately after the zip archive and the
+\&\f(CW\*(C`Transparent\*(C'\fR option is enabled, this method will consider that trailing
+data to be another member of the zip archive.
+.PP
 Returns 1 if a new stream was found, 0 if none was found, and \-1 if an
 error was encountered.
 .SS "trailingData"
@@ -862,7 +841,7 @@ uncompressing, you can avoid having to use \f(CW\*(C`trailingData\*(C'\fR by set
 \&\f(CW\*(C`InputLength\*(C'\fR option in the constructor.
 .SH "Importing"
 .IX Header "Importing"
-No symbolic constants are required by this IO::Uncompress::Unzip at present.
+No symbolic constants are required by IO::Uncompress::Unzip at present.
 .IP ":all" 5
 .IX Item ":all"
 Imports \f(CW\*(C`unzip\*(C'\fR and \f(CW$UnzipError\fR.
@@ -885,13 +864,13 @@ stream at a time.
 \&    use IO::Uncompress::Unzip qw($UnzipError);
 \&
 \&    my $zipfile = "somefile.zip";
-\&    my $u = new IO::Uncompress::Unzip $zipfile
+\&    my $u = IO::Uncompress::Unzip\->new( $zipfile )
 \&        or die "Cannot open $zipfile: $UnzipError";
 \&
 \&    my $status;
 \&    for ($status = 1; $status > 0; $status = $u\->nextStream())
 \&    {
-\& 
+\&
 \&        my $name = $u\->getHeaderInfo()\->{Name};
 \&        warn "Processing member $name\en" ;
 \&
@@ -920,9 +899,14 @@ Daniel S. Sterling has written a script that uses \f(CW\*(C`IO::Uncompress::UnZi
 to read a zip file and unzip its contents to disk.
 .PP
 The script is available from <https://gist.github.com/eqhmcow/5389877>
+.SH "SUPPORT"
+.IX Header "SUPPORT"
+General feedback/questions/bug reports should be sent to
+<https://github.com/pmqs/IO\-Compress/issues> (preferred) or
+<https://rt.cpan.org/Public/Dist/Display.html?Name=IO\-Compress>.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-Compress::Zlib, IO::Compress::Gzip, IO::Uncompress::Gunzip, IO::Compress::Deflate, IO::Uncompress::Inflate, IO::Compress::RawDeflate, IO::Uncompress::RawInflate, IO::Compress::Bzip2, IO::Uncompress::Bunzip2, IO::Compress::Lzma, IO::Uncompress::UnLzma, IO::Compress::Xz, IO::Uncompress::UnXz, IO::Compress::Lzop, IO::Uncompress::UnLzop, IO::Compress::Lzf, IO::Uncompress::UnLzf, IO::Uncompress::AnyInflate, IO::Uncompress::AnyUncompress
+Compress::Zlib, IO::Compress::Gzip, IO::Uncompress::Gunzip, IO::Compress::Deflate, IO::Uncompress::Inflate, IO::Compress::RawDeflate, IO::Uncompress::RawInflate, IO::Compress::Bzip2, IO::Uncompress::Bunzip2, IO::Compress::Lzma, IO::Uncompress::UnLzma, IO::Compress::Xz, IO::Uncompress::UnXz, IO::Compress::Lzip, IO::Uncompress::UnLzip, IO::Compress::Lzop, IO::Uncompress::UnLzop, IO::Compress::Lzf, IO::Uncompress::UnLzf, IO::Compress::Zstd, IO::Uncompress::UnZstd, IO::Uncompress::AnyInflate, IO::Uncompress::AnyUncompress
 .PP
 IO::Compress::FAQ
 .PP
@@ -930,16 +914,19 @@ File::GlobMapper, Archive::Zip,
 Archive::Tar,
 IO::Zlib
 .PP
-For \s-1RFC 1950, 1951\s0 and 1952 see 
-<http://www.faqs.org/rfcs/rfc1950.html>,
-<http://www.faqs.org/rfcs/rfc1951.html> and
-<http://www.faqs.org/rfcs/rfc1952.html>
+For \s-1RFC 1950, 1951\s0 and 1952 see
+<https://datatracker.ietf.org/doc/html/rfc1950>,
+<https://datatracker.ietf.org/doc/html/rfc1951> and
+<https://datatracker.ietf.org/doc/html/rfc1952>
 .PP
 The \fIzlib\fR compression library was written by Jean-loup Gailly
 \&\f(CW\*(C`gzip@prep.ai.mit.edu\*(C'\fR and Mark Adler \f(CW\*(C`madler@alumni.caltech.edu\*(C'\fR.
 .PP
 The primary site for the \fIzlib\fR compression library is
 <http://www.zlib.org>.
+.PP
+The primary site for the \fIzlib-ng\fR compression library is
+<https://github.com/zlib\-ng/zlib\-ng>.
 .PP
 The primary site for gzip is <http://www.gzip.org>.
 .SH "AUTHOR"
@@ -950,7 +937,7 @@ This module was written by Paul Marquess, \f(CW\*(C`pmqs@cpan.org\*(C'\fR.
 See the Changes file.
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
-Copyright (c) 2005\-2017 Paul Marquess. All rights reserved.
+Copyright (c) 2005\-2022 Paul Marquess. All rights reserved.
 .PP
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

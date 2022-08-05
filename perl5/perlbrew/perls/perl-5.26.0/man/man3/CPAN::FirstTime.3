@@ -64,72 +64,10 @@
 .        nr F 2
 .    \}
 .\}
-.\"
-.\" Accent mark definitions (@(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2).
-.\" Fear.  Run.  Save yourself.  No user-serviceable parts.
-.    \" fudge factors for nroff and troff
-.if n \{\
-.    ds #H 0
-.    ds #V .8m
-.    ds #F .3m
-.    ds #[ \f1
-.    ds #] \fP
-.\}
-.if t \{\
-.    ds #H ((1u-(\\\\n(.fu%2u))*.13m)
-.    ds #V .6m
-.    ds #F 0
-.    ds #[ \&
-.    ds #] \&
-.\}
-.    \" simple accents for nroff and troff
-.if n \{\
-.    ds ' \&
-.    ds ` \&
-.    ds ^ \&
-.    ds , \&
-.    ds ~ ~
-.    ds /
-.\}
-.if t \{\
-.    ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
-.    ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
-.    ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
-.    ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
-.    ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
-.    ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
-.\}
-.    \" troff and (daisy-wheel) nroff accents
-.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
-.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
-.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
-.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
-.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
-.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
-.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
-.ds ae a\h'-(\w'a'u*4/10)'e
-.ds Ae A\h'-(\w'A'u*4/10)'E
-.    \" corrections for vroff
-.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
-.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
-.    \" for low resolution devices (crt and lpr)
-.if \n(.H>23 .if \n(.V>19 \
-\{\
-.    ds : e
-.    ds 8 ss
-.    ds o a
-.    ds d- d\h'-1'\(ga
-.    ds D- D\h'-1'\(hy
-.    ds th \o'bp'
-.    ds Th \o'LP'
-.    ds ae ae
-.    ds Ae AE
-.\}
-.rm #[ #] #H #V #F C
 .\" ========================================================================
 .\"
 .IX Title "CPAN::FirstTime 3"
-.TH CPAN::FirstTime 3 "2017-04-19" "perl v5.26.0" "Perl Programmers Reference Guide"
+.TH CPAN::FirstTime 3 "2022-04-03" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -146,6 +84,32 @@ CPAN/MyConfig.pm file (depending on what it is currently using).
 .PP
 In the following all questions and explanations regarding config
 variables are collected.
+.IP "allow_installing_module_downgrades" 2
+.IX Item "allow_installing_module_downgrades"
+The \s-1CPAN\s0 shell can watch the \f(CW\*(C`blib/\*(C'\fR directories that are built up
+before running \f(CW\*(C`make test\*(C'\fR to determine whether the current
+distribution will end up with modules being overwritten with decreasing module version numbers. It
+can then let the build of this distro fail when it discovers a
+downgrade.
+.Sp
+Do you want to allow installing distros with decreasing module
+versions compared to what you have installed (yes, no, ask/yes,
+ask/no)?
+.IP "allow_installing_outdated_dists" 2
+.IX Item "allow_installing_outdated_dists"
+The \s-1CPAN\s0 shell can watch the \f(CW\*(C`blib/\*(C'\fR directories that are built up
+before running \f(CW\*(C`make test\*(C'\fR to determine whether the current
+distribution contains modules that are indexed with a distro with a
+higher distro-version number than the current one. It can
+then let the build of this distro fail when it would not represent the
+most up-to-date version of the distro.
+.Sp
+Note: choosing anything but 'yes' for this option will need
+CPAN::DistnameInfo being installed for taking effect.
+.Sp
+Do you want to allow installing distros that are not indexed as the
+highest distro-version for all contained modules (yes, no, ask/yes,
+ask/no)?
 .IP "auto_commit" 2
 .IX Item "auto_commit"
 Normally \s-1CPAN\s0.pm keeps config variables in memory and changes need to
@@ -201,7 +165,7 @@ To considerably speed up the initial \s-1CPAN\s0 shell startup, it is
 possible to use Storable to create a cache of metadata. If Storable is
 not available, the normal index mechanism will be used.
 .Sp
-Note: this mechanism is not used when use_sqlite is on and SQLLite is
+Note: this mechanism is not used when use_sqlite is on and SQLite is
 running.
 .Sp
 Cache metadata (yes/no)?
@@ -285,7 +249,8 @@ How many days shall we keep statistics about downloads?
 .IP "ftpstats_size" 2
 .IX Item "ftpstats_size"
 Statistics about downloads are truncated by size and period
-simultaneously.
+simultaneously. Setting this to zero or negative disables download
+statistics.
 .Sp
 How many items shall we keep in the statistics about downloads?
 .IP "getcwd" 2
@@ -510,6 +475,19 @@ confirmation ('ask'), or just ignore them ('ignore').  Choosing
 Please set your policy to one of the three values.
 .Sp
 Policy on building prerequisites (follow, ask or ignore)?
+.IP "pushy_https" 2
+.IX Item "pushy_https"
+Boolean. Defaults to true. If this option is true, the cpan shell will
+use https://cpan.org/ to download stuff from the \s-1CPAN.\s0 It will fall
+back to http://cpan.org/ if it can't handle https for some reason
+(missing modules, missing programs). Whenever it falls back to the
+http protocol, it will issue a warning.
+.Sp
+If this option is true, the option \f(CW\*(C`urllist\*(C'\fR will be ignored.
+Consequently, if you want to work with local mirrors via your own
+configured list of URLs, you will have to choose no below.
+.Sp
+Do you want to turn the pushy_https behaviour on?
 .IP "randomize_urllist" 2
 .IX Item "randomize_urllist"
 \&\s-1CPAN\s0.pm can introduce some randomness when using hosts for download
@@ -527,7 +505,7 @@ Randomize parameter
 generally be installed except in resource constrained environments.  When this
 policy is true, recommended modules will be included with required modules.
 .Sp
-Included recommended modules?
+Include recommended modules?
 .IP "scan_cache" 2
 .IX Item "scan_cache"
 By default, each time the \s-1CPAN\s0 module is started, cache scanning is
@@ -571,7 +549,7 @@ Show all individual modules that have a \f(CW$VERSION\fR of zero?
 dependencies provide enhanced operation.  When this policy is true, suggested
 modules will be included with required modules.
 .Sp
-Included suggested modules?
+Include suggested modules?
 .IP "tar_verbosity" 2
 .IX Item "tar_verbosity"
 When \s-1CPAN\s0.pm uses the tar command, which switch for the verbosity
@@ -641,6 +619,21 @@ because of missing dependencies.  Also, tests can be run
 regardless of the history using \*(L"force\*(R".
 .Sp
 Do you want to rely on the test report history (yes/no)?
+.IP "urllist_ping_external" 2
+.IX Item "urllist_ping_external"
+When automatic selection of the nearest cpan mirrors is performed,
+turn on the use of the external ping via Net::Ping::External. This is
+recommended in the case the local network has a transparent proxy.
+.Sp
+Do you want to use the external ping command when autoselecting
+mirrors?
+.IP "urllist_ping_verbose" 2
+.IX Item "urllist_ping_verbose"
+When automatic selection of the nearest cpan mirrors is performed,
+this option can be used to turn on verbosity during the selection
+process.
+.Sp
+Do you want to see verbosity turned on when autoselecting mirrors?
 .IP "use_prompt_default" 2
 .IX Item "use_prompt_default"
 When this is true, \s-1CPAN\s0 will set \s-1PERL_MM_USE_DEFAULT\s0 to a true

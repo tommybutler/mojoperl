@@ -3188,3 +3188,597 @@ C<EXE_FILES: >
 
 =back
 
+=head2 Fri Aug  5 14:08:21 2022: C<Module> L<Cpanel::JSON::XS|Cpanel::JSON::XS>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 4.30>
+
+=item *
+
+C<EXE_FILES: bin/cpanel_json_xs>
+
+=back
+
+=head2 Fri Aug  5 14:08:27 2022: C<Module> L<Test::Needs|Test::Needs>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.002009>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:08:29 2022: C<Module> L<JSON::MaybeXS|JSON::MaybeXS>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.004003>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:08:32 2022: C<Module> L<Algorithm::Diff|Algorithm::Diff>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.201>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:08:33 2022: C<Module> L<Text::Diff|Text::Diff>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.45>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:08:37 2022: C<Module> L<Test::Differences|Test::Differences>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.69>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:13:38 2022: C<Module> L<Module::CPANfile|Module::CPANfile>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.1004>
+
+=item *
+
+C<EXE_FILES: script/cpanfile-dump script/mymeta-cpanfile>
+
+=back
+
+=head2 Fri Aug  5 14:13:39 2022: C<Module> L<ExtUtils::MakeMaker::CPANfile|ExtUtils::MakeMaker::CPANfile>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.09>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:13:45 2022: C<Module> L<Parse::PMFile|Parse::PMFile>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.43>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:14:06 2022: C<Module> L<YAML::PP|YAML::PP>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.034>
+
+=item *
+
+C<EXE_FILES: bin/yamlpp-events bin/yamlpp-highlight bin/yamlpp-load bin/yamlpp-load-dump bin/yamlpp-parse-emit>
+
+=back
+
+=head2 Fri Aug  5 14:14:13 2022: C<Module> L<local::lib|local::lib>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 2.000029>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:14:15 2022: C<Module> L<Tie::Handle::Offset|Tie::Handle::Offset>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.004>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:14:21 2022: C<Module> L<ExtUtils::Install|ExtUtils::Install>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 2.20>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:14:27 2022: C<Module> L<Win32::ShellQuote|Win32::ShellQuote>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.003001>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:14:28 2022: C<Module> L<String::ShellQuote|String::ShellQuote>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.04>
+
+=item *
+
+C<EXE_FILES: shell-quote>
+
+=back
+
+=head2 Fri Aug  5 14:14:35 2022: C<Module> L<HTTP::Tinyish|HTTP::Tinyish>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.18>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:14:37 2022: C<Module> L<CPAN::DistnameInfo|CPAN::DistnameInfo>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.12>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:14:44 2022: C<Module> L<URI|URI>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 5.12>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:14:47 2022: C<Module> L<Test::FailWarnings|Test::FailWarnings>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.008>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:14:54 2022: C<Module> L<CPAN::Common::Index|CPAN::Common::Index>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.010>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:14:55 2022: C<Module> L<Menlo|Menlo>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.9019>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 14:14:56 2022: C<Module> L<Menlo::Legacy|Menlo::Legacy>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.9022>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 16:29:58 2022: C<Module> L<CPAN|CPAN>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 2.34>
+
+=item *
+
+C<EXE_FILES: scripts/cpan scripts/cpan-mirrors>
+
+=back
+
+=head2 Fri Aug  5 16:30:36 2022: C<Module> L<Compress::Raw::Zlib|Compress::Raw::Zlib>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 2.202>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 16:30:41 2022: C<Module> L<Compress::Raw::Bzip2|Compress::Raw::Bzip2>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 2.201>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Aug  5 16:31:21 2022: C<Module> L<IO::Compress|IO::Compress>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 2.201>
+
+=item *
+
+C<EXE_FILES: bin/streamzip bin/zipdetails>
+
+=back
+
+=head2 Fri Aug  5 17:31:33 2022: C<Module> L<Devel::NYTProf|Devel::NYTProf>
+
+=over 4
+
+=item *
+
+C<installed into: /home/tommy/perl5/perlbrew/perls/perl-5.26.0/lib/site_perl/5.26.0>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 6.11>
+
+=item *
+
+C<EXE_FILES: bin/flamegraph.pl bin/nytprofcalls bin/nytprofcg bin/nytprofcsv bin/nytprofhtml bin/nytprofmerge bin/nytprofpf>
+
+=back
+

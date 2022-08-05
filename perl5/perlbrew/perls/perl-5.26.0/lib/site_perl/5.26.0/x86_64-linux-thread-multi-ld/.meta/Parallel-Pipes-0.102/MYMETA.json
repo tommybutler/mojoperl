@@ -1,0 +1,71 @@
+{
+   "abstract" : "parallel processing using pipe(2) for communication and synchronization",
+   "author" : [
+      "Shoichi Kaji <skaji@cpan.org>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Dist::Zilla version 6.024, CPAN::Meta::Converter version 2.150010",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Parallel-Pipes",
+   "no_index" : {
+      "package" : [
+         "Parallel::Pipe::Here",
+         "Parallel::Pipe::Impl",
+         "Parallel::Pipe::Impl::NoFork",
+         "Parallel::Pipe::There"
+      ]
+   },
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "Module::Build::Tiny" : "0.034"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "perl" : "5.008001"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Test::More" : "0.98"
+         }
+      }
+   },
+   "provides" : {
+      "Parallel::Pipes" : {
+         "file" : "lib/Parallel/Pipes.pm",
+         "version" : "0.102"
+      },
+      "Parallel::Pipes::App" : {
+         "file" : "lib/Parallel/Pipes/App.pm",
+         "version" : "0.102"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/skaji/Parallel-Pipes/issues"
+      },
+      "homepage" : "https://github.com/skaji/Parallel-Pipes",
+      "repository" : {
+         "type" : "git",
+         "url" : "https://github.com/skaji/Parallel-Pipes.git",
+         "web" : "https://github.com/skaji/Parallel-Pipes"
+      }
+   },
+   "version" : "0.102",
+   "x_contributors" : [
+      "Shoichi Kaji <skaji@outlook.com>"
+   ],
+   "x_generated_by_perl" : "v5.34.0",
+   "x_serialization_backend" : "JSON::PP version 2.27400_02",
+   "x_spdx_expression" : "Artistic-1.0-Perl OR GPL-1.0-or-later",
+   "x_static_install" : 1
+}

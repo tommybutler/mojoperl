@@ -64,72 +64,10 @@
 .        nr F 2
 .    \}
 .\}
-.\"
-.\" Accent mark definitions (@(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2).
-.\" Fear.  Run.  Save yourself.  No user-serviceable parts.
-.    \" fudge factors for nroff and troff
-.if n \{\
-.    ds #H 0
-.    ds #V .8m
-.    ds #F .3m
-.    ds #[ \f1
-.    ds #] \fP
-.\}
-.if t \{\
-.    ds #H ((1u-(\\\\n(.fu%2u))*.13m)
-.    ds #V .6m
-.    ds #F 0
-.    ds #[ \&
-.    ds #] \&
-.\}
-.    \" simple accents for nroff and troff
-.if n \{\
-.    ds ' \&
-.    ds ` \&
-.    ds ^ \&
-.    ds , \&
-.    ds ~ ~
-.    ds /
-.\}
-.if t \{\
-.    ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
-.    ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
-.    ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
-.    ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
-.    ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
-.    ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
-.\}
-.    \" troff and (daisy-wheel) nroff accents
-.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
-.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
-.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
-.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
-.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
-.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
-.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
-.ds ae a\h'-(\w'a'u*4/10)'e
-.ds Ae A\h'-(\w'A'u*4/10)'E
-.    \" corrections for vroff
-.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
-.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
-.    \" for low resolution devices (crt and lpr)
-.if \n(.H>23 .if \n(.V>19 \
-\{\
-.    ds : e
-.    ds 8 ss
-.    ds o a
-.    ds d- d\h'-1'\(ga
-.    ds D- D\h'-1'\(hy
-.    ds th \o'bp'
-.    ds Th \o'LP'
-.    ds ae ae
-.    ds Ae AE
-.\}
-.rm #[ #] #H #V #F C
 .\" ========================================================================
 .\"
 .IX Title "Compress::Zlib 3"
-.TH Compress::Zlib 3 "2017-04-19" "perl v5.26.0" "Perl Programmers Reference Guide"
+.TH Compress::Zlib 3 "2022-06-23" "perl v5.26.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -180,7 +118,7 @@ Compress::Zlib \- Interface to zlib compression library
 \&    $status = $gz\->gzclose() ;
 \&    $status = $gz\->gzeof() ;
 \&    $status = $gz\->gzsetparams($level, $strategy) ;
-\&    $errstring = $gz\->gzerror() ; 
+\&    $errstring = $gz\->gzerror() ;
 \&    $gzerrno
 \&
 \&    $dest = Compress::Zlib::memGzip($buffer) ;
@@ -271,7 +209,7 @@ IO::Uncompress::Gunzip for more details.
 .IX Item "$gz = gzopen($filehandle, $mode)"
 .PD
 This function opens either the \fIgzip\fR file \f(CW$filename\fR for reading or
-writing or attaches to the opened filehandle, \f(CW$filehandle\fR. 
+writing or attaches to the opened filehandle, \f(CW$filehandle\fR.
 It returns an object on success and \f(CW\*(C`undef\*(C'\fR on failure.
 .Sp
 When writing a gzip file this interface will \fIalways\fR create the smallest
@@ -429,23 +367,23 @@ Here is an example script which uses the interface. It implements a
 .Vb 2
 \&    use strict ;
 \&    use warnings ;
-\&    
+\&
 \&    use Compress::Zlib ;
-\&    
+\&
 \&    # use stdin if no files supplied
 \&    @ARGV = \*(Aq\-\*(Aq unless @ARGV ;
-\&    
+\&
 \&    foreach my $file (@ARGV) {
 \&        my $buffer ;
-\&    
-\&        my $gz = gzopen($file, "rb") 
+\&
+\&        my $gz = gzopen($file, "rb")
 \&             or die "Cannot open $file: $gzerrno\en" ;
-\&    
+\&
 \&        print $buffer while $gz\->gzread($buffer) > 0 ;
-\&    
-\&        die "Error reading from $file: $gzerrno" . ($gzerrno+0) . "\en" 
+\&
+\&        die "Error reading from $file: $gzerrno" . ($gzerrno+0) . "\en"
 \&            if $gzerrno != Z_STREAM_END ;
-\&        
+\&
 \&        $gz\->gzclose() ;
 \&    }
 .Ve
@@ -456,28 +394,28 @@ very simple \fIgrep\fR like script.
 .Vb 2
 \&    use strict ;
 \&    use warnings ;
-\&    
+\&
 \&    use Compress::Zlib ;
-\&    
+\&
 \&    die "Usage: gzgrep pattern [file...]\en"
 \&        unless @ARGV >= 1;
-\&    
+\&
 \&    my $pattern = shift ;
-\&    
+\&
 \&    # use stdin if no files supplied
 \&    @ARGV = \*(Aq\-\*(Aq unless @ARGV ;
-\&    
+\&
 \&    foreach my $file (@ARGV) {
-\&        my $gz = gzopen($file, "rb") 
+\&        my $gz = gzopen($file, "rb")
 \&             or die "Cannot open $file: $gzerrno\en" ;
-\&    
+\&
 \&        while ($gz\->gzreadline($_) > 0) {
 \&            print if /$pattern/ ;
 \&        }
-\&    
-\&        die "Error reading from $file: $gzerrno\en" 
+\&
+\&        die "Error reading from $file: $gzerrno\en"
 \&            if $gzerrno != Z_STREAM_END ;
-\&        
+\&
 \&        $gz\->gzclose() ;
 \&    }
 .Ve
@@ -489,16 +427,16 @@ standard output.
 .Vb 2
 \&    use strict ;
 \&    use warnings ;
-\&    
+\&
 \&    use Compress::Zlib ;
-\&    
+\&
 \&    binmode STDOUT;  # gzopen only sets it on the fd
-\&    
+\&
 \&    my $gz = gzopen(\e*STDOUT, "wb")
 \&          or die "Cannot open stdout: $gzerrno\en" ;
-\&    
+\&
 \&    while (<>) {
-\&        $gz\->gzwrite($_) 
+\&        $gz\->gzwrite($_)
 \&          or die "error writing: $gzerrno\en" ;
 \&    }
 \&
@@ -510,7 +448,7 @@ This function is used to create an in-memory gzip file with the minimum
 possible gzip header (exactly 10 bytes).
 .PP
 .Vb 2
-\&    $dest = Compress::Zlib::memGzip($buffer) 
+\&    $dest = Compress::Zlib::memGzip($buffer)
 \&        or die "Cannot compress: $gzerrno\en";
 .Ve
 .PP
@@ -526,7 +464,7 @@ carry out in-memory gzip compression.
 This function is used to uncompress an in-memory gzip file.
 .PP
 .Vb 2
-\&    $dest = Compress::Zlib::memGunzip($buffer) 
+\&    $dest = Compress::Zlib::memGunzip($buffer)
 \&        or die "Cannot uncompress: $gzerrno\en";
 .Ve
 .PP
@@ -641,8 +579,8 @@ The default is Z_DEFAULT_STRATEGY.
 .IX Item "-Dictionary"
 When a dictionary is specified \fICompress::Zlib\fR will automatically
 call \f(CW\*(C`deflateSetDictionary\*(C'\fR directly after calling \f(CW\*(C`deflateInit\*(C'\fR. The
-Adler32 value for the dictionary can be obtained by calling the method 
-\&\f(CW\*(C`$d\-\*(C'\fR\fIdict_adler()\fR>.
+Adler32 value for the dictionary can be obtained by calling the method
+\&\f(CW\*(C`$d\->dict_adler()\*(C'\fR.
 .Sp
 The default is no dictionary.
 .IP "\fB\-Bufsize\fR" 5
@@ -658,7 +596,7 @@ to override the default buffer size and compression level. All other
 options will take their default values.
 .PP
 .Vb 2
-\&    deflateInit( \-Bufsize => 300, 
+\&    deflateInit( \-Bufsize => 300,
 \&                 \-Level => Z_BEST_SPEED  ) ;
 .Ve
 .SS "\fB($out, \fP\f(CB$status\fP\fB) = \fP\f(CB$d\fP\fB\->deflate($buffer)\fP"
@@ -741,18 +679,18 @@ input, deflates it and writes it to standard output.
 \&    while (<>)
 \&    {
 \&        ($output, $status) = $x\->deflate($_) ;
-\&    
+\&
 \&        $status == Z_OK
 \&            or die "deflation failed\en" ;
-\&    
+\&
 \&        print $output ;
 \&    }
-\&    
+\&
 \&    ($output, $status) = $x\->flush() ;
-\&    
+\&
 \&    $status == Z_OK
 \&        or die "deflation failed\en" ;
-\&    
+\&
 \&    print $output ;
 .Ve
 .SH "Inflate Interface"
@@ -819,7 +757,7 @@ Inflates the complete contents of \f(CW$buffer\fR. The buffer can either be
 a scalar or a scalar reference.
 .PP
 Returns \f(CW\*(C`Z_OK\*(C'\fR if successful and \f(CW\*(C`Z_STREAM_END\*(C'\fR if the end of the
-compressed data has been successfully reached. 
+compressed data has been successfully reached.
 If not successful, \f(CW$out\fR will be \fIundef\fR and \f(CW$status\fR will hold
 the \fIzlib\fR error code.
 .PP
@@ -863,27 +801,27 @@ Here is an example of using \f(CW\*(C`inflate\*(C'\fR.
 .Vb 2
 \&    use strict ;
 \&    use warnings ;
-\&    
+\&
 \&    use Compress::Zlib ;
-\&    
+\&
 \&    my $x = inflateInit()
 \&       or die "Cannot create a inflation stream\en" ;
-\&    
+\&
 \&    my $input = \*(Aq\*(Aq ;
 \&    binmode STDIN;
 \&    binmode STDOUT;
-\&    
+\&
 \&    my ($output, $status) ;
 \&    while (read(STDIN, $input, 4096))
 \&    {
 \&        ($output, $status) = $x\->inflate(\e$input) ;
-\&    
-\&        print $output 
+\&
+\&        print $output
 \&            if $status == Z_OK or $status == Z_STREAM_END ;
-\&    
+\&
 \&        last if $status != Z_OK ;
 \&    }
-\&    
+\&
 \&    die "inflation failed\en"
 \&        unless $status == Z_STREAM_END ;
 .Ve
@@ -923,9 +861,14 @@ Returns the version of the zlib library.
 .IX Header "CONSTANTS"
 All the \fIzlib\fR constants are automatically imported when you make use
 of \fICompress::Zlib\fR.
+.SH "SUPPORT"
+.IX Header "SUPPORT"
+General feedback/questions/bug reports should be sent to
+<https://github.com/pmqs/IO\-Compress/issues> (preferred) or
+<https://rt.cpan.org/Public/Dist/Display.html?Name=IO\-Compress>.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
-IO::Compress::Gzip, IO::Uncompress::Gunzip, IO::Compress::Deflate, IO::Uncompress::Inflate, IO::Compress::RawDeflate, IO::Uncompress::RawInflate, IO::Compress::Bzip2, IO::Uncompress::Bunzip2, IO::Compress::Lzma, IO::Uncompress::UnLzma, IO::Compress::Xz, IO::Uncompress::UnXz, IO::Compress::Lzop, IO::Uncompress::UnLzop, IO::Compress::Lzf, IO::Uncompress::UnLzf, IO::Uncompress::AnyInflate, IO::Uncompress::AnyUncompress
+IO::Compress::Gzip, IO::Uncompress::Gunzip, IO::Compress::Deflate, IO::Uncompress::Inflate, IO::Compress::RawDeflate, IO::Uncompress::RawInflate, IO::Compress::Bzip2, IO::Uncompress::Bunzip2, IO::Compress::Lzma, IO::Uncompress::UnLzma, IO::Compress::Xz, IO::Uncompress::UnXz, IO::Compress::Lzip, IO::Uncompress::UnLzip, IO::Compress::Lzop, IO::Uncompress::UnLzop, IO::Compress::Lzf, IO::Uncompress::UnLzf, IO::Compress::Zstd, IO::Uncompress::UnZstd, IO::Uncompress::AnyInflate, IO::Uncompress::AnyUncompress
 .PP
 IO::Compress::FAQ
 .PP
@@ -933,16 +876,19 @@ File::GlobMapper, Archive::Zip,
 Archive::Tar,
 IO::Zlib
 .PP
-For \s-1RFC 1950, 1951\s0 and 1952 see 
-<http://www.faqs.org/rfcs/rfc1950.html>,
-<http://www.faqs.org/rfcs/rfc1951.html> and
-<http://www.faqs.org/rfcs/rfc1952.html>
+For \s-1RFC 1950, 1951\s0 and 1952 see
+<https://datatracker.ietf.org/doc/html/rfc1950>,
+<https://datatracker.ietf.org/doc/html/rfc1951> and
+<https://datatracker.ietf.org/doc/html/rfc1952>
 .PP
 The \fIzlib\fR compression library was written by Jean-loup Gailly
 \&\f(CW\*(C`gzip@prep.ai.mit.edu\*(C'\fR and Mark Adler \f(CW\*(C`madler@alumni.caltech.edu\*(C'\fR.
 .PP
 The primary site for the \fIzlib\fR compression library is
 <http://www.zlib.org>.
+.PP
+The primary site for the \fIzlib-ng\fR compression library is
+<https://github.com/zlib\-ng/zlib\-ng>.
 .PP
 The primary site for gzip is <http://www.gzip.org>.
 .SH "AUTHOR"
@@ -953,7 +899,7 @@ This module was written by Paul Marquess, \f(CW\*(C`pmqs@cpan.org\*(C'\fR.
 See the Changes file.
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
-Copyright (c) 1995\-2017 Paul Marquess. All rights reserved.
+Copyright (c) 1995\-2022 Paul Marquess. All rights reserved.
 .PP
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
